@@ -5,6 +5,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import ProjectCard from "@/components/ProjectCard";
+import ExperienceCard from "@/components/ExperienceCard";
 
 interface Project {
   id: number;
@@ -520,50 +521,64 @@ export default function Portfolio() {
                   
                   {/* Experience List Display */}
                   {message.isExperienceResponse && message.experiences && (
-                    <div className="mt-4 space-y-3">
+                    <div className="mt-4 space-y-4">
                       {message.experiences.map((experience) => (
-                        <div key={experience.id} className="bg-white rounded-lg border border-gray-200 p-4">
-                          <div className="flex justify-between items-start gap-3">
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-gray-800 text-lg">{experience.position}</h4>
-                              <p className="text-blue-600 font-medium text-sm">{experience.company}</p>
-                              <p className="text-gray-600 text-sm">{experience.period} • {experience.location}</p>
+                        <div key={experience.id}>
+                          {/* Basic Experience Info (for initial list view) */}
+                          {message.experiences && message.experiences.length > 1 && (
+                            <div className="bg-white rounded-lg border border-gray-200 p-4">
+                              <div className="flex justify-between items-start gap-3">
+                                <div className="flex-1">
+                                  <h4 className="font-semibold text-gray-800 text-lg">{experience.position}</h4>
+                                  <p className="text-blue-600 font-medium text-sm">{experience.company}</p>
+                                  <p className="text-gray-600 text-sm">{experience.period} • {experience.location}</p>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    const userMessage: Message = {
+                                      id: Date.now().toString(),
+                                      content: `Tell me more details about the ${experience.position} role at ${experience.company}`,
+                                      isUser: true,
+                                      timestamp: new Date(),
+                                    };
+                                    
+                                    setMessages(prev => [...prev, userMessage]);
+                                    setRecentlyAskedQuestions(prev => [...prev, userMessage.content]);
+                                    setTimeout(() => {
+                                      setRecentlyAskedQuestions(prev => prev.filter(q => q !== userMessage.content));
+                                    }, 10000);
+                                    
+                                    // Start thinking animation
+                                    setIsThinking(true);
+                                
+                                    // Add thinking delay for experience "Ask more" responses
+                                    setTimeout(() => {
+                                      const aiMessage: Message = {
+                                        id: (Date.now() + 1).toString(),
+                                        content: experience.detailedContent || `More details about the ${experience.position} role at ${experience.company} will be available soon.`,
+                                        isUser: false,
+                                        timestamp: new Date(),
+                                        experiences: [experience],
+                                        isExperienceResponse: true,
+                                      };
+                                      setMessages(prev => [...prev, aiMessage]);
+                                      setIsThinking(false);
+                                    }, 800);
+                                  }}
+                                  className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
+                                >
+                                  Ask more
+                                </button>
+                              </div>
                             </div>
-                            <button
-                              onClick={() => {
-                                const userMessage: Message = {
-                                  id: Date.now().toString(),
-                                  content: `Tell me more details about the ${experience.position} role at ${experience.company}`,
-                                  isUser: true,
-                                  timestamp: new Date(),
-                                };
-                                
-                                setMessages(prev => [...prev, userMessage]);
-                                setRecentlyAskedQuestions(prev => [...prev, userMessage.content]);
-                                setTimeout(() => {
-                                  setRecentlyAskedQuestions(prev => prev.filter(q => q !== userMessage.content));
-                                }, 10000);
-                                
-                                // Start thinking animation
-                                setIsThinking(true);
-                                
-                                // Add thinking delay for experience "Ask more" responses
-                                setTimeout(() => {
-                                  const aiMessage: Message = {
-                                    id: (Date.now() + 1).toString(),
-                                    content: experience.detailedContent || `More details about the ${experience.position} role at ${experience.company} will be available soon.`,
-                                    isUser: false,
-                                    timestamp: new Date(),
-                                  };
-                                  setMessages(prev => [...prev, aiMessage]);
-                                  setIsThinking(false);
-                                }, 800);
-                              }}
-                              className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
-                            >
-                              Ask more
-                            </button>
-                          </div>
+                          )}
+                          
+                          {/* Detailed Experience Card (for "Ask more" responses) */}
+                          {message.experiences && message.experiences.length === 1 && (
+                            <div className="mt-6">
+                              <ExperienceCard experience={experience} />
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
