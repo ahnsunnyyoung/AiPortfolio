@@ -508,7 +508,7 @@ export default function Portfolio() {
                           )}
                           
                           {/* Detailed Project Card (for "Ask more" responses) */}
-                          {message.content.includes("More details") && (
+                          {message.projects && message.projects.length === 1 && (
                             <div className="mt-6">
                               <ProjectCard project={project} />
                             </div>
