@@ -1351,6 +1351,64 @@ export default function Train() {
                         </button>
                       </div>
                       
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Project Image
+                        </label>
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                  setProjectForm(prev => ({
+                                    ...prev, 
+                                    img: event.target?.result as string || "",
+                                    imgAlt: file.name
+                                  }));
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="hidden"
+                            id="project-image-upload"
+                          />
+                          <label htmlFor="project-image-upload" className="cursor-pointer">
+                            {projectForm.img ? (
+                              <div className="space-y-2">
+                                <img 
+                                  src={projectForm.img} 
+                                  alt="Project preview" 
+                                  className="mx-auto h-20 w-20 object-cover rounded-lg"
+                                />
+                                <p className="text-sm text-green-600">Image uploaded</p>
+                                <p className="text-xs text-gray-500">Click to change</p>
+                              </div>
+                            ) : (
+                              <div className="space-y-2">
+                                <div className="w-12 h-12 mx-auto bg-gray-100 rounded-lg flex items-center justify-center">
+                                  <Upload className="w-6 h-6 text-gray-400" />
+                                </div>
+                                <p className="text-sm text-gray-600">Upload project image</p>
+                                <p className="text-xs text-gray-500">PNG, JPG up to 10MB</p>
+                              </div>
+                            )}
+                          </label>
+                        </div>
+                        {projectForm.img && (
+                          <button
+                            type="button"
+                            onClick={() => setProjectForm(prev => ({...prev, img: "", imgAlt: ""}))}
+                            className="mt-2 text-sm text-red-600 hover:text-red-800"
+                          >
+                            Remove image
+                          </button>
+                        )}
+                      </div>
+
                       <div className="grid sm:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
