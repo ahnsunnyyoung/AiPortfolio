@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Send, Bot, User, Sparkles } from "lucide-react";
+import { Send, Bot, User, Sparkles, Brain } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "wouter";
 
 interface Message {
   id: string;
@@ -128,6 +129,14 @@ export default function Portfolio() {
             <p className="text-lg md:text-xl text-gray-600 italic mb-8">
               "Shine brightly like the sunshine"
             </p>
+            
+            {/* Training Link */}
+            <div className="mb-8">
+              <Link href="/train" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                <Brain className="w-4 h-4" />
+                Train AI Agent
+              </Link>
+            </div>
           </div>
 
           {/* AI Agent Interface */}
