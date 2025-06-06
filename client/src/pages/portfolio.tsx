@@ -581,7 +581,11 @@ export default function Portfolio() {
                   )}
                   
                   {/* Text content (appears after cards for project and experience responses) */}
-                  {!message.isUser && (
+                  {message.isUser ? (
+                    <p className="leading-relaxed whitespace-pre-wrap">
+                      {message.content}
+                    </p>
+                  ) : (
                     <p className="leading-relaxed whitespace-pre-wrap mt-4">
                       {message.content}
                     </p>
