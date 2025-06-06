@@ -96,6 +96,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
 
           if (promptExample.responseType === "contacts") {
+            const contact = await storage.getContact();
+            
             // Store the conversation
             await storage.addConversation({
               question,
@@ -104,7 +106,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             res.json({
               answer: "Here's how you can contact me:",
-              contacts: {
+              contacts: contact || {
                 email: "ahnsunnyyoung@gmail.com",
                 linkedin: "https://www.linkedin.com/in/ahnsunnyyoung/",
                 github: "https://github.com/ahnsunnyyoung",

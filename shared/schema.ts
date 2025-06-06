@@ -52,6 +52,34 @@ export const promptExamples = pgTable("prompt_examples", {
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
+export const contacts = pgTable("contacts", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull(),
+  linkedin: text("linkedin"),
+  github: text("github"),
+  website: text("website"),
+  phone: text("phone"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export const skillCategories = pgTable("skill_categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  icon: text("icon").notNull(),
+  color: text("color").notNull(),
+  displayOrder: serial("display_order").notNull(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export const skills = pgTable("skills", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  categoryId: integer("category_id").references(() => skillCategories.id).notNull(),
+  proficiency: text("proficiency").default("intermediate").notNull(), // "beginner", "intermediate", "advanced", "expert"
+  displayOrder: serial("display_order").notNull(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
 export const insertTrainingDataSchema = createInsertSchema(trainingData).pick({
   content: true,
 });
@@ -92,6 +120,28 @@ export const insertPromptExampleSchema = createInsertSchema(promptExamples).pick
   displayOrder: true,
 });
 
+export const insertContactSchema = createInsertSchema(contacts).pick({
+  email: true,
+  linkedin: true,
+  github: true,
+  website: true,
+  phone: true,
+});
+
+export const insertSkillCategorySchema = createInsertSchema(skillCategories).pick({
+  name: true,
+  icon: true,
+  color: true,
+  displayOrder: true,
+});
+
+export const insertSkillSchema = createInsertSchema(skills).pick({
+  name: true,
+  categoryId: true,
+  proficiency: true,
+  displayOrder: true,
+});
+
 export type InsertTrainingData = z.infer<typeof insertTrainingDataSchema>;
 export type TrainingData = typeof trainingData.$inferSelect;
 export type Conversation = typeof conversations.$inferSelect;
@@ -102,3 +152,9 @@ export type Experience = typeof experiences.$inferSelect;
 export type InsertExperience = z.infer<typeof insertExperienceSchema>;
 export type PromptExample = typeof promptExamples.$inferSelect;
 export type InsertPromptExample = z.infer<typeof insertPromptExampleSchema>;
+export type Contact = typeof contacts.$inferSelect;
+export type InsertContact = z.infer<typeof insertContactSchema>;
+export type SkillCategory = typeof skillCategories.$inferSelect;
+export type InsertSkillCategory = z.infer<typeof insertSkillCategorySchema>;
+export type Skill = typeof skills.$inferSelect;
+export type InsertSkill = z.infer<typeof insertSkillSchema>;

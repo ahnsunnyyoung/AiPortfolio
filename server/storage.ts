@@ -1,4 +1,4 @@
-import { trainingData, conversations, projects, experiences, promptExamples, type TrainingData, type InsertTrainingData, type Conversation, type InsertConversation, type Project, type InsertProject, type Experience, type InsertExperience, type PromptExample, type InsertPromptExample } from "../shared/schema";
+import { trainingData, conversations, projects, experiences, promptExamples, contacts, skillCategories, skills, type TrainingData, type InsertTrainingData, type Conversation, type InsertConversation, type Project, type InsertProject, type Experience, type InsertExperience, type PromptExample, type InsertPromptExample, type Contact, type InsertContact, type SkillCategory, type InsertSkillCategory, type Skill, type InsertSkill } from "../shared/schema";
 import { db } from "./db";
 import { desc, eq, asc } from "drizzle-orm";
 
@@ -24,6 +24,21 @@ export interface IStorage {
   updatePromptExample(id: number, example: InsertPromptExample): Promise<PromptExample>;
   deletePromptExample(id: number): Promise<void>;
   initializePromptExamples(): Promise<void>;
+  // Contacts management
+  getContact(): Promise<Contact | undefined>;
+  updateContact(contact: InsertContact): Promise<Contact>;
+  initializeContact(): Promise<void>;
+  // Skills management
+  getAllSkillCategories(): Promise<SkillCategory[]>;
+  addSkillCategory(category: InsertSkillCategory): Promise<SkillCategory>;
+  updateSkillCategory(id: number, category: InsertSkillCategory): Promise<SkillCategory>;
+  deleteSkillCategory(id: number): Promise<void>;
+  getAllSkills(): Promise<Skill[]>;
+  getSkillsByCategory(categoryId: number): Promise<Skill[]>;
+  addSkill(skill: InsertSkill): Promise<Skill>;
+  updateSkill(id: number, skill: InsertSkill): Promise<Skill>;
+  deleteSkill(id: number): Promise<void>;
+  initializeSkills(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -291,6 +306,149 @@ export class DatabaseStorage implements IStorage {
 
       for (const example of defaultExamples) {
         await this.addPromptExample(example);
+      }
+    }
+  }
+
+  // Contact management methods
+  async getContact(): Promise<Contact | undefined> {
+    const [contact] = await db.select().from(contacts).limit(1);
+    return contact || undefined;
+  }
+
+  async updateContact(contactData: InsertContact): Promise<Contact> {
+    const existingContact = await this.getContact();
+    
+    if (existingContact) {
+      const [updated] = await db
+        .update(contacts)
+        .set(contactData)
+        .where(eq(contacts.id, existingContact.id))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db
+        .insert(contacts)
+        .values(contactData)
+        .returning();
+      return created;
+    }
+  }
+
+  async initializeContact(): Promise<void> {
+    const existingContact = await this.getContact();
+    if (!existingContact) {
+      await this.updateContact({
+        email: "ahnsunnyyoung@gmail.com",
+        linkedin: "https://www.linkedin.com/in/ahnsunnyyoung/",
+        github: "https://github.com/ahnsunnyyoung",
+        website: "",
+        phone: ""
+      });
+    }
+  }
+
+  // Skills management methods
+  async getAllSkillCategories(): Promise<SkillCategory[]> {
+    return db.select().from(skillCategories).orderBy(asc(skillCategories.displayOrder));
+  }
+
+  async addSkillCategory(category: InsertSkillCategory): Promise<SkillCategory> {
+    const [created] = await db
+      .insert(skillCategories)
+      .values(category)
+      .returning();
+    return created;
+  }
+
+  async updateSkillCategory(id: number, category: InsertSkillCategory): Promise<SkillCategory> {
+    const [updated] = await db
+      .update(skillCategories)
+      .set(category)
+      .where(eq(skillCategories.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteSkillCategory(id: number): Promise<void> {
+    // First delete all skills in this category
+    await db.delete(skills).where(eq(skills.categoryId, id));
+    // Then delete the category
+    await db.delete(skillCategories).where(eq(skillCategories.id, id));
+  }
+
+  async getAllSkills(): Promise<Skill[]> {
+    return db.select().from(skills).orderBy(asc(skills.categoryId), asc(skills.displayOrder));
+  }
+
+  async getSkillsByCategory(categoryId: number): Promise<Skill[]> {
+    return db.select().from(skills)
+      .where(eq(skills.categoryId, categoryId))
+      .orderBy(asc(skills.displayOrder));
+  }
+
+  async addSkill(skill: InsertSkill): Promise<Skill> {
+    const [created] = await db
+      .insert(skills)
+      .values(skill)
+      .returning();
+    return created;
+  }
+
+  async updateSkill(id: number, skill: InsertSkill): Promise<Skill> {
+    const [updated] = await db
+      .update(skills)
+      .set(skill)
+      .where(eq(skills.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteSkill(id: number): Promise<void> {
+    await db.delete(skills).where(eq(skills.id, id));
+  }
+
+  async initializeSkills(): Promise<void> {
+    const existingCategories = await this.getAllSkillCategories();
+    if (existingCategories.length === 0) {
+      // Create default skill categories
+      const defaultCategories = [
+        { name: "Programming", icon: "Code", color: "orange", displayOrder: 1 },
+        { name: "Frontend", icon: "Monitor", color: "blue", displayOrder: 2 },
+        { name: "Backend", icon: "Server", color: "green", displayOrder: 3 },
+        { name: "Tools", icon: "Wrench", color: "purple", displayOrder: 4 },
+        { name: "Languages", icon: "Globe", color: "indigo", displayOrder: 5 },
+        { name: "Soft Skills", icon: "Users", color: "pink", displayOrder: 6 }
+      ];
+
+      const createdCategories = [];
+      for (const category of defaultCategories) {
+        const created = await this.addSkillCategory(category);
+        createdCategories.push(created);
+      }
+
+      // Create default skills for each category
+      const defaultSkillsData = [
+        { categoryName: "Programming", skills: ["JavaScript", "TypeScript", "Python", "Java", "C++"] },
+        { categoryName: "Frontend", skills: ["React", "Next.js", "Vue.js", "HTML5", "CSS3", "Tailwind CSS"] },
+        { categoryName: "Backend", skills: ["Node.js", "Express.js", "FastAPI", "Spring Boot", "PostgreSQL", "MongoDB"] },
+        { categoryName: "Tools", skills: ["Git", "Docker", "AWS", "Vercel", "Figma", "VS Code"] },
+        { categoryName: "Languages", skills: ["Korean (Native)", "English (Fluent)", "Japanese (Conversational)"] },
+        { categoryName: "Soft Skills", skills: ["Problem Solving", "Team Leadership", "Project Management", "UI/UX Design"] }
+      ];
+
+      for (const skillGroup of defaultSkillsData) {
+        const category = createdCategories.find(c => c.name === skillGroup.categoryName);
+        if (category) {
+          for (let i = 0; i < skillGroup.skills.length; i++) {
+            await this.addSkill({
+              name: skillGroup.skills[i],
+              categoryId: category.id,
+              proficiency: "advanced",
+              displayOrder: i + 1
+            });
+          }
+        }
       }
     }
   }
