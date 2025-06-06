@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Send, Bot, User, Sparkles, Brain, X } from "lucide-react";
+import { Send, Bot, User, Sparkles, Brain, X, Mail, Linkedin, Github } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
@@ -114,8 +114,10 @@ export default function Portfolio() {
         timestamp: new Date(),
         projects: data.projects,
         experiences: data.experiences,
+        contacts: data.contacts,
         isProjectResponse: data.isProjectResponse,
-        isExperienceResponse: data.isExperienceResponse
+        isExperienceResponse: data.isExperienceResponse,
+        isContactResponse: data.isContactResponse
       };
       setMessages((prev) => [...prev, aiMessage]);
     },
@@ -495,6 +497,68 @@ export default function Portfolio() {
                           )}
                         </div>
                       ))}
+                    </div>
+                  )}
+                  
+                  {/* Contact Information Display */}
+                  {message.isContactResponse && message.contacts && (
+                    <div className="space-y-3 mt-4">
+                      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                            <Mail className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-gray-800 text-lg">Contact Information</h4>
+                            <p className="text-purple-600 text-sm">Let's connect!</p>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-purple-100">
+                            <Mail className="w-5 h-5 text-purple-600" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-800">Email</p>
+                              <a 
+                                href={`mailto:${message.contacts.email}`}
+                                className="text-purple-600 hover:text-purple-700 hover:underline text-sm"
+                              >
+                                {message.contacts.email}
+                              </a>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-purple-100">
+                            <Linkedin className="w-5 h-5 text-blue-600" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-800">LinkedIn</p>
+                              <a 
+                                href={message.contacts.linkedin}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-700 hover:underline text-sm"
+                              >
+                                LinkedIn Profile
+                              </a>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-purple-100">
+                            <Github className="w-5 h-5 text-gray-700" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-800">GitHub</p>
+                              <a 
+                                href={message.contacts.github}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-gray-700 hover:text-gray-800 hover:underline text-sm"
+                              >
+                                GitHub Profile
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
                   
