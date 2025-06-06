@@ -629,20 +629,22 @@ export default function Train() {
     
     reorderedSkills.splice(result.destination.index, 0, reorderedItem);
 
-    // Update display orders for all skills in the category
-    reorderedSkills.forEach((skill: Skill, index: number) => {
-      if (skill && skill.id) {
-        updateSkillMutation.mutate({
-          id: skill.id,
-          skill: { 
-            name: skill.name,
-            categoryId: skill.categoryId,
-            proficiency: skill.proficiency,
-            displayOrder: index 
-          }
-        });
-      }
-    });
+    // Batch update display orders for reordered skills
+    setTimeout(() => {
+      reorderedSkills.forEach((skill, index) => {
+        if (skill.displayOrder !== index) {
+          updateSkillMutation.mutate({
+            id: skill.id,
+            skill: { 
+              name: skill.name,
+              categoryId: skill.categoryId,
+              proficiency: skill.proficiency,
+              displayOrder: index 
+            }
+          });
+        }
+      });
+    }, 100);
   };
 
   const handleSkillEdit = (skill: Skill) => {
@@ -1865,8 +1867,14 @@ export default function Train() {
                                       ref={provided.innerRef}
                                       {...provided.draggableProps}
                                       className={`group px-3 py-1 bg-${category.color}-50 text-${category.color}-700 text-sm rounded-full border border-${category.color}-200 flex items-center gap-2 transition-all ${
-                                        snapshot.isDragging ? 'shadow-lg rotate-2 scale-105' : ''
+                                        snapshot.isDragging ? 'shadow-xl rotate-1 scale-105 z-50' : ''
                                       }`}
+                                      style={{
+                                        ...provided.draggableProps.style,
+                                        ...(snapshot.isDragging && {
+                                          transform: `${provided.draggableProps.style?.transform} rotate(1deg)`,
+                                        })
+                                      }}
                                     >
                                       <div {...provided.dragHandleProps} className="cursor-move">
                                         <GripVertical className="w-3 h-3 text-gray-400" />
