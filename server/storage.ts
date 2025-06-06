@@ -1,4 +1,4 @@
-import { trainingData, conversations, projects, experiences, promptExamples, contacts, skillCategories, skills, type TrainingData, type InsertTrainingData, type Conversation, type InsertConversation, type Project, type InsertProject, type Experience, type InsertExperience, type PromptExample, type InsertPromptExample, type Contact, type InsertContact, type SkillCategory, type InsertSkillCategory, type Skill, type InsertSkill } from "../shared/schema";
+import { trainingData, conversations, projects, experiences, promptExamples, contacts, skillCategories, skills, introduction, type TrainingData, type InsertTrainingData, type Conversation, type InsertConversation, type Project, type InsertProject, type Experience, type InsertExperience, type PromptExample, type InsertPromptExample, type Contact, type InsertContact, type SkillCategory, type InsertSkillCategory, type Skill, type InsertSkill, type Introduction, type InsertIntroduction } from "../shared/schema";
 import { db } from "./db";
 import { desc, eq, asc } from "drizzle-orm";
 
@@ -41,6 +41,10 @@ export interface IStorage {
   updateSkill(id: number, skill: InsertSkill): Promise<Skill>;
   deleteSkill(id: number): Promise<void>;
   initializeSkills(): Promise<void>;
+  // Introduction management
+  getIntroduction(): Promise<Introduction | undefined>;
+  updateIntroduction(content: string): Promise<Introduction>;
+  initializeIntroduction(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -469,6 +473,36 @@ export class DatabaseStorage implements IStorage {
           }
         }
       }
+    }
+  }
+
+  async getIntroduction(): Promise<Introduction | undefined> {
+    const [intro] = await db.select().from(introduction).where(eq(introduction.isActive, true)).limit(1);
+    return intro || undefined;
+  }
+
+  async updateIntroduction(content: string): Promise<Introduction> {
+    // First, deactivate all existing introductions
+    await db.update(introduction).set({ isActive: false });
+    
+    // Then create a new active introduction
+    const [created] = await db
+      .insert(introduction)
+      .values({ content, isActive: true })
+      .returning();
+    return created;
+  }
+
+  async initializeIntroduction(): Promise<void> {
+    const existing = await this.getIntroduction();
+    if (!existing) {
+      const defaultIntroduction = `Hello! I'm Sunyoung Ahn, also known as Sunny. I'm a frontend developer with five years of experience in creating intuitive and performant user experiences across different platforms. I specialize in frontend development, focusing on usability and design. My core technical skills include React, Flutter, Firebase, and Google Cloud, and I'm comfortable with tools like Figma, Canva, Jira, and Confluence.
+
+I have a passion for transforming complex challenges into elegant and simple interfaces — it's the part of my work that feels most like art. Currently, I'm based in Dublin, Ireland, working as a frontend developer at GoldCore, where I develop a cross-platform gold trading app.
+
+Outside of work, I enjoy weight training, knitting, and baking, which reflect my attention to detail, discipline, and creativity. I'm also fluent in English and Korean and currently learning German. If you'd like to know more, feel free to ask!`;
+      
+      await this.updateIntroduction(defaultIntroduction);
     }
   }
 }

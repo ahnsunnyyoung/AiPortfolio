@@ -84,6 +84,13 @@ export const skills = pgTable("skills", {
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
+export const introduction = pgTable("introduction", {
+  id: serial("id").primaryKey(),
+  content: text("content").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
 export const insertTrainingDataSchema = createInsertSchema(trainingData).pick({
   content: true,
   isActive: true,
@@ -149,6 +156,11 @@ export const insertSkillSchema = createInsertSchema(skills).pick({
   displayOrder: true,
 });
 
+export const insertIntroductionSchema = createInsertSchema(introduction).pick({
+  content: true,
+  isActive: true,
+});
+
 export type InsertTrainingData = z.infer<typeof insertTrainingDataSchema>;
 export type TrainingData = typeof trainingData.$inferSelect;
 export type Conversation = typeof conversations.$inferSelect;
@@ -165,3 +177,5 @@ export type SkillCategory = typeof skillCategories.$inferSelect;
 export type InsertSkillCategory = z.infer<typeof insertSkillCategorySchema>;
 export type Skill = typeof skills.$inferSelect;
 export type InsertSkill = z.infer<typeof insertSkillSchema>;
+export type Introduction = typeof introduction.$inferSelect;
+export type InsertIntroduction = z.infer<typeof insertIntroductionSchema>;
