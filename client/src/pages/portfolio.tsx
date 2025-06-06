@@ -54,6 +54,7 @@ export default function Portfolio() {
     null,
   );
   const [recentlyAskedQuestions, setRecentlyAskedQuestions] = useState<string[]>([]);
+  const [isAskAboutExpanded, setIsAskAboutExpanded] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -511,25 +512,37 @@ export default function Portfolio() {
 
           {/* Suggested Questions */}
           {messages.length > 0 && (
-            <div className="px-6 py-3 border-t border-gray-200/50 bg-gray-50/50">
-              <div className="flex flex-wrap gap-2">
-                <span className="text-xs text-gray-500 mr-2">Ask about:</span>
-                {[
-                  "Show me your projects",
-                  "What's your work experience?",
-                  "Tell me about your technical skills",
-                  "What's your development philosophy?"
-                ].map((question, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleQuickQuestion(question)}
-                    disabled={askMutation.isPending}
-                    className="px-3 py-1 text-xs bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {question}
-                  </button>
-                ))}
+            <div className="border-t border-gray-200/50 bg-gray-50/50">
+              <div className="px-6 py-2 flex items-center justify-between">
+                <span className="text-xs text-gray-500">Ask about:</span>
+                <button
+                  onClick={() => setIsAskAboutExpanded(!isAskAboutExpanded)}
+                  className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {isAskAboutExpanded ? "Hide" : "Show"}
+                </button>
               </div>
+              {isAskAboutExpanded && (
+                <div className="px-6 pb-3">
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      "Show me your projects",
+                      "What's your work experience?",
+                      "Tell me about your technical skills",
+                      "What's your development philosophy?"
+                    ].map((question, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleQuickQuestion(question)}
+                        disabled={askMutation.isPending}
+                        className="px-3 py-1 text-xs bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {question}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
