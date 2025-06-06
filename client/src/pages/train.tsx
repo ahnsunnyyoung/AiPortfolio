@@ -601,6 +601,16 @@ export default function Train() {
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
+    
+    // Only allow reordering within the same category
+    if (result.source.droppableId !== result.destination.droppableId) {
+      return;
+    }
+
+    // If dropped in the same position, no change needed
+    if (result.source.index === result.destination.index) {
+      return;
+    }
 
     const skills = skillsQuery.data?.skills || [];
     const categoryId = parseInt(result.droppableId);
@@ -612,13 +622,15 @@ export default function Train() {
       return;
     }
 
-    const [reorderedItem] = categorySkills.splice(result.source.index, 1);
+    // Create a new array with the reordered items
+    const reorderedSkills = Array.from(categorySkills);
+    const [reorderedItem] = reorderedSkills.splice(result.source.index, 1);
     if (!reorderedItem) return;
     
-    categorySkills.splice(result.destination.index, 0, reorderedItem);
+    reorderedSkills.splice(result.destination.index, 0, reorderedItem);
 
     // Update display orders for all skills in the category
-    categorySkills.forEach((skill: Skill, index: number) => {
+    reorderedSkills.forEach((skill: Skill, index: number) => {
       if (skill && skill.id) {
         updateSkillMutation.mutate({
           id: skill.id,
