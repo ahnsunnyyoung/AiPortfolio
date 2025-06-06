@@ -54,6 +54,8 @@ export default function Portfolio() {
         content: data.answer,
         isUser: false,
         timestamp: new Date(),
+        projects: data.projects,
+        isProjectResponse: data.isProjectResponse
       };
       setMessages((prev) => [...prev, aiMessage]);
     },
@@ -338,7 +340,9 @@ export default function Portfolio() {
                   )}
                 </div>
                 <div
-                  className={`rounded-2xl px-6 py-4 max-w-2xl ${
+                  className={`rounded-2xl px-6 py-4 ${
+                    message.isProjectResponse ? "max-w-5xl" : "max-w-2xl"
+                  } ${
                     message.isUser
                       ? "bg-blue-500 text-white rounded-tr-md"
                       : "bg-gray-50 text-gray-800 rounded-tl-md"
@@ -347,6 +351,16 @@ export default function Portfolio() {
                   <p className="leading-relaxed whitespace-pre-wrap">
                     {message.content}
                   </p>
+                  
+                  {/* Project Cards Display */}
+                  {message.isProjectResponse && message.projects && (
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {message.projects.map((project) => (
+                        <ProjectCard key={project.id} project={project} />
+                      ))}
+                    </div>
+                  )}
+                  
                   <div
                     className={`text-xs mt-2 opacity-70 ${message.isUser ? "text-blue-100" : "text-gray-500"}`}
                   >

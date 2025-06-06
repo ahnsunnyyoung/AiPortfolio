@@ -12,6 +12,9 @@ const askRequestSchema = z.object({
 const trainRequestSchema = insertTrainingDataSchema;
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize projects data on startup
+  await storage.initializeProjects();
+  
   // Train endpoint - for adding knowledge to the AI
   app.post("/api/train", async (req, res) => {
     try {
