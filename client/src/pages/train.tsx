@@ -1240,8 +1240,8 @@ export default function Train() {
             </div>
           </div>
           </div>
-        ) : activeTab === "projects" ? (
-          // Projects Tab
+        ) : activeTab === "prompts" ? (
+          // Prompts Tab
           <div className="space-y-8">
             {/* Projects Header with Add Button */}
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
