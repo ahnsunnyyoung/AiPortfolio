@@ -885,7 +885,11 @@ export default function Train() {
                 Project Management
               </h2>
               <button
-                onClick={() => setShowProjectForm(true)}
+                onClick={() => {
+                  setEditingProject(null);
+                  resetProjectForm();
+                  setShowProjectForm(true);
+                }}
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm sm:text-base"
               >
                 <Plus className="w-4 h-4" />
@@ -1160,7 +1164,11 @@ export default function Train() {
                   <p className="text-sm sm:text-base text-gray-600">Manage your professional experience and career history</p>
                 </div>
                 <button
-                  onClick={() => setShowExperienceForm(true)}
+                  onClick={() => {
+                    setEditingExperience(null);
+                    resetExperienceForm();
+                    setShowExperienceForm(true);
+                  }}
                   disabled={addExperienceMutation.isPending}
                   className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-blue-600 transition-all disabled:opacity-50 text-sm sm:text-base"
                 >
