@@ -470,19 +470,19 @@ export default function Train() {
 
   return (
     <div className="min-h-screen portfolio-gradient">
-      <div className="max-w-4xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
+      <div className="max-w-4xl mx-auto px-2 sm:px-6 py-3 sm:py-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-2 sm:gap-4 mb-6 sm:mb-8">
           <Link href="/" className="text-gray-600 hover:text-gray-800 transition-colors">
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
           </Link>
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
-              <Brain className="w-6 h-6 text-white" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+              <Brain className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">Train AI Agent</h1>
-              <p className="text-gray-600">Add knowledge and experiences to your AI</p>
+              <h1 className="text-lg sm:text-2xl font-bold text-gray-800">Train AI Agent</h1>
+              <p className="text-sm sm:text-base text-gray-600 hidden sm:block">Add knowledge and experiences to your AI</p>
             </div>
           </div>
         </div>
@@ -525,9 +525,9 @@ export default function Train() {
         </div>
 
         {activeTab === "knowledge" ? (
-          <div className="grid lg:grid-cols-2 gap-8">
+          <div className="grid lg:grid-cols-2 gap-4 sm:gap-8">
             {/* Training Form */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-6">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <Plus className="w-5 h-5" />
               Add New Knowledge
