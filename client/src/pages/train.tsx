@@ -604,17 +604,32 @@ export default function Train() {
 
     const skills = skillsQuery.data?.skills || [];
     const categoryId = parseInt(result.droppableId);
-    const categorySkills = skills.filter((skill: Skill) => skill.categoryId === categoryId);
+    const categorySkills = skills
+      .filter((skill: Skill) => skill.categoryId === categoryId)
+      .sort((a: Skill, b: Skill) => a.displayOrder - b.displayOrder);
     
+    if (result.source.index >= categorySkills.length || result.destination.index >= categorySkills.length) {
+      return;
+    }
+
     const [reorderedItem] = categorySkills.splice(result.source.index, 1);
+    if (!reorderedItem) return;
+    
     categorySkills.splice(result.destination.index, 0, reorderedItem);
 
-    // Update display orders
+    // Update display orders for all skills in the category
     categorySkills.forEach((skill: Skill, index: number) => {
-      updateSkillMutation.mutate({
-        id: skill.id,
-        skill: { ...skill, displayOrder: index }
-      });
+      if (skill && skill.id) {
+        updateSkillMutation.mutate({
+          id: skill.id,
+          skill: { 
+            name: skill.name,
+            categoryId: skill.categoryId,
+            proficiency: skill.proficiency,
+            displayOrder: index 
+          }
+        });
+      }
     });
   };
 
@@ -630,7 +645,12 @@ export default function Train() {
       if (skill) {
         updateSkillMutation.mutate({
           id: editingSkill,
-          skill: { ...skill, name: editingSkillName.trim() }
+          skill: { 
+            name: editingSkillName.trim(),
+            categoryId: skill.categoryId,
+            proficiency: skill.proficiency,
+            displayOrder: skill.displayOrder
+          }
         });
       }
     }
