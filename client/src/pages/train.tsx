@@ -1806,55 +1806,117 @@ export default function Train() {
             {skillsQuery.isLoading || skillCategoriesQuery.isLoading ? (
               <div className="text-center py-8">Loading skills...</div>
             ) : (
-              <div className="space-y-6">
-                {skillCategoriesQuery.data?.categories?.map((category: SkillCategory) => (
-                  <div key={category.id} className="border border-gray-200 rounded-lg p-4">
-                    <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                      <span className={`w-3 h-3 rounded-full bg-${category.color}-500`}></span>
-                      {category.name}
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {skillsQuery.data?.skills
-                        ?.filter((skill: Skill) => skill.categoryId === category.id)
-                        ?.map((skill: Skill) => (
-                          <span
-                            key={skill.id}
-                            className={`px-3 py-1 bg-${category.color}-50 text-${category.color}-700 text-sm rounded-full border border-${category.color}-200 flex items-center gap-2`}
-                          >
-                            {skill.name}
-                            <button
-                              onClick={() => deleteSkillMutation.mutate(skill.id)}
-                              disabled={deleteSkillMutation.isPending}
-                              className="text-red-500 hover:text-red-700 disabled:opacity-50"
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <div className="space-y-6">
+                  {skillCategoriesQuery.data?.categories?.map((category: SkillCategory) => {
+                    const categorySkills = skillsQuery.data?.skills
+                      ?.filter((skill: Skill) => skill.categoryId === category.id)
+                      ?.sort((a: Skill, b: Skill) => a.displayOrder - b.displayOrder) || [];
+                    
+                    return (
+                      <div key={category.id} className="border border-gray-200 rounded-lg p-4">
+                        <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                          <span className={`w-3 h-3 rounded-full bg-${category.color}-500`}></span>
+                          {category.name}
+                        </h3>
+                        <Droppable droppableId={category.id.toString()}>
+                          {(provided) => (
+                            <div
+                              {...provided.droppableProps}
+                              ref={provided.innerRef}
+                              className="flex flex-wrap gap-2 min-h-[40px]"
                             >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </span>
-                        ))}
-                    </div>
-                  </div>
-                ))}
-                
-                <button
-                  onClick={() => {
-                    const skillName = prompt("Enter skill name:");
-                    const categoryId = prompt("Enter category ID (1-6):");
-                    if (skillName && categoryId) {
-                      addSkillMutation.mutate({
-                        name: skillName.trim(),
-                        categoryId: parseInt(categoryId),
-                        proficiency: "Intermediate",
-                        displayOrder: 0
-                      });
-                    }
-                  }}
-                  disabled={addSkillMutation.isPending}
-                  className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  <Plus className="w-4 h-4" />
-                  {addSkillMutation.isPending ? "Adding..." : "Add New Skill"}
-                </button>
-              </div>
+                              {categorySkills.map((skill: Skill, index: number) => (
+                                <Draggable key={skill.id} draggableId={skill.id.toString()} index={index}>
+                                  {(provided, snapshot) => (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      className={`group px-3 py-1 bg-${category.color}-50 text-${category.color}-700 text-sm rounded-full border border-${category.color}-200 flex items-center gap-2 transition-all ${
+                                        snapshot.isDragging ? 'shadow-lg rotate-2 scale-105' : ''
+                                      }`}
+                                    >
+                                      <div {...provided.dragHandleProps} className="cursor-move">
+                                        <GripVertical className="w-3 h-3 text-gray-400" />
+                                      </div>
+                                      
+                                      {editingSkill === skill.id ? (
+                                        <div className="flex items-center gap-1">
+                                          <input
+                                            type="text"
+                                            value={editingSkillName}
+                                            onChange={(e) => setEditingSkillName(e.target.value)}
+                                            onKeyDown={(e) => {
+                                              if (e.key === 'Enter') handleSkillSave();
+                                              if (e.key === 'Escape') handleSkillCancel();
+                                            }}
+                                            className="text-sm bg-white border border-gray-300 rounded px-1 py-0.5 w-20 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            autoFocus
+                                          />
+                                          <button
+                                            onClick={handleSkillSave}
+                                            className="text-green-600 hover:text-green-800"
+                                          >
+                                            <Save className="w-3 h-3" />
+                                          </button>
+                                          <button
+                                            onClick={handleSkillCancel}
+                                            className="text-gray-500 hover:text-gray-700"
+                                          >
+                                            <X className="w-3 h-3" />
+                                          </button>
+                                        </div>
+                                      ) : (
+                                        <>
+                                          <span className="select-none">{skill.name}</span>
+                                          <button
+                                            onClick={() => handleSkillEdit(skill)}
+                                            className="text-blue-500 hover:text-blue-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                                          >
+                                            <Edit3 className="w-3 h-3" />
+                                          </button>
+                                          <button
+                                            onClick={() => deleteSkillMutation.mutate(skill.id)}
+                                            disabled={deleteSkillMutation.isPending}
+                                            className="text-red-500 hover:text-red-700 disabled:opacity-50"
+                                          >
+                                            <X className="w-3 h-3" />
+                                          </button>
+                                        </>
+                                      )}
+                                    </div>
+                                  )}
+                                </Draggable>
+                              ))}
+                              {provided.placeholder}
+                            </div>
+                          )}
+                        </Droppable>
+                      </div>
+                    );
+                  })}
+                  
+                  <button
+                    onClick={() => {
+                      const skillName = prompt("Enter skill name:");
+                      const categoryId = prompt("Enter category ID (1-6):");
+                      if (skillName && categoryId) {
+                        addSkillMutation.mutate({
+                          name: skillName.trim(),
+                          categoryId: parseInt(categoryId),
+                          proficiency: "Intermediate",
+                          displayOrder: 0
+                        });
+                      }
+                    }}
+                    disabled={addSkillMutation.isPending}
+                    className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    <Plus className="w-4 h-4" />
+                    {addSkillMutation.isPending ? "Adding..." : "Add New Skill"}
+                  </button>
+                </div>
+              </DragDropContext>
             )}
           </div>
         ) : null}
