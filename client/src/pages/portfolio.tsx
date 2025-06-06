@@ -399,7 +399,7 @@ export default function Portfolio() {
                 <span className="text-xs text-gray-500 mr-2">Ask about:</span>
                 {[
                   "Show me your projects",
-                  "What have you built?",
+                  "What's your work experience?",
                   "Tell me about your technical skills",
                   "What's your development philosophy?"
                 ].map((question, index) => (

@@ -151,6 +151,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Add project endpoint
+  app.post("/api/projects", async (req, res) => {
+    try {
+      const projectData = req.body;
+      const result = await storage.addProject(projectData);
+      res.json({ 
+        success: true,
+        message: "Project added successfully",
+        project: result
+      });
+    } catch (error) {
+      console.error("Add project error:", error);
+      res.status(500).json({ error: "Failed to add project" });
+    }
+  });
+
+  // Delete project endpoint
+  app.delete("/api/projects/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid project ID" });
+      }
+      
+      await storage.deleteProject(id);
+      res.json({ 
+        success: true,
+        message: "Project deleted successfully"
+      });
+    } catch (error) {
+      console.error("Delete project error:", error);
+      res.status(500).json({ error: "Failed to delete project" });
+    }
+  });
+
   // Health check endpoint
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok", message: "Sunyoung's AI Agent API is running!" });

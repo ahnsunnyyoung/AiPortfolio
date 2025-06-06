@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Brain, Plus, Trash2, Save, ArrowLeft } from "lucide-react";
+import { Brain, Plus, Trash2, Save, ArrowLeft, Code, ExternalLink } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
@@ -11,14 +11,51 @@ interface TrainingData {
   timestamp: string;
 }
 
+interface Project {
+  id: number;
+  title: string;
+  period: string;
+  subtitle: string;
+  summary: string;
+  contents: string[];
+  tech: string;
+  img: string;
+  imgAlt: string;
+  moreLink?: string;
+  width: string;
+}
+
 export default function Train() {
   const [trainingContent, setTrainingContent] = useState("");
+  const [activeTab, setActiveTab] = useState<"knowledge" | "projects">("knowledge");
+  const [showProjectForm, setShowProjectForm] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [projectForm, setProjectForm] = useState({
+    title: "",
+    period: "",
+    subtitle: "",
+    summary: "",
+    contents: [""],
+    tech: "",
+    img: "",
+    imgAlt: "",
+    moreLink: "",
+    width: "47%"
+  });
   const { toast } = useToast();
 
   const trainingDataQuery = useQuery({
     queryKey: ['/api/training-data'],
     queryFn: async () => {
       const response = await apiRequest("GET", "/api/training-data");
+      return response.json();
+    }
+  });
+
+  const projectsQuery = useQuery({
+    queryKey: ['/api/projects'],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/projects");
       return response.json();
     }
   });
@@ -84,7 +121,116 @@ export default function Train() {
     }
   };
 
+  const addProjectMutation = useMutation({
+    mutationFn: async (project: any) => {
+      const response = await apiRequest("POST", "/api/projects", project);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Project Added",
+        description: "Project has been added successfully",
+      });
+      setShowProjectForm(false);
+      setProjectForm({
+        title: "",
+        period: "",
+        subtitle: "",
+        summary: "",
+        contents: [""],
+        tech: "",
+        img: "",
+        imgAlt: "",
+        moreLink: "",
+        width: "47%"
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Add Failed",
+        description: error.message || "Failed to add project",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const deleteProjectMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/projects/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Project Deleted",
+        description: "Project has been removed successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Delete Failed",
+        description: error.message || "Failed to delete project",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleProjectDelete = (id: number) => {
+    if (window.confirm("Are you sure you want to delete this project?")) {
+      deleteProjectMutation.mutate(id);
+    }
+  };
+
+  const handleProjectSubmit = () => {
+    if (!projectForm.title.trim() || !projectForm.summary.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in the title and summary fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const filteredContents = projectForm.contents.filter(content => content.trim());
+    if (filteredContents.length === 0) {
+      toast({
+        title: "Missing Information",
+        description: "Please add at least one content item",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    addProjectMutation.mutate({
+      ...projectForm,
+      contents: filteredContents
+    });
+  };
+
+  const addContentField = () => {
+    setProjectForm(prev => ({
+      ...prev,
+      contents: [...prev.contents, ""]
+    }));
+  };
+
+  const updateContentField = (index: number, value: string) => {
+    setProjectForm(prev => ({
+      ...prev,
+      contents: prev.contents.map((content, i) => i === index ? value : content)
+    }));
+  };
+
+  const removeContentField = (index: number) => {
+    setProjectForm(prev => ({
+      ...prev,
+      contents: prev.contents.filter((_, i) => i !== index)
+    }));
+  };
+
   const trainingData: TrainingData[] = trainingDataQuery.data?.data || [];
+  const projects: Project[] = projectsQuery.data?.projects || [];
 
   return (
     <div className="min-h-screen portfolio-gradient">
