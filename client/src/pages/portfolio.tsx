@@ -614,11 +614,11 @@ export default function Portfolio() {
                               <h5 className="font-semibold text-gray-800">Programming Languages</h5>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {message.skills.programming.map((skill, index) => (
+                              {message.skills?.programming?.map((skill, index) => (
                                 <span key={index} className="px-2 py-1 bg-orange-50 text-orange-700 text-sm rounded-full border border-orange-200">
                                   {skill}
                                 </span>
-                              ))}
+                              )) || []}
                             </div>
                           </div>
                           
@@ -628,11 +628,11 @@ export default function Portfolio() {
                               <h5 className="font-semibold text-gray-800">Frontend</h5>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {message.skills.frontend.map((skill, index) => (
+                              {message.skills?.frontend?.map((skill, index) => (
                                 <span key={index} className="px-2 py-1 bg-blue-50 text-blue-700 text-sm rounded-full border border-blue-200">
                                   {skill}
                                 </span>
-                              ))}
+                              )) || []}
                             </div>
                           </div>
                           
@@ -642,11 +642,11 @@ export default function Portfolio() {
                               <h5 className="font-semibold text-gray-800">Backend & Database</h5>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {message.skills.backend.map((skill, index) => (
+                              {message.skills?.backend?.map((skill, index) => (
                                 <span key={index} className="px-2 py-1 bg-green-50 text-green-700 text-sm rounded-full border border-green-200">
                                   {skill}
                                 </span>
-                              ))}
+                              )) || []}
                             </div>
                           </div>
                           
@@ -656,11 +656,11 @@ export default function Portfolio() {
                               <h5 className="font-semibold text-gray-800">Tools & Platforms</h5>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {message.skills.tools.map((skill, index) => (
+                              {message.skills?.tools?.map((skill, index) => (
                                 <span key={index} className="px-2 py-1 bg-purple-50 text-purple-700 text-sm rounded-full border border-purple-200">
                                   {skill}
                                 </span>
-                              ))}
+                              )) || []}
                             </div>
                           </div>
                           
@@ -670,11 +670,11 @@ export default function Portfolio() {
                               <h5 className="font-semibold text-gray-800">Languages</h5>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {message.skills.languages.map((skill, index) => (
+                              {message.skills?.languages?.map((skill, index) => (
                                 <span key={index} className="px-2 py-1 bg-indigo-50 text-indigo-700 text-sm rounded-full border border-indigo-200">
                                   {skill}
                                 </span>
-                              ))}
+                              )) || []}
                             </div>
                           </div>
                           
@@ -684,11 +684,11 @@ export default function Portfolio() {
                               <h5 className="font-semibold text-gray-800">Soft Skills</h5>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {message.skills.soft.map((skill, index) => (
+                              {message.skills?.soft?.map((skill, index) => (
                                 <span key={index} className="px-2 py-1 bg-pink-50 text-pink-700 text-sm rounded-full border border-pink-200">
                                   {skill}
                                 </span>
-                              ))}
+                              )) || []}
                             </div>
                           </div>
                         </div>
