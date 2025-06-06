@@ -112,6 +112,13 @@ export default function Train() {
     isActive: true,
     displayOrder: 0
   });
+  const [contactForm, setContactForm] = useState({
+    email: "",
+    linkedin: "",
+    github: "",
+    website: "",
+    phone: ""
+  });
   const { toast } = useToast();
 
   const trainingDataQuery = useQuery({
@@ -1445,9 +1452,8 @@ export default function Train() {
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
         ) : activeTab === "prompts" ? (
           <div className="grid lg:grid-cols-2 gap-4 sm:gap-8">
             {/* Add Prompt Form */}
@@ -1612,7 +1618,7 @@ export default function Train() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
                   <input
                     type="email"
-                    value={contactQuery.data?.contact?.email || ""}
+                    value={contactForm.email || contactQuery.data?.contact?.email || ""}
                     onChange={(e) => setContactForm(prev => ({...prev, email: e.target.value}))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="your.email@example.com"
@@ -1718,9 +1724,7 @@ export default function Train() {
               </div>
             )}
           </div>
-        ) : (
-          <div>Invalid tab selected</div>
-        )}
+        ) : null}
       </div>
     </div>
   );
