@@ -180,7 +180,7 @@ export default function Portfolio() {
   if (!isExpanded) {
     // Initial state - just logo and prompt
     return (
-      <div className="min-h-screen portfolio-gradient flex flex-col items-center justify-center px-6">
+      <div className="h-screen portfolio-gradient flex flex-col items-center justify-center px-6 overflow-hidden">
         <div className="text-center max-w-4xl mx-auto">
           {/* Logo Area */}
           <div className="mb-8">
@@ -300,9 +300,9 @@ export default function Portfolio() {
 
   // Expanded state - full conversation
   return (
-    <div className="min-h-screen portfolio-gradient flex flex-col">
+    <div className="h-screen portfolio-gradient flex flex-col overflow-hidden">
       {/* Minimized Header */}
-      <div className="text-center py-4 px-6 border-b border-white/20">
+      <div className="text-center py-4 px-6 border-b border-white/20 flex-shrink-0">
         <div className="flex items-center justify-center gap-3">
           <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
             <Bot className="w-4 h-4 text-white" />
@@ -316,8 +316,8 @@ export default function Portfolio() {
       </div>
 
       {/* Chat Container */}
-      <div className="flex-1 max-w-4xl mx-auto w-full px-6 py-6 flex flex-col">
-        <div className="flex-1 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden flex flex-col">
+      <div className="flex-1 max-w-4xl mx-auto w-full px-6 py-6 flex flex-col min-h-0">
+        <div className="flex-1 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto p-6 space-y-6 chat-container">
             {messages.map((message) => (
               <div
