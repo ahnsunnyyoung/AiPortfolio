@@ -23,6 +23,7 @@ interface Project {
   imgAlt: string;
   moreLink?: string;
   width: string;
+  detailedContent?: string;
 }
 
 interface Experience {
@@ -35,6 +36,7 @@ interface Experience {
   responsibilities?: string[];
   skills?: string;
   website?: string;
+  detailedContent?: string;
 }
 
 interface PromptExample {
@@ -86,7 +88,8 @@ export default function Train() {
     img: "",
     imgAlt: "",
     moreLink: "",
-    width: "47%"
+    width: "47%",
+    detailedContent: ""
   });
   const [showExperienceForm, setShowExperienceForm] = useState(false);
   const [editingExperience, setEditingExperience] = useState<Experience | null>(null);
@@ -98,7 +101,8 @@ export default function Train() {
     description: "",
     responsibilities: [""],
     skills: "",
-    website: ""
+    website: "",
+    detailedContent: ""
   });
   const [showPromptForm, setShowPromptForm] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState<PromptExample | null>(null);
@@ -311,7 +315,8 @@ export default function Train() {
       img: "",
       imgAlt: "",
       moreLink: "",
-      width: "47%"
+      width: "47%",
+      detailedContent: ""
     });
   };
 
@@ -327,7 +332,8 @@ export default function Train() {
       img: project.img,
       imgAlt: project.imgAlt,
       moreLink: project.moreLink || "",
-      width: project.width
+      width: project.width,
+      detailedContent: project.detailedContent || ""
     });
     setShowProjectForm(true);
   };
@@ -542,7 +548,8 @@ export default function Train() {
       description: "",
       responsibilities: [""],
       skills: "",
-      website: ""
+      website: "",
+      detailedContent: ""
     });
   };
 
@@ -556,7 +563,8 @@ export default function Train() {
       description: experience.description || "",
       responsibilities: experience.responsibilities || [""],
       skills: experience.skills || "",
-      website: experience.website || ""
+      website: experience.website || "",
+      detailedContent: experience.detailedContent || ""
     });
     setShowExperienceForm(true);
   };
