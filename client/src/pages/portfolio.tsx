@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Send, Bot, User, Sparkles, Brain, X, Mail, Linkedin, Github, Code, Monitor, Server, Wrench, Globe, Users } from "lucide-react";
+import { Send, Bot, User, Sparkles, Brain, X, Mail, Linkedin, Github, Code, Monitor, Server, Wrench, Globe, Users, ExternalLink } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
@@ -118,21 +118,24 @@ export default function Portfolio() {
       return response.json();
     },
     onSuccess: (data) => {
-      const aiMessage: Message = {
-        id: Date.now().toString() + "-ai",
-        content: data.answer,
-        isUser: false,
-        timestamp: new Date(),
-        projects: data.projects,
-        experiences: data.experiences,
-        contacts: data.contacts,
-        skills: data.skills,
-        isProjectResponse: data.isProjectResponse,
-        isExperienceResponse: data.isExperienceResponse,
-        isContactResponse: data.isContactResponse,
-        isSkillsResponse: data.isSkillsResponse
-      };
-      setMessages((prev) => [...prev, aiMessage]);
+      // Add a thinking delay to make the AI feel more natural
+      setTimeout(() => {
+        const aiMessage: Message = {
+          id: Date.now().toString() + "-ai",
+          content: data.answer,
+          isUser: false,
+          timestamp: new Date(),
+          projects: data.projects,
+          experiences: data.experiences,
+          contacts: data.contacts,
+          skills: data.skills,
+          isProjectResponse: data.isProjectResponse,
+          isExperienceResponse: data.isExperienceResponse,
+          isContactResponse: data.isContactResponse,
+          isSkillsResponse: data.isSkillsResponse
+        };
+        setMessages((prev) => [...prev, aiMessage]);
+      }, 1500); // 1.5 second thinking delay
     },
     onError: (error: any) => {
       toast({
@@ -468,20 +471,24 @@ export default function Portfolio() {
                                       timestamp: new Date(),
                                     };
                                     
-                                    const aiMessage: Message = {
-                                      id: (Date.now() + 1).toString(),
-                                      content: project.detailedContent || `More details about ${project.title} will be available soon.`,
-                                      isUser: false,
-                                      timestamp: new Date(),
-                                      projects: [project],
-                                      isProjectResponse: true,
-                                    };
-                                    
-                                    setMessages(prev => [...prev, userMessage, aiMessage]);
+                                    setMessages(prev => [...prev, userMessage]);
                                     setRecentlyAskedQuestions(prev => [...prev, userMessage.content]);
                                     setTimeout(() => {
                                       setRecentlyAskedQuestions(prev => prev.filter(q => q !== userMessage.content));
                                     }, 10000);
+                                    
+                                    // Add thinking delay for "Ask more" responses too
+                                    setTimeout(() => {
+                                      const aiMessage: Message = {
+                                        id: (Date.now() + 1).toString(),
+                                        content: project.detailedContent || `More details about ${project.title} will be available soon.`,
+                                        isUser: false,
+                                        timestamp: new Date(),
+                                        projects: [project],
+                                        isProjectResponse: true,
+                                      };
+                                      setMessages(prev => [...prev, aiMessage]);
+                                    }, 1500);
                                   }}
                                   className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
                                 >
@@ -589,18 +596,22 @@ export default function Portfolio() {
                                   timestamp: new Date(),
                                 };
                                 
-                                const aiMessage: Message = {
-                                  id: (Date.now() + 1).toString(),
-                                  content: experience.detailedContent || `More details about the ${experience.position} role at ${experience.company} will be available soon.`,
-                                  isUser: false,
-                                  timestamp: new Date(),
-                                };
-                                
-                                setMessages(prev => [...prev, userMessage, aiMessage]);
+                                setMessages(prev => [...prev, userMessage]);
                                 setRecentlyAskedQuestions(prev => [...prev, userMessage.content]);
                                 setTimeout(() => {
                                   setRecentlyAskedQuestions(prev => prev.filter(q => q !== userMessage.content));
                                 }, 10000);
+                                
+                                // Add thinking delay for experience "Ask more" responses
+                                setTimeout(() => {
+                                  const aiMessage: Message = {
+                                    id: (Date.now() + 1).toString(),
+                                    content: experience.detailedContent || `More details about the ${experience.position} role at ${experience.company} will be available soon.`,
+                                    isUser: false,
+                                    timestamp: new Date(),
+                                  };
+                                  setMessages(prev => [...prev, aiMessage]);
+                                }, 1500);
                               }}
                               className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
                             >
