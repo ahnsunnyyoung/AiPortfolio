@@ -140,13 +140,42 @@ export default function Train() {
   const [introductionImage, setIntroductionImage] = useState("");
   const { toast } = useToast();
 
-  // Helper function to convert file to base64
-  const convertToBase64 = (file: File): Promise<string> => {
+  // Helper function to compress and convert file to base64
+  const compressAndConvertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = error => reject(error);
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      img.onload = () => {
+        // Calculate new dimensions (max 800x600)
+        const maxWidth = 800;
+        const maxHeight = 600;
+        let { width, height } = img;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        // Draw and compress
+        ctx?.drawImage(img, 0, 0, width, height);
+        const compressedDataURL = canvas.toDataURL('image/jpeg', 0.8);
+        resolve(compressedDataURL);
+      };
+
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = URL.createObjectURL(file);
     });
   };
 
@@ -154,11 +183,11 @@ export default function Train() {
     const file = event.target.files?.[0];
     if (file) {
       try {
-        const base64 = await convertToBase64(file);
+        const base64 = await compressAndConvertToBase64(file);
         setIntroductionImage(base64);
         toast({
           title: "Image Uploaded",
-          description: "Your photo has been uploaded successfully",
+          description: "Your photo has been uploaded and compressed successfully",
         });
       } catch (error) {
         toast({
@@ -403,7 +432,110 @@ export default function Train() {
         )}
 
         {/* Content based on active tab */}
-        {activeTab === "responses" && responseSubTab === "introduction" ? (
+        {activeTab === "knowledge" ? (
+          <div className="grid lg:grid-cols-2 gap-4 sm:gap-8">
+            {/* Training Form */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <Plus className="w-5 h-5" />
+                Add New Knowledge
+              </h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Training Content
+                  </label>
+                  <textarea
+                    value={trainingContent}
+                    onChange={(e) => setTrainingContent(e.target.value)}
+                    placeholder="Tell me about yourself, your skills, experiences, thoughts, or any information you want the AI to remember and share..."
+                    className="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Press Ctrl+Enter to save quickly
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => {/* Add training logic */}}
+                  disabled={!trainingContent.trim()}
+                  className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 disabled:from-gray-300 disabled:to-gray-300 text-white py-3 px-6 rounded-lg font-medium transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <Save className="w-5 h-5" />
+                  Add Knowledge
+                </button>
+              </div>
+            </div>
+
+            {/* Training Data List */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <Brain className="w-5 h-5" />
+                Knowledge Base ({trainingData.length})
+              </h2>
+              
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {trainingData.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">No training data yet. Add your first knowledge!</p>
+                ) : (
+                  trainingData.map((data: any) => (
+                    <div key={data.id} className="border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
+                      <p className="text-sm text-gray-600 mb-2">{data.content}</p>
+                      <div className="flex justify-between items-center text-xs text-gray-500">
+                        <span>{new Date(data.timestamp).toLocaleDateString()}</span>
+                        <span className={data.isActive ? "text-green-600" : "text-red-600"}>
+                          {data.isActive ? "Active" : "Inactive"}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        ) : activeTab === "prompts" ? (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <MessageCircle className="w-5 h-5" />
+              Prompt Examples ({promptExamples.length})
+            </h2>
+            
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {promptExamples.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">No prompt examples yet.</p>
+              ) : (
+                promptExamples.map((prompt: any) => (
+                  <div key={prompt.id} className="border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
+                    <div className="flex justify-between items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-800 truncate">{prompt.question}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            prompt.responseType === 'projects' ? 'bg-blue-100 text-blue-700' :
+                            prompt.responseType === 'experiences' ? 'bg-green-100 text-green-700' :
+                            prompt.responseType === 'contacts' ? 'bg-purple-100 text-purple-700' :
+                            prompt.responseType === 'skills' ? 'bg-orange-100 text-orange-700' :
+                            prompt.responseType === 'introduce' ? 'bg-pink-100 text-pink-700' :
+                            'bg-gray-100 text-gray-700'
+                          }`}>
+                            {prompt.responseType === 'projects' ? 'Projects' :
+                             prompt.responseType === 'experiences' ? 'Experiences' :
+                             prompt.responseType === 'contacts' ? 'Contacts' :
+                             prompt.responseType === 'skills' ? 'Skills' :
+                             prompt.responseType === 'introduce' ? 'Introduction' : 'AI Response'}
+                          </span>
+                          <span className="text-xs text-gray-500">Order: {prompt.displayOrder}</span>
+                          {!prompt.isActive && <span className="text-xs text-red-500">Inactive</span>}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        ) : activeTab === "responses" && responseSubTab === "introduction" ? (
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <User className="w-5 h-5" />
@@ -502,9 +634,156 @@ export default function Train() {
               )}
             </div>
           </div>
+        ) : activeTab === "responses" && responseSubTab === "projects" ? (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <Code className="w-5 h-5" />
+              Projects ({projects.length})
+            </h2>
+            
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {projects.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">No projects yet.</p>
+              ) : (
+                projects.map((project: any) => (
+                  <div key={project.id} className="border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
+                    <div className="flex items-center gap-3 mb-2">
+                      {project.img && (
+                        <img src={project.img} alt={project.imgAlt} className="w-10 h-10 rounded object-cover" />
+                      )}
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-800">{project.title}</h3>
+                        <p className="text-sm text-gray-600">{project.period}</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">{project.summary}</p>
+                    <div className="flex flex-wrap gap-1">
+                      {project.contents.map((content: string, idx: number) => (
+                        <span key={idx} className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">
+                          {content}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        ) : activeTab === "responses" && responseSubTab === "experience" ? (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <Briefcase className="w-5 h-5" />
+              Experience ({experiences.length})
+            </h2>
+            
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {experiences.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">No experiences yet.</p>
+              ) : (
+                experiences.map((experience: any) => (
+                  <div key={experience.id} className="border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
+                    <div className="flex items-center gap-3 mb-2">
+                      {experience.img && (
+                        <img src={experience.img} alt={experience.company} className="w-10 h-10 rounded object-cover" />
+                      )}
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-800">{experience.position}</h3>
+                        <p className="text-sm text-gray-600">{experience.company} • {experience.period}</p>
+                        <p className="text-xs text-gray-500">{experience.location}</p>
+                      </div>
+                    </div>
+                    {experience.description && (
+                      <p className="text-sm text-gray-600 mb-2">{experience.description}</p>
+                    )}
+                    {experience.responsibilities && experience.responsibilities.length > 0 && (
+                      <div className="space-y-1">
+                        {experience.responsibilities.map((resp: string, idx: number) => (
+                          <p key={idx} className="text-xs text-gray-600">• {resp}</p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        ) : activeTab === "responses" && responseSubTab === "skills" ? (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <Code className="w-5 h-5" />
+              Skills ({skills.length})
+            </h2>
+            
+            <div className="space-y-4">
+              {skillCategories.map((category: any) => {
+                const categorySkills = skills.filter((skill: any) => skill.categoryId === category.id);
+                return (
+                  <div key={category.id} className="border border-gray-200 rounded-lg p-3">
+                    <h3 className="font-medium text-gray-800 mb-2 flex items-center gap-2">
+                      <span className={`w-3 h-3 rounded-full bg-${category.color}-500`}></span>
+                      {category.name}
+                    </h3>
+                    <div className="flex flex-wrap gap-1">
+                      {categorySkills.map((skill: any) => (
+                        <span key={skill.id} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                          {skill.name} ({skill.proficiency})
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : activeTab === "responses" && responseSubTab === "contact" ? (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Contact Information
+            </h2>
+            
+            {contact ? (
+              <div className="space-y-3">
+                <div className="border border-gray-200 rounded-lg p-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Email</label>
+                      <p className="text-sm text-gray-800">{contact.email}</p>
+                    </div>
+                    {contact.linkedin && (
+                      <div>
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">LinkedIn</label>
+                        <p className="text-sm text-gray-800">{contact.linkedin}</p>
+                      </div>
+                    )}
+                    {contact.github && (
+                      <div>
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">GitHub</label>
+                        <p className="text-sm text-gray-800">{contact.github}</p>
+                      </div>
+                    )}
+                    {contact.website && (
+                      <div>
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Website</label>
+                        <p className="text-sm text-gray-800">{contact.website}</p>
+                      </div>
+                    )}
+                    {contact.phone && (
+                      <div>
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</label>
+                        <p className="text-sm text-gray-800">{contact.phone}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-8">No contact information available.</p>
+            )}
+          </div>
         ) : (
           <div className="text-center py-8 text-gray-500">
-            <p>Content for other tabs will be shown here</p>
+            <p>Please select a tab to view content</p>
           </div>
         )}
       </div>
