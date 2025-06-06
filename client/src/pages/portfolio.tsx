@@ -168,7 +168,7 @@ export default function Portfolio() {
     setMessages((prev) => [...prev, userMessage]);
     
     // Add to recently asked questions if it matches a quick question
-    if (allQuickQuestions.includes(inputValue)) {
+    if (promptExamples.some((example: PromptExample) => example.question === inputValue)) {
       setRecentlyAskedQuestions(prev => [...prev, inputValue]);
       setTimeout(() => {
         setRecentlyAskedQuestions(prev => prev.filter(q => q !== inputValue));
@@ -186,17 +186,9 @@ export default function Portfolio() {
     }
   };
 
-  const allQuickQuestions = [
-    "Show me your projects",
-    "What's your work experience?",
-    "What are your main skills and expertise?",
-    "What's your development philosophy?",
-    "How can I contact you for collaboration?",
-  ];
-
   // Filter out recently asked questions and show only 4
-  const quickQuestions = allQuickQuestions
-    .filter(q => !recentlyAskedQuestions.includes(q))
+  const quickQuestions = promptExamples
+    .filter((example: PromptExample) => !recentlyAskedQuestions.includes(example.question))
     .slice(0, 4);
 
   const handleQuickQuestion = (promptExample: PromptExample) => {
@@ -314,14 +306,14 @@ export default function Portfolio() {
 
             {/* Quick Questions */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {quickQuestions.map((question, index) => (
+              {quickQuestions.map((promptExample: PromptExample, index: number) => (
                 <button
                   key={index}
-                  onClick={() => handleQuickQuestion(question)}
+                  onClick={() => handleQuickQuestion(promptExample)}
                   disabled={askMutation.isPending}
                   className="text-left p-3 bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-lg text-sm text-gray-700 hover:text-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {question}
+                  {promptExample.question}
                 </button>
               ))}
             </div>
