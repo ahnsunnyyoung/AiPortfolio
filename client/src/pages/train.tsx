@@ -533,6 +533,48 @@ export default function Train() {
     }
   });
 
+  const addSkillMutation = useMutation({
+    mutationFn: async (skillData: any) => {
+      const response = await apiRequest("POST", "/api/skills", skillData);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Skill Added",
+        description: "Skill has been added successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/skills'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Add Failed",
+        description: error.message || "Failed to add skill",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const deleteSkillMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/skills/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Skill Deleted",
+        description: "Skill has been deleted successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/skills'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Delete Failed",
+        description: error.message || "Failed to delete skill",
+        variant: "destructive"
+      });
+    }
+  });
+
   const resetPromptForm = () => {
     setShowPromptForm(false);
     setEditingPrompt(null);
@@ -1713,7 +1755,9 @@ export default function Train() {
                           >
                             {skill.name}
                             <button
-                              className="text-red-500 hover:text-red-700"
+                              onClick={() => deleteSkillMutation.mutate(skill.id)}
+                              disabled={deleteSkillMutation.isPending}
+                              className="text-red-500 hover:text-red-700 disabled:opacity-50"
                             >
                               <X className="w-3 h-3" />
                             </button>
@@ -1724,10 +1768,23 @@ export default function Train() {
                 ))}
                 
                 <button
-                  className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+                  onClick={() => {
+                    const skillName = prompt("Enter skill name:");
+                    const categoryId = prompt("Enter category ID (1-6):");
+                    if (skillName && categoryId) {
+                      addSkillMutation.mutate({
+                        name: skillName.trim(),
+                        categoryId: parseInt(categoryId),
+                        proficiency: "Intermediate",
+                        displayOrder: 0
+                      });
+                    }
+                  }}
+                  disabled={addSkillMutation.isPending}
+                  className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   <Plus className="w-4 h-4" />
-                  Add New Skill
+                  {addSkillMutation.isPending ? "Adding..." : "Add New Skill"}
                 </button>
               </div>
             )}
