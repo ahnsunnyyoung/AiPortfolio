@@ -529,7 +529,8 @@ export default function Portfolio() {
                       "Show me your projects",
                       "What's your work experience?",
                       "Tell me about your technical skills",
-                      "What's your development philosophy?"
+                      "What's your development philosophy?",
+                      "How can I contact you for collaboration?"
                     ].map((question, index) => (
                       <button
                         key={index}
