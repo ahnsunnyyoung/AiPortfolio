@@ -76,9 +76,16 @@ interface Skill {
   displayOrder: number;
 }
 
+interface Introduction {
+  id: number;
+  content: string;
+  isActive: boolean;
+  timestamp: string;
+}
+
 export default function Train() {
   const [trainingContent, setTrainingContent] = useState("");
-  const [activeTab, setActiveTab] = useState<"knowledge" | "projects" | "experience" | "prompts" | "contact" | "skills">("knowledge");
+  const [activeTab, setActiveTab] = useState<"knowledge" | "projects" | "experience" | "prompts" | "contact" | "skills" | "introduction">("knowledge");
   const [editingKnowledge, setEditingKnowledge] = useState<number | null>(null);
   const [editingContent, setEditingContent] = useState("");
   const [showProjectForm, setShowProjectForm] = useState(false);
@@ -127,6 +134,7 @@ export default function Train() {
   });
   const [editingSkill, setEditingSkill] = useState<number | null>(null);
   const [editingSkillName, setEditingSkillName] = useState("");
+  const [introductionContent, setIntroductionContent] = useState("");
   const { toast } = useToast();
 
   const trainingDataQuery = useQuery({
