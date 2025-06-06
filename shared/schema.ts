@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, boolean, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -43,6 +43,14 @@ export const experiences = pgTable("experiences", {
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
+export const promptExamples = pgTable("prompt_examples", {
+  id: serial("id").primaryKey(),
+  question: text("question").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  displayOrder: serial("display_order").notNull(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
 export const insertTrainingDataSchema = createInsertSchema(trainingData).pick({
   content: true,
 });
@@ -76,6 +84,12 @@ export const insertExperienceSchema = createInsertSchema(experiences).pick({
   website: true,
 });
 
+export const insertPromptExampleSchema = createInsertSchema(promptExamples).pick({
+  question: true,
+  isActive: true,
+  displayOrder: true,
+});
+
 export type InsertTrainingData = z.infer<typeof insertTrainingDataSchema>;
 export type TrainingData = typeof trainingData.$inferSelect;
 export type Conversation = typeof conversations.$inferSelect;
@@ -84,3 +98,5 @@ export type Project = typeof projects.$inferSelect;
 export type InsertProject = z.infer<typeof insertProjectSchema>;
 export type Experience = typeof experiences.$inferSelect;
 export type InsertExperience = z.infer<typeof insertExperienceSchema>;
+export type PromptExample = typeof promptExamples.$inferSelect;
+export type InsertPromptExample = z.infer<typeof insertPromptExampleSchema>;
