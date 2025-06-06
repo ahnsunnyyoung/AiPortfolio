@@ -46,9 +46,34 @@ interface PromptExample {
   timestamp: string;
 }
 
+interface Contact {
+  id?: number;
+  email: string;
+  linkedin?: string;
+  github?: string;
+  website?: string;
+  phone?: string;
+}
+
+interface SkillCategory {
+  id: number;
+  name: string;
+  icon: string;
+  color: string;
+  displayOrder: number;
+}
+
+interface Skill {
+  id: number;
+  name: string;
+  categoryId: number;
+  proficiency: string;
+  displayOrder: number;
+}
+
 export default function Train() {
   const [trainingContent, setTrainingContent] = useState("");
-  const [activeTab, setActiveTab] = useState<"knowledge" | "projects" | "experience" | "prompts">("knowledge");
+  const [activeTab, setActiveTab] = useState<"knowledge" | "projects" | "experience" | "prompts" | "contact" | "skills">("knowledge");
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [projectForm, setProjectForm] = useState({
@@ -113,6 +138,30 @@ export default function Train() {
     queryKey: ['/api/prompt-examples'],
     queryFn: async () => {
       const response = await apiRequest("GET", "/api/prompt-examples");
+      return response.json();
+    }
+  });
+
+  const contactQuery = useQuery({
+    queryKey: ['/api/contact'],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/contact");
+      return response.json();
+    }
+  });
+
+  const skillCategoriesQuery = useQuery({
+    queryKey: ['/api/skill-categories'],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/skill-categories");
+      return response.json();
+    }
+  });
+
+  const skillsQuery = useQuery({
+    queryKey: ['/api/skills'],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/skills");
       return response.json();
     }
   });
@@ -678,6 +727,28 @@ export default function Train() {
           >
             <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
             Prompts
+          </button>
+          <button
+            onClick={() => setActiveTab("contact")}
+            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+              activeTab === "contact"
+                ? "bg-blue-500 text-white shadow-sm"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            <User className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
+            Contact
+          </button>
+          <button
+            onClick={() => setActiveTab("skills")}
+            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+              activeTab === "skills"
+                ? "bg-blue-500 text-white shadow-sm"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            <Code className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
+            Skills
           </button>
         </div>
 
@@ -1469,6 +1540,127 @@ export default function Train() {
                 )}
               </div>
             </div>
+          </div>
+        ) : activeTab === "contact" ? (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Contact Information
+            </h2>
+            
+            {contactQuery.isLoading ? (
+              <div className="text-center py-8">Loading contact information...</div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                  <input
+                    type="email"
+                    value={contactQuery.data?.contact?.email || ""}
+                    onChange={(e) => setContactForm(prev => ({...prev, email: e.target.value}))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="your.email@example.com"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn</label>
+                  <input
+                    type="url"
+                    value={contactQuery.data?.contact?.linkedin || ""}
+                    onChange={(e) => setContactForm(prev => ({...prev, linkedin: e.target.value}))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://linkedin.com/in/yourprofile"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">GitHub</label>
+                  <input
+                    type="url"
+                    value={contactQuery.data?.contact?.github || ""}
+                    onChange={(e) => setContactForm(prev => ({...prev, github: e.target.value}))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://github.com/yourusername"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                  <input
+                    type="url"
+                    value={contactQuery.data?.contact?.website || ""}
+                    onChange={(e) => setContactForm(prev => ({...prev, website: e.target.value}))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://yourwebsite.com"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    value={contactQuery.data?.contact?.phone || ""}
+                    onChange={(e) => setContactForm(prev => ({...prev, phone: e.target.value}))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="+1 (555) 123-4567"
+                  />
+                </div>
+                
+                <button
+                  className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  Update Contact Information
+                </button>
+              </div>
+            )}
+          </div>
+        ) : activeTab === "skills" ? (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <Code className="w-5 h-5" />
+              Skills Management
+            </h2>
+            
+            {skillsQuery.isLoading || skillCategoriesQuery.isLoading ? (
+              <div className="text-center py-8">Loading skills...</div>
+            ) : (
+              <div className="space-y-6">
+                {skillCategoriesQuery.data?.categories?.map((category: SkillCategory) => (
+                  <div key={category.id} className="border border-gray-200 rounded-lg p-4">
+                    <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                      <span className={`w-3 h-3 rounded-full bg-${category.color}-500`}></span>
+                      {category.name}
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {skillsQuery.data?.skills
+                        ?.filter((skill: Skill) => skill.categoryId === category.id)
+                        ?.map((skill: Skill) => (
+                          <span
+                            key={skill.id}
+                            className={`px-3 py-1 bg-${category.color}-50 text-${category.color}-700 text-sm rounded-full border border-${category.color}-200 flex items-center gap-2`}
+                          >
+                            {skill.name}
+                            <button
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))}
+                    </div>
+                  </div>
+                ))}
+                
+                <button
+                  className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add New Skill
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <div>Invalid tab selected</div>
