@@ -12,15 +12,9 @@ interface Message {
 }
 
 export default function Portfolio() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      content: "Hi! I'm Sunyoung's AI agent. I've been trained with her personal knowledge and experiences. Ask me anything about her background, skills, projects, or thoughts!",
-      isUser: false,
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [isExpanded, setIsExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -47,6 +41,19 @@ export default function Portfolio() {
     }
   });
 
+  const startConversation = () => {
+    if (!isExpanded) {
+      setIsExpanded(true);
+      const welcomeMessage: Message = {
+        id: "welcome",
+        content: "Hi! I'm Sunyoung's AI agent. I've been trained with her personal knowledge and experiences. Ask me anything about her background, skills, projects, or thoughts!",
+        isUser: false,
+        timestamp: new Date()
+      };
+      setMessages([welcomeMessage]);
+    }
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -57,6 +64,8 @@ export default function Portfolio() {
 
   const handleSendMessage = () => {
     if (!inputValue.trim() || askMutation.isPending) return;
+
+    startConversation();
 
     const userMessage: Message = {
       id: Date.now().toString() + "-user",
@@ -85,6 +94,8 @@ export default function Portfolio() {
   ];
 
   const handleQuickQuestion = (question: string) => {
+    startConversation();
+
     const userMessage: Message = {
       id: Date.now().toString() + "-user",
       content: question,
@@ -96,33 +107,107 @@ export default function Portfolio() {
     askMutation.mutate(question);
   };
 
+  if (!isExpanded) {
+    // Initial state - just logo and prompt
+    return (
+      <div className="min-h-screen portfolio-gradient flex flex-col items-center justify-center px-6">
+        <div className="text-center max-w-4xl mx-auto">
+          {/* Logo Area */}
+          <div className="mb-8">
+            <p className="text-lg md:text-xl text-gray-600 mb-4 font-medium">
+              Frontend Developer
+            </p>
+            <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold text-gray-800 mb-6 leading-tight text-shadow">
+              Sunyoung Ahn
+            </h1>
+            <p className="text-lg md:text-xl text-gray-600 italic mb-8">
+              "Shine brightly like the sunshine"
+            </p>
+          </div>
+
+          {/* AI Prompt */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-8 mb-8">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <Bot className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-800">AI Agent</h2>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-gray-600">Online</span>
+                </div>
+              </div>
+            </div>
+            
+            <p className="text-gray-700 mb-6 leading-relaxed">
+              I'm Sunyoung's AI agent, trained with her personal knowledge and experiences. 
+              Ask me anything about her background, skills, projects, or thoughts!
+            </p>
+
+            {/* Input */}
+            <div className="flex gap-3 mb-6">
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask me anything about Sunyoung..."
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                disabled={askMutation.isPending}
+                onClick={startConversation}
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={!inputValue.trim() || askMutation.isPending}
+                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:from-gray-300 disabled:to-gray-300 text-white w-12 h-12 rounded-full flex items-center justify-center transition-all disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                aria-label="Send message"
+              >
+                <Send className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Quick Questions */}
+            <div>
+              <div className="text-sm text-gray-600 mb-3 font-medium">Try asking:</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {quickQuestions.map((question, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleQuickQuestion(question)}
+                    disabled={askMutation.isPending}
+                    className="text-left p-3 bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-lg text-sm text-gray-700 hover:text-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Expanded state - full conversation
   return (
     <div className="min-h-screen portfolio-gradient flex flex-col">
-      {/* Header */}
-      <div className="text-center py-8 px-6">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-            <Sparkles className="w-6 h-6 text-white" />
+      {/* Minimized Header */}
+      <div className="text-center py-4 px-6 border-b border-white/20">
+        <div className="flex items-center justify-center gap-3">
+          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+            <Bot className="w-4 h-4 text-white" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
-            Sunyoung Ahn
-          </h1>
-        </div>
-        <p className="text-lg text-gray-600 italic mb-2">
-          "Shine brightly like the sunshine"
-        </p>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Frontend Developer • AI-Powered Portfolio Agent
-        </p>
-        <div className="flex items-center justify-center gap-2 mt-4">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="text-sm text-gray-600">AI Agent Online</span>
+          <h1 className="text-xl font-bold text-gray-800">Sunyoung Ahn</h1>
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-xs text-gray-600">AI Online</span>
+          </div>
         </div>
       </div>
 
       {/* Chat Container */}
-      <div className="flex-1 max-w-4xl mx-auto w-full px-6 pb-6 flex flex-col">
-        {/* Messages */}
+      <div className="flex-1 max-w-4xl mx-auto w-full px-6 py-6 flex flex-col">
         <div className="flex-1 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden flex flex-col">
           <div className="flex-1 overflow-y-auto p-6 space-y-6 chat-container">
             {messages.map((message) => (
@@ -178,25 +263,6 @@ export default function Portfolio() {
 
             <div ref={messagesEndRef} />
           </div>
-
-          {/* Quick Questions */}
-          {messages.length === 1 && (
-            <div className="px-6 py-4 border-t border-gray-200/50 bg-gray-50/50">
-              <div className="text-sm text-gray-600 mb-3 font-medium">Quick questions to get started:</div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {quickQuestions.map((question, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleQuickQuestion(question)}
-                    disabled={askMutation.isPending}
-                    className="text-left p-3 bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-lg text-sm text-gray-700 hover:text-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {question}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Input Area */}
           <div className="p-6 border-t border-gray-200/50 bg-white/50">
