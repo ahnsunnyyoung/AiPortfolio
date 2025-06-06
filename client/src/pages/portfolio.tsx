@@ -53,6 +53,7 @@ export default function Portfolio() {
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(
     null,
   );
+  const [recentlyAskedQuestions, setRecentlyAskedQuestions] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -155,12 +156,18 @@ export default function Portfolio() {
     }
   };
 
-  const quickQuestions = [
+  const allQuickQuestions = [
     "Show me your projects",
     "What's your work experience?",
     "What are your main skills and expertise?",
     "What's your development philosophy?",
+    "How can I contact you for collaboration?",
   ];
+
+  // Filter out recently asked questions and show only 4
+  const quickQuestions = allQuickQuestions
+    .filter(q => !recentlyAskedQuestions.includes(q))
+    .slice(0, 4);
 
   const handleQuickQuestion = (question: string) => {
     startConversation();
