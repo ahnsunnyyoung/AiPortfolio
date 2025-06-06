@@ -23,6 +23,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await storage.initializePromptExamples();
   await storage.initializeContact();
   await storage.initializeSkills();
+  await storage.initializeIntroduction();
 
   // Train endpoint - for adding knowledge to the AI
   app.post("/api/train", async (req, res) => {
@@ -142,6 +143,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
               skills: organizedSkills,
               skillCategories: skillCategories,
               isSkillsResponse: true
+            });
+            return;
+          }
+
+          if (promptExample.responseType === "introduce") {
+            const introduction = await storage.getIntroduction();
+            
+            // Store the conversation
+            await storage.addConversation({
+              question,
+              answer: introduction?.content || "INTRODUCTION_SHOWCASE",
+            });
+
+            res.json({
+              answer: introduction?.content || "Hello! I'm Sunyoung Ahn, also known as Sunny. I'm a frontend developer with five years of experience.",
+              isIntroductionResponse: true,
             });
             return;
           }
@@ -537,6 +554,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Delete skill error:", error);
       res.status(500).json({ success: false, error: "Failed to delete skill" });
+    }
+  });
+
+  // Introduction endpoints
+  app.get("/api/introduction", async (_req, res) => {
+    try {
+      const introduction = await storage.getIntroduction();
+      res.json({ success: true, introduction });
+    } catch (error) {
+      console.error("Get introduction error:", error);
+      res.status(500).json({ success: false, error: "Failed to get introduction" });
+    }
+  });
+
+  app.put("/api/introduction", async (req, res) => {
+    try {
+      const { content } = req.body;
+      if (!content || typeof content !== 'string') {
+        return res.status(400).json({ success: false, error: "Content is required" });
+      }
+      
+      const introduction = await storage.updateIntroduction(content);
+      res.json({ success: true, introduction, message: "Introduction updated successfully" });
+    } catch (error) {
+      console.error("Update introduction error:", error);
+      res.status(500).json({ success: false, error: "Failed to update introduction" });
     }
   });
 

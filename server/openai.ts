@@ -17,6 +17,7 @@ export async function generatePersonalizedResponse(userQuestion: string): Promis
     const recentConversations = await storage.getRecentConversations(5);
     const projects = await storage.getAllProjects();
     const experiences = await storage.getAllExperiences();
+    const introduction = await storage.getIntroduction();
 
     // Build context from training data
     const knowledgeBase = trainingData
@@ -52,6 +53,9 @@ Website: ${exp.website || 'N/A'}`)
 
     const systemPrompt = `You are Sunyoung Ahn's personalized AI assistant. You have been trained with specific information about Sunyoung and should respond based on this knowledge.
 
+INTRODUCTION:
+${introduction?.content || 'No introduction available'}
+
 KNOWLEDGE BASE:
 ${knowledgeBase}
 
@@ -66,6 +70,7 @@ ${conversationHistory}
 
 Guidelines:
 - Answer questions based on the knowledge base, projects, and experiences provided above
+- When asked about who Sunyoung is, introduce yourself, or general questions about Sunyoung, use the INTRODUCTION section
 - When asked about specific projects, provide detailed information including period, technology used, contents, and key features
 - When asked about experiences, include responsibilities, skills used, and achievements
 - Speak in first person as if you are Sunyoung
