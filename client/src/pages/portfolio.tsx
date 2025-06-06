@@ -459,7 +459,7 @@ export default function Portfolio() {
                       {message.projects.map((project) => (
                         <div key={project.id}>
                           {/* Basic Project Info (for initial list view) */}
-                          {!message.content.includes("More details") && (
+                          {message.projects && message.projects.length > 1 && (
                             <div className="bg-white rounded-lg border border-gray-200 p-4">
                               <div className="flex justify-between items-start gap-3">
                                 <div className="flex-1">
