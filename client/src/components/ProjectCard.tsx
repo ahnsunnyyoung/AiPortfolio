@@ -33,9 +33,9 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             </div>
             <p className="text-blue-600 font-medium text-lg mb-2">{project.subtitle}</p>
             <div className="flex items-center gap-4 text-sm text-gray-600">
-              <span>개발 기간: {project.period}</span>
+              <span>Development Period: {project.period}</span>
               <span>•</span>
-              <span>프로젝트 유형: 개인 프로젝트</span>
+              <span>Project Type: Personal Project</span>
             </div>
           </div>
           {project.moreLink && (
@@ -46,7 +46,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                 rel="noopener noreferrer"
                 className="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
               >
-                GitHub 보기
+                View GitHub
                 <ExternalLink className="w-4 h-4" />
               </a>
               <button className="px-4 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors">
@@ -78,7 +78,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             <div className="w-6 h-6 bg-blue-500 rounded-lg flex items-center justify-center">
               <span className="text-white text-sm">📋</span>
             </div>
-            프로젝트 개요
+            Project Overview
           </h4>
           <div className="bg-white/70 rounded-lg p-4 border border-blue-100">
             <p className="text-gray-700 leading-relaxed">{project.summary}</p>
@@ -92,7 +92,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               <div className="w-6 h-6 bg-green-500 rounded-lg flex items-center justify-center">
                 <span className="text-white text-sm">⭐</span>
               </div>
-              주요 기능 및 성과
+              Key Features & Achievements
             </h4>
             <div className="bg-white/70 rounded-lg p-4 border border-green-100">
               <div className="grid gap-3">
@@ -115,7 +115,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             <div className="w-6 h-6 bg-purple-500 rounded-lg flex items-center justify-center">
               <span className="text-white text-sm">🛠️</span>
             </div>
-            기술 스택
+            Technology Stack
           </h4>
           <div className="bg-white/70 rounded-lg p-4 border border-purple-100">
             <div className="flex flex-wrap gap-2">
@@ -137,16 +137,16 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             <div className="w-6 h-6 bg-orange-500 rounded-lg flex items-center justify-center">
               <span className="text-white text-sm">💡</span>
             </div>
-            프로젝트 하이라이트
+            Project Highlights
           </h4>
           <div className="grid md:grid-cols-2 gap-3">
             <div className="bg-white/70 rounded-lg p-3 border border-orange-100">
-              <h5 className="font-semibold text-gray-800 mb-2">개발 목표</h5>
-              <p className="text-gray-600 text-sm">사용자 친화적인 인터페이스와 효율적인 데이터 처리를 통한 최적의 사용자 경험 제공</p>
+              <h5 className="font-semibold text-gray-800 mb-2">Development Goal</h5>
+              <p className="text-gray-600 text-sm">Providing optimal user experience through user-friendly interface and efficient data processing</p>
             </div>
             <div className="bg-white/70 rounded-lg p-3 border border-orange-100">
-              <h5 className="font-semibold text-gray-800 mb-2">해결한 문제</h5>
-              <p className="text-gray-600 text-sm">복잡한 데이터 관리와 사용자 인터랙션의 효율성 향상</p>
+              <h5 className="font-semibold text-gray-800 mb-2">Problem Solved</h5>
+              <p className="text-gray-600 text-sm">Improved efficiency of complex data management and user interactions</p>
             </div>
           </div>
         </div>
@@ -156,15 +156,15 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           <div className="grid md:grid-cols-3 gap-4 text-center">
             <div>
               <div className="text-xl font-bold text-blue-600 mb-1">100%</div>
-              <div className="text-xs text-gray-600">반응형 디자인</div>
+              <div className="text-xs text-gray-600">Responsive Design</div>
             </div>
             <div>
               <div className="text-xl font-bold text-green-600 mb-1">Fast</div>
-              <div className="text-xs text-gray-600">로딩 속도</div>
+              <div className="text-xs text-gray-600">Loading Speed</div>
             </div>
             <div>
               <div className="text-xl font-bold text-purple-600 mb-1">Modern</div>
-              <div className="text-xs text-gray-600">기술 스택</div>
+              <div className="text-xs text-gray-600">Tech Stack</div>
             </div>
           </div>
         </div>
