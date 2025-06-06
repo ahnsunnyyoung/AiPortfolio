@@ -77,6 +77,8 @@ interface Skill {
 export default function Train() {
   const [trainingContent, setTrainingContent] = useState("");
   const [activeTab, setActiveTab] = useState<"knowledge" | "projects" | "experience" | "prompts" | "contact" | "skills">("knowledge");
+  const [editingKnowledge, setEditingKnowledge] = useState<number | null>(null);
+  const [editingContent, setEditingContent] = useState("");
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [projectForm, setProjectForm] = useState({
@@ -223,9 +225,67 @@ export default function Train() {
     }
   });
 
+  const updateTrainingMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number, data: any }) => {
+      const response = await apiRequest("PUT", `/api/training-data/${id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Knowledge Updated",
+        description: "The training data has been updated successfully",
+      });
+      setEditingKnowledge(null);
+      setEditingContent("");
+      queryClient.invalidateQueries({ queryKey: ['/api/training-data'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to update training data",
+        variant: "destructive"
+      });
+    }
+  });
+
   const handleTrain = () => {
     if (!trainingContent.trim()) return;
     trainMutation.mutate(trainingContent.trim());
+  };
+
+  const handleEditKnowledge = (item: any) => {
+    setEditingKnowledge(item.id);
+    setEditingContent(item.content);
+  };
+
+  const handleSaveKnowledge = () => {
+    if (!editingContent.trim()) return;
+    
+    const knowledgeItem = trainingDataQuery.data?.data.find((item: any) => item.id === editingKnowledge);
+    if (knowledgeItem) {
+      updateTrainingMutation.mutate({
+        id: editingKnowledge!,
+        data: {
+          content: editingContent.trim(),
+          isActive: knowledgeItem.isActive ?? true
+        }
+      });
+    }
+  };
+
+  const handleToggleActive = (item: any) => {
+    updateTrainingMutation.mutate({
+      id: item.id,
+      data: {
+        content: item.content,
+        isActive: !item.isActive
+      }
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingKnowledge(null);
+    setEditingContent("");
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -988,24 +1048,90 @@ export default function Train() {
             ) : (
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {trainingData.map((item) => (
-                  <div key={item.id} className="bg-white rounded-lg p-4 border border-gray-200 group">
+                  <div key={item.id} className={`bg-white rounded-lg p-4 border border-gray-200 group ${
+                    item.isActive === false ? 'opacity-60 bg-gray-50' : ''
+                  }`}>
                     <div className="flex justify-between items-start gap-3">
                       <div className="flex-1">
-                        <p className="text-gray-800 text-sm leading-relaxed mb-2">
-                          {item.content}
-                        </p>
-                        <div className="text-xs text-gray-500">
-                          Added: {new Date(item.timestamp).toLocaleString()}
-                        </div>
+                        {editingKnowledge === item.id ? (
+                          <div className="space-y-3">
+                            <textarea
+                              value={editingContent}
+                              onChange={(e) => setEditingContent(e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                              rows={3}
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                onClick={handleSaveKnowledge}
+                                disabled={updateTrainingMutation.isPending}
+                                className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600 disabled:opacity-50"
+                              >
+                                <Save className="w-3 h-3 inline mr-1" />
+                                Save
+                              </button>
+                              <button
+                                onClick={handleCancelEdit}
+                                className="px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex items-start gap-2 mb-2">
+                              <p className="text-gray-800 text-sm leading-relaxed flex-1">
+                                {item.content}
+                              </p>
+                              <span className={`px-2 py-1 text-xs rounded-full ${
+                                item.isActive !== false 
+                                  ? 'bg-green-100 text-green-700' 
+                                  : 'bg-red-100 text-red-700'
+                              }`}>
+                                {item.isActive !== false ? 'Active' : 'Inactive'}
+                              </span>
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              Added: {new Date(item.timestamp).toLocaleString()}
+                            </div>
+                          </>
+                        )}
                       </div>
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        disabled={deleteMutation.isPending}
-                        className="opacity-0 group-hover:opacity-100 flex-shrink-0 p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        title="Delete this knowledge entry"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => handleEditKnowledge(item)}
+                          disabled={editingKnowledge !== null}
+                          className="flex-shrink-0 p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-all disabled:opacity-50"
+                          title="Edit this knowledge entry"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleToggleActive(item)}
+                          disabled={updateTrainingMutation.isPending}
+                          className={`flex-shrink-0 p-2 rounded-md transition-all disabled:opacity-50 ${
+                            item.isActive !== false
+                              ? 'text-orange-500 hover:text-orange-700 hover:bg-orange-50'
+                              : 'text-green-500 hover:text-green-700 hover:bg-green-50'
+                          }`}
+                          title={item.isActive !== false ? 'Deactivate (exclude from AI)' : 'Activate (include in AI)'}
+                        >
+                          <div className="w-4 h-4 rounded-full border-2 border-current flex items-center justify-center">
+                            {item.isActive !== false ? (
+                              <div className="w-2 h-2 bg-current rounded-full"></div>
+                            ) : null}
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          disabled={deleteMutation.isPending}
+                          className="flex-shrink-0 p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-all disabled:opacity-50"
+                          title="Delete this knowledge entry"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

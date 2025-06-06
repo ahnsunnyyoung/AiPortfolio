@@ -12,8 +12,8 @@ export async function generatePersonalizedResponse(userQuestion: string): Promis
   }
 
   try {
-    // Get all training data to build context
-    const trainingData = await storage.getAllTrainingData();
+    // Get only active training data to build context
+    const trainingData = await storage.getActiveTrainingData();
     const recentConversations = await storage.getRecentConversations(5);
     const projects = await storage.getAllProjects();
     const experiences = await storage.getAllExperiences();
