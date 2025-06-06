@@ -81,6 +81,7 @@ export default function Portfolio() {
   );
   const [recentlyAskedQuestions, setRecentlyAskedQuestions] = useState<string[]>([]);
   const [isAskAboutExpanded, setIsAskAboutExpanded] = useState(true);
+  const [isThinking, setIsThinking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -118,6 +119,9 @@ export default function Portfolio() {
       return response.json();
     },
     onSuccess: (data) => {
+      // Start thinking animation
+      setIsThinking(true);
+      
       // Add a thinking delay to make the AI feel more natural
       setTimeout(() => {
         const aiMessage: Message = {
@@ -135,6 +139,7 @@ export default function Portfolio() {
           isSkillsResponse: data.isSkillsResponse
         };
         setMessages((prev) => [...prev, aiMessage]);
+        setIsThinking(false);
       }, 800); // 0.8 second thinking delay
     },
     onError: (error: any) => {
