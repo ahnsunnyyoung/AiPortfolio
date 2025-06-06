@@ -135,7 +135,7 @@ export default function Portfolio() {
           isSkillsResponse: data.isSkillsResponse
         };
         setMessages((prev) => [...prev, aiMessage]);
-      }, 1500); // 1.5 second thinking delay
+      }, 800); // 0.8 second thinking delay
     },
     onError: (error: any) => {
       toast({
@@ -488,7 +488,7 @@ export default function Portfolio() {
                                         isProjectResponse: true,
                                       };
                                       setMessages(prev => [...prev, aiMessage]);
-                                    }, 1500);
+                                    }, 800);
                                   }}
                                   className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
                                 >
