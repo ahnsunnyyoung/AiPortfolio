@@ -114,14 +114,17 @@ export default function Portfolio() {
   const startConversation = () => {
     if (!isExpanded) {
       setIsExpanded(true);
-      const welcomeMessage: Message = {
-        id: "welcome",
-        content:
-          "Hi! I'm Sunyoung's AI agent. I've been trained with her personal knowledge and experiences. Ask me anything about her background, skills, projects, or thoughts!",
-        isUser: false,
-        timestamp: new Date(),
-      };
-      setMessages([welcomeMessage]);
+      // Only add welcome message if there are no existing messages
+      if (messages.length === 0) {
+        const welcomeMessage: Message = {
+          id: "welcome",
+          content:
+            "Hi! I'm Sunyoung's AI agent. I've been trained with her personal knowledge and experiences. Ask me anything about her background, skills, projects, or thoughts!",
+          isUser: false,
+          timestamp: new Date(),
+        };
+        setMessages([welcomeMessage]);
+      }
     }
   };
 
