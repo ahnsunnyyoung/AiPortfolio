@@ -722,7 +722,7 @@ export default function Portfolio() {
               {isAskAboutExpanded && (
                 <div className="px-6 pb-3">
                   <div className="flex flex-wrap gap-2">
-                    {promptExamples.slice(0, 5).map((promptExample: PromptExample, index: number) => (
+                    {quickQuestions.map((promptExample: PromptExample, index: number) => (
                       <button
                         key={index}
                         onClick={() => handleQuickQuestion(promptExample)}
