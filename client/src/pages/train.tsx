@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Brain, Plus, Trash2, Save, ArrowLeft, Code, ExternalLink, User, Briefcase, X } from "lucide-react";
+import { Brain, Plus, Trash2, Save, ArrowLeft, Code, ExternalLink, User, Briefcase, X, MessageCircle } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
@@ -40,6 +40,7 @@ interface Experience {
 interface PromptExample {
   id: number;
   question: string;
+  responseType: string;
   isActive: boolean;
   displayOrder: number;
   timestamp: string;
@@ -611,6 +612,7 @@ export default function Train() {
   const trainingData: TrainingData[] = trainingDataQuery.data?.data || [];
   const projects: Project[] = projectsQuery.data?.projects || [];
   const experiences: Experience[] = experiencesQuery.data?.experiences || [];
+  const promptExamples: PromptExample[] = promptExamplesQuery.data?.examples || [];
 
   return (
     <div className="min-h-screen portfolio-gradient">
@@ -665,6 +667,17 @@ export default function Train() {
           >
             <Briefcase className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
             Experience
+          </button>
+          <button
+            onClick={() => setActiveTab("prompts")}
+            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+              activeTab === "prompts"
+                ? "bg-blue-500 text-white shadow-sm"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
+            Prompts
           </button>
         </div>
 
@@ -1307,6 +1320,149 @@ export default function Train() {
                 </div>
               </div>
             )}
+          </div>
+        ) : activeTab === "prompts" ? (
+          <div className="grid lg:grid-cols-2 gap-4 sm:gap-8">
+            {/* Add Prompt Form */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <Plus className="w-5 h-5" />
+                {editingPrompt ? "Edit Prompt Example" : "Add New Prompt Example"}
+              </h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Question *
+                  </label>
+                  <input
+                    type="text"
+                    value={promptForm.question}
+                    onChange={(e) => setPromptForm(prev => ({...prev, question: e.target.value}))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter the example question"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Response Type
+                  </label>
+                  <select
+                    value={promptForm.responseType}
+                    onChange={(e) => setPromptForm(prev => ({...prev, responseType: e.target.value}))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="ai">AI Response</option>
+                    <option value="projects">Show Projects</option>
+                    <option value="experiences">Show Experiences</option>
+                  </select>
+                </div>
+                
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Display Order
+                    </label>
+                    <input
+                      type="number"
+                      value={promptForm.displayOrder}
+                      onChange={(e) => setPromptForm(prev => ({...prev, displayOrder: parseInt(e.target.value) || 0}))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Order (0-100)"
+                      min="0"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center pt-6">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={promptForm.isActive}
+                        onChange={(e) => setPromptForm(prev => ({...prev, isActive: e.target.checked}))}
+                        className="rounded border-gray-300 text-blue-500 focus:ring-blue-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">Active</span>
+                    </label>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 pt-4">
+                  {editingPrompt && (
+                    <button
+                      onClick={resetPromptForm}
+                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                  <button
+                    onClick={handlePromptSubmit}
+                    disabled={addPromptExampleMutation.isPending || updatePromptExampleMutation.isPending}
+                    className="flex-1 bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-blue-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {(addPromptExampleMutation.isPending || updatePromptExampleMutation.isPending) ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    ) : (
+                      <Save className="w-4 h-4" />
+                    )}
+                    {editingPrompt ? "Update Prompt" : "Save Prompt"}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Prompt Examples List */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <MessageCircle className="w-5 h-5" />
+                Prompt Examples ({promptExamples.length})
+              </h2>
+              
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {promptExamples.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">No prompt examples yet. Add your first one!</p>
+                ) : (
+                  promptExamples.map((prompt) => (
+                    <div key={prompt.id} className="border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-800 truncate">{prompt.question}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className={`px-2 py-1 text-xs rounded-full ${
+                              prompt.responseType === 'projects' ? 'bg-blue-100 text-blue-700' :
+                              prompt.responseType === 'experiences' ? 'bg-green-100 text-green-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}>
+                              {prompt.responseType === 'projects' ? 'Projects' :
+                               prompt.responseType === 'experiences' ? 'Experiences' : 'AI Response'}
+                            </span>
+                            <span className="text-xs text-gray-500">Order: {prompt.displayOrder}</span>
+                            {!prompt.isActive && <span className="text-xs text-red-500">Inactive</span>}
+                          </div>
+                        </div>
+                        <div className="flex gap-1 flex-shrink-0">
+                          <button
+                            onClick={() => handlePromptEdit(prompt)}
+                            className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                            title="Edit prompt"
+                          >
+                            <Save className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handlePromptDelete(prompt.id)}
+                            className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+                            title="Delete prompt"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
         ) : (
           <div>Invalid tab selected</div>
