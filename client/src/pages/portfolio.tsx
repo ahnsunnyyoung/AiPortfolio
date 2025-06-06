@@ -398,10 +398,10 @@ export default function Portfolio() {
               <div className="flex flex-wrap gap-2">
                 <span className="text-xs text-gray-500 mr-2">Ask about:</span>
                 {[
-                  "What are your technical skills?",
-                  "Tell me about your projects",
-                  "What's your development philosophy?",
-                  "How can I contact you?"
+                  "Show me your projects",
+                  "What have you built?",
+                  "Tell me about your technical skills",
+                  "What's your development philosophy?"
                 ].map((question, index) => (
                   <button
                     key={index}
