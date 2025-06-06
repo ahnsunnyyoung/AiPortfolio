@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Send, Bot, User, Sparkles, Brain, X } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -69,6 +69,14 @@ export default function Portfolio() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
+  // Fetch active prompt examples
+  const { data: promptExamplesData } = useQuery({
+    queryKey: ["/api/prompt-examples/active"],
+    queryFn: () => apiRequest("GET", "/api/prompt-examples/active").then(res => res.json())
+  });
+
+  const promptExamples = promptExamplesData?.examples || [];
+
   // Handle click outside to close chat
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -88,8 +96,8 @@ export default function Portfolio() {
   }, [isExpanded]);
 
   const askMutation = useMutation({
-    mutationFn: async (question: string) => {
-      const response = await apiRequest("POST", "/api/ask", { question });
+    mutationFn: async ({ question, promptExampleId }: { question: string; promptExampleId?: number }) => {
+      const response = await apiRequest("POST", "/api/ask", { question, promptExampleId });
       return response.json();
     },
     onSuccess: (data) => {
@@ -167,7 +175,7 @@ export default function Portfolio() {
       }, 10000);
     }
     
-    askMutation.mutate(inputValue);
+    askMutation.mutate({ question: inputValue });
     setInputValue("");
   };
 
@@ -191,7 +199,8 @@ export default function Portfolio() {
     .filter(q => !recentlyAskedQuestions.includes(q))
     .slice(0, 4);
 
-  const handleQuickQuestion = (question: string) => {
+  const handleQuickQuestion = (promptExample: PromptExample) => {
+    const question = promptExample.question;
     startConversation();
 
     const userMessage: Message = {
@@ -209,7 +218,7 @@ export default function Portfolio() {
       setRecentlyAskedQuestions(prev => prev.filter(q => q !== question));
     }, 10000);
     
-    askMutation.mutate(question);
+    askMutation.mutate({ question, promptExampleId: promptExample.id });
   };
 
   const handleLongPressStart = () => {
