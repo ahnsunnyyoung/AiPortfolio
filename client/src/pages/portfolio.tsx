@@ -20,13 +20,27 @@ interface Project {
   width: string;
 }
 
+interface Experience {
+  id: number;
+  company: string;
+  position: string;
+  period: string;
+  location: string;
+  description?: string;
+  responsibilities?: string[];
+  skills?: string;
+  website?: string;
+}
+
 interface Message {
   id: string;
   content: string;
   isUser: boolean;
   timestamp: Date;
   projects?: Project[];
+  experiences?: Experience[];
   isProjectResponse?: boolean;
+  isExperienceResponse?: boolean;
 }
 
 export default function Portfolio() {
@@ -43,6 +57,25 @@ export default function Portfolio() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+
+  // Handle click outside to close chat
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isExpanded && chatContainerRef.current && !chatContainerRef.current.contains(event.target as Node)) {
+        setIsExpanded(false);
+        setMessages([]);
+        setInputValue("");
+      }
+    };
+
+    if (isExpanded) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isExpanded]);
 
   const askMutation = useMutation({
     mutationFn: async (question: string) => {
@@ -122,10 +155,10 @@ export default function Portfolio() {
   };
 
   const quickQuestions = [
+    "Show me your projects",
+    "What's your work experience?",
     "What are your main skills and expertise?",
-    "Tell me about your recent projects",
     "What's your development philosophy?",
-    "How can I contact you for collaboration?",
   ];
 
   const handleQuickQuestion = (question: string) => {
@@ -318,7 +351,7 @@ export default function Portfolio() {
 
       {/* Chat Container */}
       <div className="flex-1 max-w-4xl mx-auto w-full px-6 py-6 flex flex-col min-h-0">
-        <div className="flex-1 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden flex flex-col min-h-0">
+        <div ref={chatContainerRef} className="flex-1 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto p-6 space-y-6 chat-container">
             {messages.map((message) => (
               <div
