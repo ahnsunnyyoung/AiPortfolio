@@ -9,6 +9,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 interface TrainingData {
   id: number;
   content: string;
+  isActive: boolean;
   timestamp: string;
 }
 
@@ -691,19 +692,20 @@ export default function Train() {
 
     // Batch update display orders for reordered skills
     setTimeout(() => {
-      reorderedSkills.forEach((skill, index) => {
-        if (skill.displayOrder !== index) {
+      for (let i = 0; i < reorderedSkills.length; i++) {
+        const skill = reorderedSkills[i];
+        if (skill.displayOrder !== i) {
           updateSkillMutation.mutate({
             id: skill.id,
             skill: { 
               name: skill.name,
               categoryId: skill.categoryId,
               proficiency: skill.proficiency,
-              displayOrder: index 
+              displayOrder: i 
             }
           });
         }
-      });
+      }
     }, 100);
   };
 
@@ -1047,7 +1049,7 @@ export default function Train() {
               </div>
             ) : (
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {trainingData.map((item) => (
+                {trainingData.map((item: any) => (
                   <div key={item.id} className={`bg-white rounded-lg p-4 border border-gray-200 group ${
                     item.isActive === false ? 'opacity-60 bg-gray-50' : ''
                   }`}>
