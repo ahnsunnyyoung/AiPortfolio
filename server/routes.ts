@@ -167,6 +167,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update project endpoint
+  app.put("/api/projects/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid project ID" });
+      }
+      
+      const projectData = req.body;
+      const result = await storage.updateProject(id, projectData);
+      res.json({ 
+        success: true,
+        message: "Project updated successfully",
+        project: result
+      });
+    } catch (error) {
+      console.error("Update project error:", error);
+      res.status(500).json({ error: "Failed to update project" });
+    }
+  });
+
   // Delete project endpoint
   app.delete("/api/projects/:id", async (req, res) => {
     try {

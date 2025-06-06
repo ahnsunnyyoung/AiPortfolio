@@ -10,6 +10,7 @@ export interface IStorage {
   getRecentConversations(limit?: number): Promise<Conversation[]>;
   addProject(project: InsertProject): Promise<Project>;
   getAllProjects(): Promise<Project[]>;
+  updateProject(id: number, project: InsertProject): Promise<Project>;
   deleteProject(id: number): Promise<void>;
   initializeProjects(): Promise<void>;
 }
@@ -65,6 +66,15 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(projects)
       .orderBy(desc(projects.timestamp));
+  }
+
+  async updateProject(id: number, project: InsertProject): Promise<Project> {
+    const [result] = await db
+      .update(projects)
+      .set(project)
+      .where(eq(projects.id, id))
+      .returning();
+    return result;
   }
 
   async deleteProject(id: number): Promise<void> {

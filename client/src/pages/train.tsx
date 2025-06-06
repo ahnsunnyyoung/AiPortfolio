@@ -131,25 +131,35 @@ export default function Train() {
         title: "Project Added",
         description: "Project has been added successfully",
       });
-      setShowProjectForm(false);
-      setProjectForm({
-        title: "",
-        period: "",
-        subtitle: "",
-        summary: "",
-        contents: [""],
-        tech: "",
-        img: "",
-        imgAlt: "",
-        moreLink: "",
-        width: "47%"
-      });
+      resetProjectForm();
       queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
     },
     onError: (error: any) => {
       toast({
         title: "Add Failed",
         description: error.message || "Failed to add project",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const updateProjectMutation = useMutation({
+    mutationFn: async ({ id, project }: { id: number, project: any }) => {
+      const response = await apiRequest("PUT", `/api/projects/${id}`, project);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Project Updated",
+        description: "Project has been updated successfully",
+      });
+      resetProjectForm();
+      queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to update project",
         variant: "destructive"
       });
     }
@@ -180,6 +190,40 @@ export default function Train() {
     if (window.confirm("Are you sure you want to delete this project?")) {
       deleteProjectMutation.mutate(id);
     }
+  };
+
+  const resetProjectForm = () => {
+    setShowProjectForm(false);
+    setEditingProject(null);
+    setProjectForm({
+      title: "",
+      period: "",
+      subtitle: "",
+      summary: "",
+      contents: [""],
+      tech: "",
+      img: "",
+      imgAlt: "",
+      moreLink: "",
+      width: "47%"
+    });
+  };
+
+  const handleProjectEdit = (project: Project) => {
+    setEditingProject(project);
+    setProjectForm({
+      title: project.title,
+      period: project.period,
+      subtitle: project.subtitle,
+      summary: project.summary,
+      contents: project.contents,
+      tech: project.tech,
+      img: project.img,
+      imgAlt: project.imgAlt,
+      moreLink: project.moreLink || "",
+      width: project.width
+    });
+    setShowProjectForm(true);
   };
 
   const handleProjectSubmit = () => {
