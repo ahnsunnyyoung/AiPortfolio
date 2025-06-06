@@ -45,6 +45,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { question } = askRequestSchema.parse(req.body);
       
+      // Check if the question is about projects
+      const projectKeywords = ['project', 'projects', 'work', 'portfolio', 'built', 'developed', 'created', 'app', 'application', 'website'];
+      const isProjectQuestion = projectKeywords.some(keyword => 
+        question.toLowerCase().includes(keyword)
+      );
+      
+      if (isProjectQuestion) {
+        const projects = await storage.getAllProjects();
+        
+        // Store the conversation
+        await storage.addConversation({
+          question,
+          answer: "PROJECT_SHOWCASE" // Special marker for project responses
+        });
+        
+        res.json({ 
+          answer: "Here are my projects:",
+          projects: projects,
+          isProjectResponse: true
+        });
+        return;
+      }
+      
       const aiResponse = await generatePersonalizedResponse(question);
       
       // Store the conversation for context in future responses
@@ -111,6 +134,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get conversations error:", error);
       res.status(500).json({ error: "Failed to retrieve conversations" });
+    }
+  });
+
+  // Get projects endpoint
+  app.get("/api/projects", async (_req, res) => {
+    try {
+      const projects = await storage.getAllProjects();
+      res.json({ projects });
+    } catch (error) {
+      console.error("Get projects error:", error);
+      res.status(500).json({ error: "Failed to retrieve projects" });
     }
   });
 
