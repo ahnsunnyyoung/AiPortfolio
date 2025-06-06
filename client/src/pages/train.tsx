@@ -632,7 +632,7 @@ export default function Train() {
             </div>
           </div>
           </div>
-        ) : (
+        ) : activeTab === "projects" ? (
           // Projects Tab
           <div className="space-y-8">
             {/* Projects Header with Add Button */}
@@ -891,7 +891,7 @@ export default function Train() {
               </div>
             )}
           </div>
-        ) : (
+        ) : activeTab === "experience" ? (
           <div className="space-y-6">
             {/* Experience Header */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
@@ -1151,6 +1151,8 @@ export default function Train() {
               </div>
             )}
           </div>
+        ) : (
+          <div>Invalid tab selected</div>
         )}
       </div>
     </div>
