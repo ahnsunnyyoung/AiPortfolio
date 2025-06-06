@@ -1095,6 +1095,22 @@ export default function Train() {
                           />
                         </div>
                       </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Detailed Content (for "Ask more" responses)
+                        </label>
+                        <textarea
+                          value={projectForm.detailedContent}
+                          onChange={(e) => setProjectForm(prev => ({...prev, detailedContent: e.target.value}))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          rows={4}
+                          placeholder="Enter detailed information that will be shown when users click 'Ask more' for this project..."
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          This content will appear as a predefined response when users click "Ask more" instead of using AI generation.
+                        </p>
+                      </div>
                     </div>
                     
                     <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
@@ -1361,20 +1377,52 @@ export default function Train() {
                         </button>
                       </div>
                       
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Skills & Technologies
-                        </label>
-                        <input
-                          type="text"
-                          value={experienceForm.skills}
-                          onChange={(e) => setExperienceForm(prev => ({...prev, skills: e.target.value}))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="React / TypeScript / Node.js"
-                        />
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Skills & Technologies
+                          </label>
+                          <input
+                            type="text"
+                            value={experienceForm.skills}
+                            onChange={(e) => setExperienceForm(prev => ({...prev, skills: e.target.value}))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="React / TypeScript / Node.js"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Company Website
+                          </label>
+                          <input
+                            type="url"
+                            value={experienceForm.website}
+                            onChange={(e) => setExperienceForm(prev => ({...prev, website: e.target.value}))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="https://company.com"
+                          />
+                        </div>
                       </div>
                       
-                      <div className="flex gap-3 pt-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Detailed Content (for "Ask more" responses)
+                        </label>
+                        <textarea
+                          value={experienceForm.detailedContent}
+                          onChange={(e) => setExperienceForm(prev => ({...prev, detailedContent: e.target.value}))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          rows={4}
+                          placeholder="Enter detailed information that will be shown when users click 'Ask more' for this experience..."
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          This content will appear as a predefined response when users click "Ask more" instead of using AI generation.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-3 pt-4">
                         <button
                           onClick={() => setShowExperienceForm(false)}
                           className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
