@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Send, Bot, User, Sparkles, Brain, X } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
@@ -40,6 +40,7 @@ export default function Portfolio() {
     null,
   );
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 

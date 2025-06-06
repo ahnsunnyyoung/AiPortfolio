@@ -246,10 +246,17 @@ export default function Train() {
       return;
     }
 
-    addProjectMutation.mutate({
-      ...projectForm,
-      contents: filteredContents
-    });
+    if (editingProject) {
+      updateProjectMutation.mutate({ 
+        id: editingProject.id, 
+        project: { ...projectForm, contents: filteredContents }
+      });
+    } else {
+      addProjectMutation.mutate({
+        ...projectForm,
+        contents: filteredContents
+      });
+    }
   };
 
   const addContentField = () => {
@@ -465,14 +472,24 @@ export default function Train() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   {projects.map((project) => (
                     <div key={project.id} className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 group relative">
-                      <button
-                        onClick={() => handleProjectDelete(project.id)}
-                        disabled={deleteProjectMutation.isPending}
-                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-all disabled:opacity-50"
-                        title="Delete project"
-                      >
-                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                      </button>
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 flex gap-1">
+                        <button
+                          onClick={() => handleProjectEdit(project)}
+                          disabled={updateProjectMutation.isPending}
+                          className="p-1 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded transition-all disabled:opacity-50"
+                          title="Edit project"
+                        >
+                          <Brain className="w-3 h-3 sm:w-4 sm:h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleProjectDelete(project.id)}
+                          disabled={deleteProjectMutation.isPending}
+                          className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-all disabled:opacity-50"
+                          title="Delete project"
+                        >
+                          <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                        </button>
+                      </div>
                       
                       <h4 className="font-semibold text-gray-800 mb-2 pr-8 text-sm sm:text-base">{project.title}</h4>
                       <p className="text-xs text-gray-500 mb-2">{project.period}</p>
@@ -521,7 +538,9 @@ export default function Train() {
                 <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
                   <div className="p-4 sm:p-6">
                     <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-xl font-semibold text-gray-800">Add New Project</h3>
+                      <h3 className="text-xl font-semibold text-gray-800">
+                        {editingProject ? "Edit Project" : "Add New Project"}
+                      </h3>
                       <button
                         onClick={() => setShowProjectForm(false)}
                         className="text-gray-400 hover:text-gray-600 transition-colors"
