@@ -21,6 +21,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await storage.initializeProjects();
   await storage.initializeExperiences();
   await storage.initializePromptExamples();
+  await storage.initializeContact();
+  await storage.initializeSkills();
 
   // Train endpoint - for adding knowledge to the AI
   app.post("/api/train", async (req, res) => {
@@ -112,6 +114,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 github: "https://github.com/ahnsunnyyoung",
               },
               isContactResponse: true,
+            });
+            return;
+          }
+          
+          if (promptExample.responseType === "skills") {
+            const skillCategories = await storage.getAllSkillCategories();
+            const allSkills = await storage.getAllSkills();
+            
+            // Organize skills by category
+            const organizedSkills: Record<string, string[]> = {};
+            for (const category of skillCategories) {
+              const categorySkills = allSkills
+                .filter(skill => skill.categoryId === category.id)
+                .map(skill => skill.name);
+              organizedSkills[category.name.toLowerCase()] = categorySkills;
+            }
+            
+            // Store the conversation
+            await storage.addConversation({
+              question,
+              answer: "SKILLS_SHOWCASE" // Special marker for skills responses
+            });
+            
+            res.json({ 
+              answer: "Here are my technical skills and expertise:",
+              skills: organizedSkills,
+              skillCategories: skillCategories,
+              isSkillsResponse: true
             });
             return;
           }
@@ -401,6 +431,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Delete prompt example error:", error);
       res.status(500).json({ error: "Failed to delete prompt example" });
+    }
+  });
+
+  // Contact management endpoints
+  app.get("/api/contact", async (req, res) => {
+    try {
+      const contact = await storage.getContact();
+      res.json({ success: true, contact });
+    } catch (error) {
+      console.error("Get contact error:", error);
+      res.status(500).json({ success: false, error: "Failed to get contact" });
+    }
+  });
+
+  app.put("/api/contact", async (req, res) => {
+    try {
+      const contactData = req.body;
+      const contact = await storage.updateContact(contactData);
+      res.json({ success: true, contact, message: "Contact updated successfully" });
+    } catch (error) {
+      console.error("Update contact error:", error);
+      res.status(500).json({ success: false, error: "Failed to update contact" });
+    }
+  });
+
+  // Skills management endpoints
+  app.get("/api/skill-categories", async (req, res) => {
+    try {
+      const categories = await storage.getAllSkillCategories();
+      res.json({ success: true, categories });
+    } catch (error) {
+      console.error("Get skill categories error:", error);
+      res.status(500).json({ success: false, error: "Failed to get skill categories" });
+    }
+  });
+
+  app.get("/api/skills", async (req, res) => {
+    try {
+      const skills = await storage.getAllSkills();
+      res.json({ success: true, skills });
+    } catch (error) {
+      console.error("Get skills error:", error);
+      res.status(500).json({ success: false, error: "Failed to get skills" });
+    }
+  });
+
+  app.post("/api/skills", async (req, res) => {
+    try {
+      const skillData = req.body;
+      const skill = await storage.addSkill(skillData);
+      res.json({ success: true, skill, message: "Skill added successfully" });
+    } catch (error) {
+      console.error("Add skill error:", error);
+      res.status(500).json({ success: false, error: "Failed to add skill" });
+    }
+  });
+
+  app.put("/api/skills/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const skillData = req.body;
+      const skill = await storage.updateSkill(id, skillData);
+      res.json({ success: true, skill, message: "Skill updated successfully" });
+    } catch (error) {
+      console.error("Update skill error:", error);
+      res.status(500).json({ success: false, error: "Failed to update skill" });
+    }
+  });
+
+  app.delete("/api/skills/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteSkill(id);
+      res.json({ success: true, message: "Skill deleted successfully" });
+    } catch (error) {
+      console.error("Delete skill error:", error);
+      res.status(500).json({ success: false, error: "Failed to delete skill" });
     }
   });
 
