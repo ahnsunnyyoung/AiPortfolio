@@ -36,9 +36,10 @@ export const experiences = pgTable("experiences", {
   position: text("position").notNull(),
   period: text("period").notNull(),
   location: text("location").notNull(),
-  description: text("description").notNull(),
-  responsibilities: text("responsibilities").array().notNull(),
-  skills: text("skills").notNull(),
+  description: text("description"),
+  responsibilities: text("responsibilities").array(),
+  skills: text("skills"),
+  website: text("website"),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
@@ -72,6 +73,7 @@ export const insertExperienceSchema = createInsertSchema(experiences).pick({
   description: true,
   responsibilities: true,
   skills: true,
+  website: true,
 });
 
 export type InsertTrainingData = z.infer<typeof insertTrainingDataSchema>;

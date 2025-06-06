@@ -31,9 +31,10 @@ interface Experience {
   position: string;
   period: string;
   location: string;
-  description: string;
-  responsibilities: string[];
-  skills: string;
+  description?: string;
+  responsibilities?: string[];
+  skills?: string;
+  website?: string;
 }
 
 export default function Train() {
@@ -62,7 +63,8 @@ export default function Train() {
     location: "",
     description: "",
     responsibilities: [""],
-    skills: ""
+    skills: "",
+    website: ""
   });
   const { toast } = useToast();
 
@@ -386,7 +388,8 @@ export default function Train() {
       location: "",
       description: "",
       responsibilities: [""],
-      skills: ""
+      skills: "",
+      website: ""
     });
   };
 
@@ -397,9 +400,10 @@ export default function Train() {
       position: experience.position,
       period: experience.period,
       location: experience.location,
-      description: experience.description,
-      responsibilities: experience.responsibilities,
-      skills: experience.skills
+      description: experience.description || "",
+      responsibilities: experience.responsibilities || [""],
+      skills: experience.skills || "",
+      website: experience.website || ""
     });
     setShowExperienceForm(true);
   };
@@ -953,33 +957,46 @@ export default function Train() {
                         <h4 className="font-semibold text-gray-800 text-base sm:text-lg">{experience.position}</h4>
                         <p className="text-blue-600 font-medium text-sm sm:text-base">{experience.company}</p>
                         <p className="text-gray-500 text-xs sm:text-sm mb-2">{experience.period} • {experience.location}</p>
-                        <p className="text-gray-700 text-sm mb-3">{experience.description}</p>
+                        {experience.description && (
+                          <p className="text-gray-700 text-sm mb-3">{experience.description}</p>
+                        )}
+                        {experience.website && (
+                          <p className="text-sm mb-3">
+                            <a href={experience.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                              {experience.website}
+                            </a>
+                          </p>
+                        )}
                         
-                        <div className="mb-3">
-                          <h5 className="font-medium text-gray-800 text-sm mb-1">Key Responsibilities:</h5>
-                          <ul className="list-disc list-inside space-y-1">
-                            {experience.responsibilities.slice(0, 3).map((resp, index) => (
-                              <li key={index} className="text-gray-600 text-xs sm:text-sm">{resp}</li>
+                        {experience.responsibilities && experience.responsibilities.length > 0 && (
+                          <div className="mb-3">
+                            <h5 className="font-medium text-gray-800 text-sm mb-1">Key Responsibilities:</h5>
+                            <ul className="list-disc list-inside space-y-1">
+                              {experience.responsibilities.slice(0, 3).map((resp, index) => (
+                                <li key={index} className="text-gray-600 text-xs sm:text-sm">{resp}</li>
+                              ))}
+                              {experience.responsibilities.length > 3 && (
+                                <li className="text-gray-500 text-xs">+{experience.responsibilities.length - 3} more</li>
+                              )}
+                            </ul>
+                          </div>
+                        )}
+                        
+                        {experience.skills && (
+                          <div className="flex flex-wrap gap-1">
+                            {experience.skills.split(' / ').slice(0, 4).map((skill, index) => (
+                              <span
+                                key={index}
+                                className="px-2 py-1 bg-green-50 text-green-700 text-xs rounded-full border border-green-200"
+                              >
+                                {skill}
+                              </span>
                             ))}
-                            {experience.responsibilities.length > 3 && (
-                              <li className="text-gray-500 text-xs">+{experience.responsibilities.length - 3} more</li>
+                            {experience.skills.split(' / ').length > 4 && (
+                              <span className="text-xs text-gray-500">+{experience.skills.split(' / ').length - 4}</span>
                             )}
-                          </ul>
-                        </div>
-                        
-                        <div className="flex flex-wrap gap-1">
-                          {experience.skills.split(' / ').slice(0, 4).map((skill, index) => (
-                            <span
-                              key={index}
-                              className="px-2 py-1 bg-green-50 text-green-700 text-xs rounded-full border border-green-200"
-                            >
-                              {skill}
-                            </span>
-                          ))}
-                          {experience.skills.split(' / ').length > 4 && (
-                            <span className="text-xs text-gray-500">+{experience.skills.split(' / ').length - 4}</span>
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
