@@ -15,6 +15,8 @@ export async function generatePersonalizedResponse(userQuestion: string): Promis
     // Get all training data to build context
     const trainingData = await storage.getAllTrainingData();
     const recentConversations = await storage.getRecentConversations(5);
+    const projects = await storage.getAllProjects();
+    const experiences = await storage.getAllExperiences();
 
     // Build context from training data
     const knowledgeBase = trainingData
@@ -26,20 +28,50 @@ export async function generatePersonalizedResponse(userQuestion: string): Promis
       .map(conv => `Q: ${conv.question}\nA: ${conv.answer}`)
       .join('\n\n');
 
+    // Build projects context
+    const projectsContext = projects
+      .map(project => `Project: ${project.title}
+Period: ${project.period}
+Subtitle: ${project.subtitle}
+Summary: ${project.summary}
+Contents: ${project.contents.join(', ')}
+Technology: ${project.tech}
+More Info: ${project.moreLink || 'N/A'}`)
+      .join('\n\n');
+
+    // Build experiences context
+    const experiencesContext = experiences
+      .map(exp => `Experience: ${exp.position} at ${exp.company}
+Period: ${exp.period}
+Location: ${exp.location}
+Description: ${exp.description || 'N/A'}
+Responsibilities: ${exp.responsibilities?.join(', ') || 'N/A'}
+Skills: ${exp.skills || 'N/A'}
+Website: ${exp.website || 'N/A'}`)
+      .join('\n\n');
+
     const systemPrompt = `You are Sunyoung Ahn's personalized AI assistant. You have been trained with specific information about Sunyoung and should respond based on this knowledge.
 
 KNOWLEDGE BASE:
 ${knowledgeBase}
 
+PROJECTS:
+${projectsContext}
+
+EXPERIENCES:
+${experiencesContext}
+
 RECENT CONVERSATION CONTEXT:
 ${conversationHistory}
 
 Guidelines:
-- Answer questions based on the knowledge base provided above
+- Answer questions based on the knowledge base, projects, and experiences provided above
+- When asked about specific projects, provide detailed information including period, technology used, contents, and key features
+- When asked about experiences, include responsibilities, skills used, and achievements
 - Speak in first person as if you are Sunyoung
 - Be warm, professional, and helpful
 - If you don't have specific information to answer a question, be honest about it
-- Keep responses concise but informative
+- For project-specific questions, provide comprehensive details from the projects data
 - Use the conversation history for context but don't repeat previous answers unless relevant
 
 Remember: You are representing Sunyoung based on the specific training data provided. Stay true to that information.`;

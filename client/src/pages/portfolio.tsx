@@ -443,11 +443,35 @@ export default function Portfolio() {
                     {message.content}
                   </p>
                   
-                  {/* Project Cards Display */}
+                  {/* Project List Display */}
                   {message.isProjectResponse && message.projects && (
-                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="mt-4 space-y-3">
                       {message.projects.map((project) => (
-                        <ProjectCard key={project.id} project={project} />
+                        <div key={project.id} className="bg-white rounded-lg border border-gray-200 p-4">
+                          <div className="flex justify-between items-start gap-3">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-800 text-lg">{project.title}</h4>
+                              <p className="text-gray-600 text-sm mb-1">{project.period}</p>
+                              <p className="text-gray-700 text-sm">{project.summary}</p>
+                            </div>
+                            <button
+                              onClick={() => {
+                                const detailQuestion = `${project.title} 프로젝트에 대해 자세히 알려주세요`;
+                                handleQuickQuestion({
+                                  id: 0,
+                                  question: detailQuestion,
+                                  responseType: "ai",
+                                  isActive: true,
+                                  displayOrder: 0,
+                                  timestamp: new Date().toISOString()
+                                });
+                              }}
+                              className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
+                            >
+                              더 물어보기
+                            </button>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   )}
