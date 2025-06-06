@@ -145,6 +145,15 @@ export default function Portfolio() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    
+    // Add to recently asked questions if it matches a quick question
+    if (allQuickQuestions.includes(inputValue)) {
+      setRecentlyAskedQuestions(prev => [...prev, inputValue]);
+      setTimeout(() => {
+        setRecentlyAskedQuestions(prev => prev.filter(q => q !== inputValue));
+      }, 10000);
+    }
+    
     askMutation.mutate(inputValue);
     setInputValue("");
   };
@@ -180,6 +189,13 @@ export default function Portfolio() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    
+    // Add to recently asked questions and remove after 10 seconds
+    setRecentlyAskedQuestions(prev => [...prev, question]);
+    setTimeout(() => {
+      setRecentlyAskedQuestions(prev => prev.filter(q => q !== question));
+    }, 10000);
+    
     askMutation.mutate(question);
   };
 
