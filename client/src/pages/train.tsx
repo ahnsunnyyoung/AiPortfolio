@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Brain, Plus, Trash2, Save, ArrowLeft, Code, ExternalLink, User, Briefcase, X, MessageCircle } from "lucide-react";
+import { Brain, Plus, Trash2, Save, ArrowLeft, Code, ExternalLink, User, Briefcase, X, MessageCircle, GripVertical, Edit3 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 interface TrainingData {
   id: number;
@@ -119,6 +120,8 @@ export default function Train() {
     website: "",
     phone: ""
   });
+  const [editingSkill, setEditingSkill] = useState<number | null>(null);
+  const [editingSkillName, setEditingSkillName] = useState("");
   const { toast } = useToast();
 
   const trainingDataQuery = useQuery({
@@ -574,6 +577,71 @@ export default function Train() {
       });
     }
   });
+
+  const updateSkillMutation = useMutation({
+    mutationFn: async ({ id, skill }: { id: number, skill: any }) => {
+      const response = await apiRequest("PUT", `/api/skills/${id}`, skill);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Skill Updated",
+        description: "Skill has been updated successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/skills'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to update skill",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const skills = skillsQuery.data?.skills || [];
+    const categoryId = parseInt(result.droppableId);
+    const categorySkills = skills.filter((skill: Skill) => skill.categoryId === categoryId);
+    
+    const [reorderedItem] = categorySkills.splice(result.source.index, 1);
+    categorySkills.splice(result.destination.index, 0, reorderedItem);
+
+    // Update display orders
+    categorySkills.forEach((skill: Skill, index: number) => {
+      updateSkillMutation.mutate({
+        id: skill.id,
+        skill: { ...skill, displayOrder: index }
+      });
+    });
+  };
+
+  const handleSkillEdit = (skill: Skill) => {
+    setEditingSkill(skill.id);
+    setEditingSkillName(skill.name);
+  };
+
+  const handleSkillSave = () => {
+    if (editingSkill && editingSkillName.trim()) {
+      const skills = skillsQuery.data?.skills || [];
+      const skill = skills.find((s: Skill) => s.id === editingSkill);
+      if (skill) {
+        updateSkillMutation.mutate({
+          id: editingSkill,
+          skill: { ...skill, name: editingSkillName.trim() }
+        });
+      }
+    }
+    setEditingSkill(null);
+    setEditingSkillName("");
+  };
+
+  const handleSkillCancel = () => {
+    setEditingSkill(null);
+    setEditingSkillName("");
+  };
 
   const resetPromptForm = () => {
     setShowPromptForm(false);
