@@ -181,27 +181,27 @@ export default function Portfolio() {
   if (!isExpanded) {
     // Initial state - just logo and prompt
     return (
-      <div className="h-screen portfolio-gradient flex flex-col items-center justify-center px-6 overflow-hidden">
-        <div className="text-center max-w-4xl mx-auto">
+      <div className="h-screen portfolio-gradient flex flex-col items-center justify-center px-3 sm:px-6 overflow-hidden">
+        <div className="text-center max-w-4xl mx-auto w-full">
           {/* Logo Area */}
-          <div className="mb-8">
-            <p className="text-lg md:text-xl text-gray-600 mb-4 font-medium">
+          <div className="mb-6 sm:mb-8">
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-3 sm:mb-4 font-medium">
               Frontend Developer
             </p>
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold text-gray-800 mb-6 leading-tight text-shadow">
+            <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-bold text-gray-800 mb-4 sm:mb-6 leading-tight text-shadow">
               Sunyoung Ahn
             </h1>
-            <p className="text-lg md:text-xl text-gray-600 italic mb-8">
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 italic mb-6 sm:mb-8 px-2">
               Ask Sunny AI anything! It might just know me better than I do.
             </p>
           </div>
 
           {/* AI Agent Interface */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-8 mb-8">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-8 mb-6 sm:mb-8">
             {/* Input with AI Agent Icon */}
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
               <div
-                className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer select-none active:scale-95 transition-transform"
+                className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer select-none active:scale-95 transition-transform"
                 onMouseDown={handleLongPressStart}
                 onMouseUp={handleLongPressEnd}
                 onMouseLeave={handleLongPressEnd}
@@ -209,26 +209,26 @@ export default function Portfolio() {
                 onTouchEnd={handleLongPressEnd}
                 title="Long press for admin access"
               >
-                <Bot className="w-6 h-6 text-white" />
+                <Bot className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <div className="flex gap-3 flex-1">
+              <div className="flex gap-2 sm:gap-3 flex-1">
                 <input
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Ask me anything about Sunyoung..."
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                   disabled={askMutation.isPending}
                   onClick={startConversation}
                 />
                 <button
                   onClick={handleSendMessage}
                   disabled={!inputValue.trim() || askMutation.isPending}
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:from-gray-300 disabled:to-gray-300 text-white w-12 h-12 rounded-full flex items-center justify-center transition-all disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:from-gray-300 disabled:to-gray-300 text-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
                   aria-label="Send message"
                 >
-                  <Send className="w-5 h-5" />
+                  <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
             </div>
