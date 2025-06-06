@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Send, Bot, User, Sparkles, Brain } from "lucide-react";
+import { Send, Bot, User, Sparkles, Brain, X } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "wouter";
+import { useLocation } from "wouter";
 
 interface Message {
   id: string;
@@ -17,8 +17,12 @@ export default function Portfolio() {
   const [inputValue, setInputValue] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isCardExpanded, setIsCardExpanded] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [password, setPassword] = useState("");
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const askMutation = useMutation({
     mutationFn: async (question: string) => {
@@ -113,6 +117,42 @@ export default function Portfolio() {
     askMutation.mutate(question);
   };
 
+  const handleLongPressStart = () => {
+    const timer = setTimeout(() => {
+      setShowPasswordModal(true);
+    }, 2000); // 2 seconds long press
+    setLongPressTimer(timer);
+  };
+
+  const handleLongPressEnd = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+  };
+
+  const handlePasswordSubmit = () => {
+    if (password === "ahn9930") {
+      setLocation("/train");
+      setShowPasswordModal(false);
+      setPassword("");
+    } else {
+      toast({
+        title: "Access Denied",
+        description: "Incorrect password",
+        variant: "destructive"
+      });
+      setPassword("");
+    }
+  };
+
+  const handlePasswordKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handlePasswordSubmit();
+    }
+  };
+
   if (!isExpanded) {
     // Initial state - just logo and prompt
     return (
@@ -130,20 +170,22 @@ export default function Portfolio() {
               "Shine brightly like the sunshine"
             </p>
             
-            {/* Training Link */}
-            <div className="mb-8">
-              <Link href="/train" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition-colors">
-                <Brain className="w-4 h-4" />
-                Train AI Agent
-              </Link>
-            </div>
+
           </div>
 
           {/* AI Agent Interface */}
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-8 mb-8">
             {/* Input with AI Agent Icon */}
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <div 
+                className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer select-none active:scale-95 transition-transform"
+                onMouseDown={handleLongPressStart}
+                onMouseUp={handleLongPressEnd}
+                onMouseLeave={handleLongPressEnd}
+                onTouchStart={handleLongPressStart}
+                onTouchEnd={handleLongPressEnd}
+                title="Long press for admin access"
+              >
                 <Bot className="w-6 h-6 text-white" />
               </div>
               <div className="flex gap-3 flex-1">
@@ -183,6 +225,51 @@ export default function Portfolio() {
             </div>
           </div>
         </div>
+
+        {/* Password Modal */}
+        {showPasswordModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm animate-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">Admin Access</h3>
+                <button
+                  onClick={() => {
+                    setShowPasswordModal(false);
+                    setPassword("");
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyPress={handlePasswordKeyPress}
+                    placeholder="Enter password"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    autoFocus
+                  />
+                </div>
+                
+                <button
+                  onClick={handlePasswordSubmit}
+                  disabled={!password.trim()}
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:from-gray-300 disabled:to-gray-300 text-white py-3 px-6 rounded-lg font-medium transition-all disabled:cursor-not-allowed"
+                >
+                  Access Training
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
