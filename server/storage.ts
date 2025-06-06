@@ -1,6 +1,6 @@
-import { trainingData, conversations, projects, experiences, type TrainingData, type InsertTrainingData, type Conversation, type InsertConversation, type Project, type InsertProject, type Experience, type InsertExperience } from "../shared/schema";
+import { trainingData, conversations, projects, experiences, promptExamples, type TrainingData, type InsertTrainingData, type Conversation, type InsertConversation, type Project, type InsertProject, type Experience, type InsertExperience, type PromptExample, type InsertPromptExample } from "../shared/schema";
 import { db } from "./db";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, asc } from "drizzle-orm";
 
 export interface IStorage {
   addTrainingData(data: InsertTrainingData): Promise<TrainingData>;
@@ -18,6 +18,12 @@ export interface IStorage {
   updateExperience(id: number, experience: InsertExperience): Promise<Experience>;
   deleteExperience(id: number): Promise<void>;
   initializeExperiences(): Promise<void>;
+  addPromptExample(example: InsertPromptExample): Promise<PromptExample>;
+  getAllPromptExamples(): Promise<PromptExample[]>;
+  getActivePromptExamples(): Promise<PromptExample[]>;
+  updatePromptExample(id: number, example: InsertPromptExample): Promise<PromptExample>;
+  deletePromptExample(id: number): Promise<void>;
+  initializePromptExamples(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -193,6 +199,81 @@ export class DatabaseStorage implements IStorage {
 
       for (const experience of defaultExperiences) {
         await this.addExperience(experience);
+      }
+    }
+  }
+
+  async addPromptExample(example: InsertPromptExample): Promise<PromptExample> {
+    const [result] = await db
+      .insert(promptExamples)
+      .values(example)
+      .returning();
+    return result;
+  }
+
+  async getAllPromptExamples(): Promise<PromptExample[]> {
+    return await db
+      .select()
+      .from(promptExamples)
+      .orderBy(asc(promptExamples.displayOrder), desc(promptExamples.timestamp));
+  }
+
+  async getActivePromptExamples(): Promise<PromptExample[]> {
+    return await db
+      .select()
+      .from(promptExamples)
+      .where(eq(promptExamples.isActive, true))
+      .orderBy(asc(promptExamples.displayOrder), desc(promptExamples.timestamp));
+  }
+
+  async updatePromptExample(id: number, example: InsertPromptExample): Promise<PromptExample> {
+    const [result] = await db
+      .update(promptExamples)
+      .set(example)
+      .where(eq(promptExamples.id, id))
+      .returning();
+    return result;
+  }
+
+  async deletePromptExample(id: number): Promise<void> {
+    await db
+      .delete(promptExamples)
+      .where(eq(promptExamples.id, id));
+  }
+
+  async initializePromptExamples(): Promise<void> {
+    const existingExamples = await this.getAllPromptExamples();
+    if (existingExamples.length === 0) {
+      const defaultExamples = [
+        {
+          question: "안녕하세요! 어떤 일을 하고 계신가요?",
+          isActive: true,
+          displayOrder: 1
+        },
+        {
+          question: "어떤 기술 스택을 사용하시나요?",
+          isActive: true,
+          displayOrder: 2
+        },
+        {
+          question: "현재 진행 중인 프로젝트가 있나요?",
+          isActive: true,
+          displayOrder: 3
+        },
+        {
+          question: "개발자로서의 경험에 대해 말씀해주세요",
+          isActive: true,
+          displayOrder: 4
+        },
+        {
+          question: "새로운 기술 학습은 어떻게 하시나요?",
+          isActive: true,
+          displayOrder: 5
+        }
+      ];
+
+      for (const example of defaultExamples) {
+        await this.addPromptExample(example);
       }
     }
   }

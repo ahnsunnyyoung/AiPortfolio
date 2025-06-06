@@ -37,6 +37,14 @@ interface Experience {
   website?: string;
 }
 
+interface PromptExample {
+  id: number;
+  question: string;
+  isActive: boolean;
+  displayOrder: number;
+  timestamp: string;
+}
+
 export default function Train() {
   const [trainingContent, setTrainingContent] = useState("");
   const [activeTab, setActiveTab] = useState<"knowledge" | "projects" | "experience">("knowledge");

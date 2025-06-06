@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generatePersonalizedResponse } from "./openai";
 import { z } from "zod";
-import { insertTrainingDataSchema, insertConversationSchema } from "../shared/schema";
+import { insertTrainingDataSchema, insertConversationSchema, insertPromptExampleSchema } from "../shared/schema";
 
 const askRequestSchema = z.object({
   question: z.string().min(1).max(1000),
@@ -12,8 +12,10 @@ const askRequestSchema = z.object({
 const trainRequestSchema = insertTrainingDataSchema;
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize projects data on startup
+  // Initialize data on startup
   await storage.initializeProjects();
+  await storage.initializeExperiences();
+  await storage.initializePromptExamples();
   
   // Train endpoint - for adding knowledge to the AI
   app.post("/api/train", async (req, res) => {
@@ -297,6 +299,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Delete experience error:", error);
       res.status(500).json({ error: "Failed to delete experience" });
+    }
+  });
+
+  // Get all prompt examples endpoint
+  app.get("/api/prompt-examples", async (_req, res) => {
+    try {
+      const examples = await storage.getAllPromptExamples();
+      res.json({ success: true, examples });
+    } catch (error) {
+      console.error("Get prompt examples error:", error);
+      res.status(500).json({ error: "Failed to get prompt examples" });
+    }
+  });
+
+  // Get active prompt examples endpoint
+  app.get("/api/prompt-examples/active", async (_req, res) => {
+    try {
+      const examples = await storage.getActivePromptExamples();
+      res.json({ success: true, examples });
+    } catch (error) {
+      console.error("Get active prompt examples error:", error);
+      res.status(500).json({ error: "Failed to get active prompt examples" });
+    }
+  });
+
+  // Add prompt example endpoint
+  app.post("/api/prompt-examples", async (req, res) => {
+    try {
+      const exampleData = insertPromptExampleSchema.parse(req.body);
+      const result = await storage.addPromptExample(exampleData);
+      res.json({ 
+        success: true,
+        message: "Prompt example added successfully",
+        example: result
+      });
+    } catch (error) {
+      console.error("Add prompt example error:", error);
+      res.status(500).json({ error: "Failed to add prompt example" });
+    }
+  });
+
+  // Update prompt example endpoint
+  app.put("/api/prompt-examples/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid prompt example ID" });
+      }
+      
+      const exampleData = insertPromptExampleSchema.parse(req.body);
+      const result = await storage.updatePromptExample(id, exampleData);
+      res.json({ 
+        success: true,
+        message: "Prompt example updated successfully",
+        example: result
+      });
+    } catch (error) {
+      console.error("Update prompt example error:", error);
+      res.status(500).json({ error: "Failed to update prompt example" });
+    }
+  });
+
+  // Delete prompt example endpoint
+  app.delete("/api/prompt-examples/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid prompt example ID" });
+      }
+      
+      await storage.deletePromptExample(id);
+      res.json({ 
+        success: true,
+        message: "Prompt example deleted successfully"
+      });
+    } catch (error) {
+      console.error("Delete prompt example error:", error);
+      res.status(500).json({ error: "Failed to delete prompt example" });
     }
   });
 
