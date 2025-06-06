@@ -1242,12 +1242,12 @@ export default function Train() {
           </div>
         ) : activeTab === "prompts" ? (
           // Prompts Tab
-          <div className="space-y-8">
-            {/* Projects Header with Add Button */}
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-              <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 flex items-center gap-2">
-                <Code className="w-5 h-5 sm:w-6 sm:h-6" />
-                Project Management
+          <div className="grid lg:grid-cols-2 gap-4 sm:gap-8">
+            {/* Prompt Form */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                {editingPrompt ? <Edit3 className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                {editingPrompt ? "Edit Prompt Example" : "Add Prompt Example"}
               </h2>
               <button
                 onClick={() => {
@@ -1577,7 +1577,7 @@ export default function Train() {
               </div>
             )}
           </div>
-        ) : activeTab === "experience" ? (
+        ) : activeTab === "responses" && activeResponseTab === "experience" ? (
           <div className="space-y-6">
             {/* Experience Header */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
