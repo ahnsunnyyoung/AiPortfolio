@@ -90,6 +90,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
             return;
           }
+          
+          if (promptExample.responseType === "contacts") {
+            // Store the conversation
+            await storage.addConversation({
+              question,
+              answer: "CONTACT_SHOWCASE" // Special marker for contact responses
+            });
+            
+            res.json({ 
+              answer: "Here's how you can contact me:",
+              contacts: {
+                email: "sunyoung.ahn@example.com",
+                linkedin: "https://linkedin.com/in/sunyoung-ahn",
+                github: "https://github.com/sunyoung-ahn"
+              },
+              isContactResponse: true
+            });
+            return;
+          }
         }
       }
       

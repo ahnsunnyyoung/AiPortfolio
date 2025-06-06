@@ -274,6 +274,12 @@ export class DatabaseStorage implements IStorage {
           responseType: "ai",
           isActive: true,
           displayOrder: 5
+        },
+        {
+          question: "연락하고 싶은데 어떻게 연락하면 될까요?",
+          responseType: "contacts",
+          isActive: true,
+          displayOrder: 6
         }
       ];
 

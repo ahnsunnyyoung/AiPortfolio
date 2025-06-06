@@ -48,8 +48,14 @@ interface Message {
   timestamp: Date;
   projects?: Project[];
   experiences?: Experience[];
+  contacts?: {
+    email: string;
+    linkedin: string;
+    github: string;
+  };
   isProjectResponse?: boolean;
   isExperienceResponse?: boolean;
+  isContactResponse?: boolean;
 }
 
 export default function Portfolio() {
