@@ -456,7 +456,7 @@ export default function Portfolio() {
                             </div>
                             <button
                               onClick={() => {
-                                const detailQuestion = `${project.title} 프로젝트에 대해 자세히 알려주세요`;
+                                const detailQuestion = `Tell me more details about the ${project.title} project`;
                                 handleQuickQuestion({
                                   id: 0,
                                   question: detailQuestion,
@@ -468,7 +468,7 @@ export default function Portfolio() {
                               }}
                               className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
                             >
-                              더 물어보기
+                              Ask more
                             </button>
                           </div>
                         </div>
