@@ -25,9 +25,20 @@ interface Project {
   width: string;
 }
 
+interface Experience {
+  id: number;
+  company: string;
+  position: string;
+  period: string;
+  location: string;
+  description: string;
+  responsibilities: string[];
+  skills: string;
+}
+
 export default function Train() {
   const [trainingContent, setTrainingContent] = useState("");
-  const [activeTab, setActiveTab] = useState<"knowledge" | "projects">("knowledge");
+  const [activeTab, setActiveTab] = useState<"knowledge" | "projects" | "experience">("knowledge");
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [projectForm, setProjectForm] = useState({
@@ -41,6 +52,17 @@ export default function Train() {
     imgAlt: "",
     moreLink: "",
     width: "47%"
+  });
+  const [showExperienceForm, setShowExperienceForm] = useState(false);
+  const [editingExperience, setEditingExperience] = useState<Experience | null>(null);
+  const [experienceForm, setExperienceForm] = useState({
+    company: "",
+    position: "",
+    period: "",
+    location: "",
+    description: "",
+    responsibilities: [""],
+    skills: ""
   });
   const { toast } = useToast();
 
@@ -56,6 +78,14 @@ export default function Train() {
     queryKey: ['/api/projects'],
     queryFn: async () => {
       const response = await apiRequest("GET", "/api/projects");
+      return response.json();
+    }
+  });
+
+  const experiencesQuery = useQuery({
+    queryKey: ['/api/experiences'],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/experiences");
       return response.json();
     }
   });

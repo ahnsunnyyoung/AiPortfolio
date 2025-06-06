@@ -128,42 +128,71 @@ export class DatabaseStorage implements IStorage {
             "Applied intuitive colors and interactive icons so that users can easily check COVID-19 information."
           ],
           tech: "React / Javascript / Expo",
-          img: "/todayscovid19_logo.png",
-          imgAlt: "Today's Covid-19 Logo",
-          width: "20%"
-        },
-        {
-          title: "StockSunny",
-          period: "March 2020 - June 2020",
-          subtitle: "Individual",
-          summary: "Real-time stock data cross platform application.",
-          contents: [
-            "Developed an application that provides stock information in real-time live streams.",
-            "Provides stock information visually in various graphs."
-          ],
-          tech: "React-Redux / React Native / Javascript",
-          img: "/stocksunny_logo.png",
-          imgAlt: "Stock Sunny Logo",
-          moreLink: "https://github.com/ahnsunnyyoung/react-native-stocksunny",
-          width: "20%"
-        },
-        {
-          title: "Music genre Classification",
-          period: "March 2020 - June 2020",
-          subtitle: "Individual",
-          summary: "An audio-genre prediction model was constructed using the FMA dataset.",
-          contents: [
-            "Combining CNN and RNN techniques in consideration of the characteristics as images through the melspectogram of audio, and the temporal properties of music."
-          ],
-          tech: "Tensorflow / PyTorch / Keras / Pandas",
-          img: "/MGC_logo.png",
-          imgAlt: "Music genre Classification Logo",
-          width: "20%"
+          img: "/covid_logo.png",
+          imgAlt: "Covid Logo",
+          moreLink: "https://github.com/ahnsunnyyoung/today_covid19",
+          width: "47%"
         }
       ];
 
       for (const projectData of projectsData) {
         await this.addProject(projectData);
+      }
+    }
+  }
+
+  async addExperience(experience: InsertExperience): Promise<Experience> {
+    const [result] = await db
+      .insert(experiences)
+      .values(experience)
+      .returning();
+    return result;
+  }
+
+  async getAllExperiences(): Promise<Experience[]> {
+    return await db
+      .select()
+      .from(experiences)
+      .orderBy(desc(experiences.timestamp));
+  }
+
+  async updateExperience(id: number, experience: InsertExperience): Promise<Experience> {
+    const [result] = await db
+      .update(experiences)
+      .set(experience)
+      .where(eq(experiences.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteExperience(id: number): Promise<void> {
+    await db
+      .delete(experiences)
+      .where(eq(experiences.id, id));
+  }
+
+  async initializeExperiences(): Promise<void> {
+    const existingExperiences = await this.getAllExperiences();
+    if (existingExperiences.length === 0) {
+      const defaultExperiences = [
+        {
+          company: "Tech Solutions Inc.",
+          position: "Frontend Developer",
+          period: "2023 - Present",
+          location: "Seoul, South Korea",
+          description: "Developing modern web applications using React and TypeScript with focus on user experience and performance optimization.",
+          responsibilities: [
+            "Built responsive web applications using React and TypeScript",
+            "Implemented state management with Redux and Context API",
+            "Collaborated with design team to create intuitive user interfaces",
+            "Optimized application performance and accessibility"
+          ],
+          skills: "React / TypeScript / Redux / CSS / JavaScript"
+        }
+      ];
+
+      for (const experience of defaultExperiences) {
+        await this.addExperience(experience);
       }
     }
   }
