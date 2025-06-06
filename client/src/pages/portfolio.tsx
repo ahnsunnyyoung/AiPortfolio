@@ -447,42 +447,123 @@ export default function Portfolio() {
                   
                   {/* Project List Display */}
                   {message.isProjectResponse && message.projects && (
-                    <div className="mt-4 space-y-3">
+                    <div className="mt-4 space-y-4">
                       {message.projects.map((project) => (
-                        <div key={project.id} className="bg-white rounded-lg border border-gray-200 p-4">
-                          <div className="flex justify-between items-start gap-3">
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-gray-800 text-lg">{project.title}</h4>
-                              <p className="text-gray-600 text-sm mb-1">{project.period}</p>
-                              <p className="text-gray-700 text-sm">{project.summary}</p>
+                        <div key={project.id}>
+                          {/* Basic Project Info (for initial list view) */}
+                          {!message.content.includes("More details") && (
+                            <div className="bg-white rounded-lg border border-gray-200 p-4">
+                              <div className="flex justify-between items-start gap-3">
+                                <div className="flex-1">
+                                  <h4 className="font-semibold text-gray-800 text-lg">{project.title}</h4>
+                                  <p className="text-gray-600 text-sm mb-1">{project.period}</p>
+                                  <p className="text-gray-700 text-sm">{project.summary}</p>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    const userMessage: Message = {
+                                      id: Date.now().toString(),
+                                      content: `Tell me more details about the ${project.title} project`,
+                                      isUser: true,
+                                      timestamp: new Date(),
+                                    };
+                                    
+                                    const aiMessage: Message = {
+                                      id: (Date.now() + 1).toString(),
+                                      content: project.detailedContent || `More details about ${project.title} will be available soon.`,
+                                      isUser: false,
+                                      timestamp: new Date(),
+                                      projects: [project],
+                                      isProjectResponse: true,
+                                    };
+                                    
+                                    setMessages(prev => [...prev, userMessage, aiMessage]);
+                                    setRecentlyAskedQuestions(prev => [...prev, userMessage.content]);
+                                    setTimeout(() => {
+                                      setRecentlyAskedQuestions(prev => prev.filter(q => q !== userMessage.content));
+                                    }, 10000);
+                                  }}
+                                  className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
+                                >
+                                  Ask more
+                                </button>
+                              </div>
                             </div>
-                            <button
-                              onClick={() => {
-                                const userMessage: Message = {
-                                  id: Date.now().toString(),
-                                  content: `Tell me more details about the ${project.title} project`,
-                                  isUser: true,
-                                  timestamp: new Date(),
-                                };
-                                
-                                const aiMessage: Message = {
-                                  id: (Date.now() + 1).toString(),
-                                  content: project.detailedContent || `More details about ${project.title} will be available soon.`,
-                                  isUser: false,
-                                  timestamp: new Date(),
-                                };
-                                
-                                setMessages(prev => [...prev, userMessage, aiMessage]);
-                                setRecentlyAskedQuestions(prev => [...prev, userMessage.content]);
-                                setTimeout(() => {
-                                  setRecentlyAskedQuestions(prev => prev.filter(q => q !== userMessage.content));
-                                }, 10000);
-                              }}
-                              className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
-                            >
-                              Ask more
-                            </button>
-                          </div>
+                          )}
+                          
+                          {/* Detailed Project Card (for "Ask more" responses) */}
+                          {message.content.includes("More details") && (
+                            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl border border-blue-200 overflow-hidden shadow-lg">
+                              <div className="p-6">
+                                {/* Project Header */}
+                                <div className="flex items-start justify-between mb-4">
+                                  <div className="flex-1">
+                                    <h3 className="text-2xl font-bold text-gray-800 mb-2">{project.title}</h3>
+                                    <p className="text-blue-600 font-medium text-sm mb-1">{project.subtitle}</p>
+                                    <p className="text-gray-600 text-sm">{project.period}</p>
+                                  </div>
+                                  {project.moreLink && (
+                                    <a
+                                      href={project.moreLink}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+                                    >
+                                      View Project
+                                      <ExternalLink className="w-4 h-4" />
+                                    </a>
+                                  )}
+                                </div>
+
+                                {/* Project Summary */}
+                                <div className="mb-6">
+                                  <h4 className="font-semibold text-gray-800 mb-2">Project Overview</h4>
+                                  <p className="text-gray-700 leading-relaxed">{project.summary}</p>
+                                </div>
+
+                                {/* Key Features */}
+                                {project.contents && project.contents.length > 0 && (
+                                  <div className="mb-6">
+                                    <h4 className="font-semibold text-gray-800 mb-3">Key Features & Achievements</h4>
+                                    <div className="grid gap-2">
+                                      {project.contents.map((content, index) => (
+                                        <div key={index} className="flex items-start gap-3">
+                                          <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                                          <p className="text-gray-700 text-sm leading-relaxed">{content}</p>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Technology Stack */}
+                                <div className="mb-6">
+                                  <h4 className="font-semibold text-gray-800 mb-3">Technology Stack</h4>
+                                  <div className="flex flex-wrap gap-2">
+                                    {project.tech.split('/').map((tech, index) => (
+                                      <span
+                                        key={index}
+                                        className="px-3 py-1 bg-white/70 text-blue-700 text-sm rounded-full border border-blue-200 font-medium"
+                                      >
+                                        {tech.trim()}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* Project Image if available */}
+                                {project.img && (
+                                  <div className="rounded-lg overflow-hidden border border-gray-200">
+                                    <img
+                                      src={project.img}
+                                      alt={project.imgAlt}
+                                      className="w-full h-48 object-cover"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
