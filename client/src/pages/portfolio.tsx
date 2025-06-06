@@ -63,8 +63,7 @@ export default function Portfolio() {
     const handleClickOutside = (event: MouseEvent) => {
       if (isExpanded && chatContainerRef.current && !chatContainerRef.current.contains(event.target as Node)) {
         setIsExpanded(false);
-        setMessages([]);
-        setInputValue("");
+        // Don't clear messages and inputValue to preserve conversation history
       }
     };
 
@@ -89,7 +88,9 @@ export default function Portfolio() {
         isUser: false,
         timestamp: new Date(),
         projects: data.projects,
-        isProjectResponse: data.isProjectResponse
+        experiences: data.experiences,
+        isProjectResponse: data.isProjectResponse,
+        isExperienceResponse: data.isExperienceResponse
       };
       setMessages((prev) => [...prev, aiMessage]);
     },
@@ -375,7 +376,7 @@ export default function Portfolio() {
                 </div>
                 <div
                   className={`rounded-2xl px-6 py-4 ${
-                    message.isProjectResponse ? "max-w-5xl" : "max-w-2xl"
+                    (message.isProjectResponse || message.isExperienceResponse) ? "max-w-5xl" : "max-w-2xl"
                   } ${
                     message.isUser
                       ? "bg-blue-500 text-white rounded-tr-md"
@@ -391,6 +392,65 @@ export default function Portfolio() {
                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       {message.projects.map((project) => (
                         <ProjectCard key={project.id} project={project} />
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Experience Cards Display */}
+                  {message.isExperienceResponse && message.experiences && (
+                    <div className="mt-4 space-y-4">
+                      {message.experiences.map((experience) => (
+                        <div key={experience.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <h4 className="font-semibold text-gray-800 text-lg">{experience.position}</h4>
+                              <p className="text-blue-600 font-medium">{experience.company}</p>
+                              <p className="text-gray-500 text-sm">{experience.period} • {experience.location}</p>
+                            </div>
+                          </div>
+                          
+                          {experience.description && (
+                            <p className="text-gray-700 text-sm mb-3">{experience.description}</p>
+                          )}
+                          
+                          {experience.website && (
+                            <p className="text-sm mb-3">
+                              <a href={experience.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                {experience.website}
+                              </a>
+                            </p>
+                          )}
+                          
+                          {experience.responsibilities && experience.responsibilities.length > 0 && (
+                            <div className="mb-3">
+                              <h5 className="font-medium text-gray-800 text-sm mb-1">Key Responsibilities:</h5>
+                              <ul className="list-disc list-inside space-y-1">
+                                {experience.responsibilities.slice(0, 3).map((resp, index) => (
+                                  <li key={index} className="text-gray-600 text-sm">{resp}</li>
+                                ))}
+                                {experience.responsibilities.length > 3 && (
+                                  <li className="text-gray-500 text-xs">+{experience.responsibilities.length - 3} more</li>
+                                )}
+                              </ul>
+                            </div>
+                          )}
+                          
+                          {experience.skills && (
+                            <div className="flex flex-wrap gap-1">
+                              {experience.skills.split(' / ').slice(0, 4).map((skill, index) => (
+                                <span
+                                  key={index}
+                                  className="px-2 py-1 bg-green-50 text-green-700 text-xs rounded-full border border-green-200"
+                                >
+                                  {skill}
+                                </span>
+                              ))}
+                              {experience.skills.split(' / ').length > 4 && (
+                                <span className="text-xs text-gray-500">+{experience.skills.split(' / ').length - 4}</span>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       ))}
                     </div>
                   )}
