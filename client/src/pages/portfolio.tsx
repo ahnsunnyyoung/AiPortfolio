@@ -361,6 +361,30 @@ export default function Portfolio() {
             <div ref={messagesEndRef} />
           </div>
 
+          {/* Suggested Questions */}
+          {messages.length > 0 && (
+            <div className="px-6 py-3 border-t border-gray-200/50 bg-gray-50/50">
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs text-gray-500 mr-2">Ask about:</span>
+                {[
+                  "What are your technical skills?",
+                  "Tell me about your projects",
+                  "What's your development philosophy?",
+                  "How can I contact you?"
+                ].map((question, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleQuickQuestion(question)}
+                    disabled={askMutation.isPending}
+                    className="px-3 py-1 text-xs bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Input Area */}
           <div className="p-6 border-t border-gray-200/50 bg-white/50">
             <div className="flex gap-3">
