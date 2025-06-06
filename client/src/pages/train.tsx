@@ -38,6 +38,7 @@ interface Experience {
   responsibilities?: string[];
   skills?: string;
   website?: string;
+  img?: string;
   detailedContent?: string;
 }
 
@@ -106,6 +107,7 @@ export default function Train() {
     responsibilities: [""],
     skills: "",
     website: "",
+    img: "",
     detailedContent: ""
   });
   const [showPromptForm, setShowPromptForm] = useState(false);
@@ -762,6 +764,7 @@ export default function Train() {
       responsibilities: [""],
       skills: "",
       website: "",
+      img: "",
       detailedContent: ""
     });
   };
@@ -777,6 +780,7 @@ export default function Train() {
       responsibilities: experience.responsibilities || [""],
       skills: experience.skills || "",
       website: experience.website || "",
+      img: experience.img || "",
       detailedContent: experience.detailedContent || ""
     });
     setShowExperienceForm(true);

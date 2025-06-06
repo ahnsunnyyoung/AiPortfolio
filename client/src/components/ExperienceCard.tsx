@@ -31,10 +31,18 @@ export default function ExperienceCard({ experience }: ExperienceCardProps) {
     <div className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition-all duration-300 max-w-sm">
       {/* Header with company logo/initials */}
       <div className="flex items-start gap-3 mb-3">
-        <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-          <span className="text-sm font-semibold text-gray-600">
-            {getInitials(experience.company)}
-          </span>
+        <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+          {experience.img ? (
+            <img 
+              src={experience.img} 
+              alt={`${experience.company} logo`}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="text-sm font-semibold text-gray-600">
+              {getInitials(experience.company)}
+            </span>
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-gray-900 text-sm leading-tight mb-1">

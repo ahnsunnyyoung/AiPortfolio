@@ -42,6 +42,7 @@ export const experiences = pgTable("experiences", {
   responsibilities: text("responsibilities").array(),
   skills: text("skills"),
   website: text("website"),
+  img: text("img"),
   detailedContent: text("detailed_content"),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
