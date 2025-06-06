@@ -5,6 +5,8 @@ import { desc, eq, asc } from "drizzle-orm";
 export interface IStorage {
   addTrainingData(data: InsertTrainingData): Promise<TrainingData>;
   getAllTrainingData(): Promise<TrainingData[]>;
+  getActiveTrainingData(): Promise<TrainingData[]>;
+  updateTrainingData(id: number, data: InsertTrainingData): Promise<TrainingData>;
   deleteTrainingData(id: number): Promise<void>;
   addConversation(conversation: InsertConversation): Promise<Conversation>;
   getRecentConversations(limit?: number): Promise<Conversation[]>;
@@ -55,6 +57,23 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(trainingData)
       .orderBy(desc(trainingData.timestamp));
+  }
+
+  async getActiveTrainingData(): Promise<TrainingData[]> {
+    return await db
+      .select()
+      .from(trainingData)
+      .where(eq(trainingData.isActive, true))
+      .orderBy(desc(trainingData.timestamp));
+  }
+
+  async updateTrainingData(id: number, data: InsertTrainingData): Promise<TrainingData> {
+    const [updated] = await db
+      .update(trainingData)
+      .set(data)
+      .where(eq(trainingData.id, id))
+      .returning();
+    return updated;
   }
 
   async deleteTrainingData(id: number): Promise<void> {

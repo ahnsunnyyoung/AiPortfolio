@@ -188,6 +188,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update training data endpoint
+  app.put("/api/training-data/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid training data ID" });
+      }
+
+      const validatedData = trainRequestSchema.parse(req.body);
+      const data = await storage.updateTrainingData(id, validatedData);
+      
+      res.json({
+        success: true,
+        data,
+        message: "Training data updated successfully",
+      });
+    } catch (error) {
+      console.error("Update training data error:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({
+          error: "Invalid training data format",
+          details: error.errors,
+        });
+      } else {
+        res.status(500).json({ error: "Failed to update training data" });
+      }
+    }
+  });
+
   // Delete training data endpoint
   app.delete("/api/training-data/:id", async (req, res) => {
     try {

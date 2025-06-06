@@ -5,6 +5,7 @@ import { z } from "zod";
 export const trainingData = pgTable("training_data", {
   id: serial("id").primaryKey(),
   content: text("content").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
@@ -84,6 +85,7 @@ export const skills = pgTable("skills", {
 
 export const insertTrainingDataSchema = createInsertSchema(trainingData).pick({
   content: true,
+  isActive: true,
 });
 
 export const insertConversationSchema = createInsertSchema(conversations).pick({
