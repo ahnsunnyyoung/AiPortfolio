@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Brain, Plus, Trash2, Save, ArrowLeft, Code, ExternalLink } from "lucide-react";
+import { Brain, Plus, Trash2, Save, ArrowLeft, Code, ExternalLink, User, Briefcase, X } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
@@ -310,8 +310,163 @@ export default function Train() {
     }));
   };
 
+  // Experience mutations and handlers
+  const addExperienceMutation = useMutation({
+    mutationFn: async (experience: any) => {
+      const response = await apiRequest("POST", "/api/experiences", experience);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Experience Added",
+        description: "Experience has been added successfully",
+      });
+      resetExperienceForm();
+      queryClient.invalidateQueries({ queryKey: ['/api/experiences'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Add Failed",
+        description: error.message || "Failed to add experience",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const updateExperienceMutation = useMutation({
+    mutationFn: async ({ id, experience }: { id: number, experience: any }) => {
+      const response = await apiRequest("PUT", `/api/experiences/${id}`, experience);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Experience Updated",
+        description: "Experience has been updated successfully",
+      });
+      resetExperienceForm();
+      queryClient.invalidateQueries({ queryKey: ['/api/experiences'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to update experience",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const deleteExperienceMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/experiences/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Experience Deleted",
+        description: "Experience has been deleted successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/experiences'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Delete Failed",
+        description: error.message || "Failed to delete experience",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const resetExperienceForm = () => {
+    setShowExperienceForm(false);
+    setEditingExperience(null);
+    setExperienceForm({
+      company: "",
+      position: "",
+      period: "",
+      location: "",
+      description: "",
+      responsibilities: [""],
+      skills: ""
+    });
+  };
+
+  const handleExperienceEdit = (experience: Experience) => {
+    setEditingExperience(experience);
+    setExperienceForm({
+      company: experience.company,
+      position: experience.position,
+      period: experience.period,
+      location: experience.location,
+      description: experience.description,
+      responsibilities: experience.responsibilities,
+      skills: experience.skills
+    });
+    setShowExperienceForm(true);
+  };
+
+  const handleExperienceDelete = (id: number) => {
+    if (window.confirm("Are you sure you want to delete this experience?")) {
+      deleteExperienceMutation.mutate(id);
+    }
+  };
+
+  const handleExperienceSubmit = () => {
+    if (!experienceForm.company.trim() || !experienceForm.position.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in the company and position fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const filteredResponsibilities = experienceForm.responsibilities.filter(resp => resp.trim());
+    if (filteredResponsibilities.length === 0) {
+      toast({
+        title: "Missing Information",
+        description: "Please add at least one responsibility",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (editingExperience) {
+      updateExperienceMutation.mutate({ 
+        id: editingExperience.id, 
+        experience: { ...experienceForm, responsibilities: filteredResponsibilities }
+      });
+    } else {
+      addExperienceMutation.mutate({
+        ...experienceForm,
+        responsibilities: filteredResponsibilities
+      });
+    }
+  };
+
+  const addResponsibilityField = () => {
+    setExperienceForm(prev => ({
+      ...prev,
+      responsibilities: [...prev.responsibilities, ""]
+    }));
+  };
+
+  const updateResponsibilityField = (index: number, value: string) => {
+    setExperienceForm(prev => ({
+      ...prev,
+      responsibilities: prev.responsibilities.map((resp, i) => i === index ? value : resp)
+    }));
+  };
+
+  const removeResponsibilityField = (index: number) => {
+    setExperienceForm(prev => ({
+      ...prev,
+      responsibilities: prev.responsibilities.filter((_, i) => i !== index)
+    }));
+  };
+
   const trainingData: TrainingData[] = trainingDataQuery.data?.data || [];
   const projects: Project[] = projectsQuery.data?.projects || [];
+  const experiences: Experience[] = experiencesQuery.data?.experiences || [];
 
   return (
     <div className="min-h-screen portfolio-gradient">
@@ -333,28 +488,39 @@ export default function Train() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex space-x-1 bg-white/80 backdrop-blur-sm rounded-lg p-1 mb-8 border border-white/50">
+        <div className="flex space-x-1 bg-white/80 backdrop-blur-sm rounded-lg p-1 mb-6 sm:mb-8 border border-white/50 overflow-x-auto">
           <button
             onClick={() => setActiveTab("knowledge")}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
               activeTab === "knowledge"
                 ? "bg-blue-500 text-white shadow-sm"
                 : "text-gray-600 hover:text-gray-800"
             }`}
           >
-            <Brain className="w-4 h-4 inline mr-2" />
+            <Brain className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
             AI Knowledge
           </button>
           <button
             onClick={() => setActiveTab("projects")}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
               activeTab === "projects"
                 ? "bg-blue-500 text-white shadow-sm"
                 : "text-gray-600 hover:text-gray-800"
             }`}
           >
-            <Code className="w-4 h-4 inline mr-2" />
+            <Code className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
             Projects
+          </button>
+          <button
+            onClick={() => setActiveTab("experience")}
+            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+              activeTab === "experience"
+                ? "bg-blue-500 text-white shadow-sm"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            <Briefcase className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
+            Experience
           </button>
         </div>
 
@@ -719,6 +885,266 @@ export default function Train() {
                           </>
                         )}
                       </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Experience Header */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Work Experience</h2>
+                  <p className="text-sm sm:text-base text-gray-600">Manage your professional experience and career history</p>
+                </div>
+                <button
+                  onClick={() => setShowExperienceForm(true)}
+                  disabled={addExperienceMutation.isPending}
+                  className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-blue-600 transition-all disabled:opacity-50 text-sm sm:text-base"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Experience
+                </button>
+              </div>
+            </div>
+
+            {/* Experience List */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Your Experience</h3>
+              
+              {experiencesQuery.isLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                  <p className="text-gray-600 mt-2">Loading experiences...</p>
+                </div>
+              ) : experiences.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <Briefcase className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>No experiences yet</p>
+                  <p className="text-sm">Add your first experience above</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {experiences.map((experience) => (
+                    <div key={experience.id} className="bg-white rounded-lg p-4 border border-gray-200 group relative">
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 flex gap-1">
+                        <button
+                          onClick={() => handleExperienceEdit(experience)}
+                          disabled={updateExperienceMutation.isPending}
+                          className="p-1 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded transition-all disabled:opacity-50"
+                          title="Edit experience"
+                        >
+                          <Brain className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleExperienceDelete(experience.id)}
+                          disabled={deleteExperienceMutation.isPending}
+                          className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-all disabled:opacity-50"
+                          title="Delete experience"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      
+                      <div className="pr-12">
+                        <h4 className="font-semibold text-gray-800 text-base sm:text-lg">{experience.position}</h4>
+                        <p className="text-blue-600 font-medium text-sm sm:text-base">{experience.company}</p>
+                        <p className="text-gray-500 text-xs sm:text-sm mb-2">{experience.period} • {experience.location}</p>
+                        <p className="text-gray-700 text-sm mb-3">{experience.description}</p>
+                        
+                        <div className="mb-3">
+                          <h5 className="font-medium text-gray-800 text-sm mb-1">Key Responsibilities:</h5>
+                          <ul className="list-disc list-inside space-y-1">
+                            {experience.responsibilities.slice(0, 3).map((resp, index) => (
+                              <li key={index} className="text-gray-600 text-xs sm:text-sm">{resp}</li>
+                            ))}
+                            {experience.responsibilities.length > 3 && (
+                              <li className="text-gray-500 text-xs">+{experience.responsibilities.length - 3} more</li>
+                            )}
+                          </ul>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-1">
+                          {experience.skills.split(' / ').slice(0, 4).map((skill, index) => (
+                            <span
+                              key={index}
+                              className="px-2 py-1 bg-green-50 text-green-700 text-xs rounded-full border border-green-200"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                          {experience.skills.split(' / ').length > 4 && (
+                            <span className="text-xs text-gray-500">+{experience.skills.split(' / ').length - 4}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <p className="text-sm text-gray-600">
+                  <strong>{experiences.length}</strong> experiences stored
+                </p>
+              </div>
+            </div>
+
+            {/* Experience Form Modal */}
+            {showExperienceForm && (
+              <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6">
+                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+                  <div className="p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-xl font-semibold text-gray-800">
+                        {editingExperience ? "Edit Experience" : "Add New Experience"}
+                      </h3>
+                      <button
+                        onClick={() => setShowExperienceForm(false)}
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        <X className="w-6 h-6" />
+                      </button>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Company *
+                          </label>
+                          <input
+                            type="text"
+                            value={experienceForm.company}
+                            onChange={(e) => setExperienceForm(prev => ({...prev, company: e.target.value}))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter company name"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Position *
+                          </label>
+                          <input
+                            type="text"
+                            value={experienceForm.position}
+                            onChange={(e) => setExperienceForm(prev => ({...prev, position: e.target.value}))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter position title"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Period
+                          </label>
+                          <input
+                            type="text"
+                            value={experienceForm.period}
+                            onChange={(e) => setExperienceForm(prev => ({...prev, period: e.target.value}))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="e.g., 2023 - Present"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Location
+                          </label>
+                          <input
+                            type="text"
+                            value={experienceForm.location}
+                            onChange={(e) => setExperienceForm(prev => ({...prev, location: e.target.value}))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="e.g., Seoul, South Korea"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Description
+                        </label>
+                        <textarea
+                          value={experienceForm.description}
+                          onChange={(e) => setExperienceForm(prev => ({...prev, description: e.target.value}))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                          rows={3}
+                          placeholder="Brief description of your role and responsibilities"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Key Responsibilities
+                        </label>
+                        {experienceForm.responsibilities.map((resp, index) => (
+                          <div key={index} className="flex gap-2 mb-2">
+                            <input
+                              type="text"
+                              value={resp}
+                              onChange={(e) => updateResponsibilityField(index, e.target.value)}
+                              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="Describe a key responsibility or achievement"
+                            />
+                            {experienceForm.responsibilities.length > 1 && (
+                              <button
+                                onClick={() => removeResponsibilityField(index)}
+                                className="text-red-500 hover:text-red-700 p-2"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                        <button
+                          onClick={addResponsibilityField}
+                          className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Add Responsibility
+                        </button>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Skills & Technologies
+                        </label>
+                        <input
+                          type="text"
+                          value={experienceForm.skills}
+                          onChange={(e) => setExperienceForm(prev => ({...prev, skills: e.target.value}))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="React / TypeScript / Node.js"
+                        />
+                      </div>
+                      
+                      <div className="flex gap-3 pt-4">
+                        <button
+                          onClick={() => setShowExperienceForm(false)}
+                          className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleExperienceSubmit}
+                          disabled={addExperienceMutation.isPending || updateExperienceMutation.isPending}
+                          className="flex-1 bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-blue-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                        >
+                          {(addExperienceMutation.isPending || updateExperienceMutation.isPending) ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          ) : (
+                            <Save className="w-4 h-4" />
+                          )}
+                          {editingExperience ? "Update Experience" : "Save Experience"}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

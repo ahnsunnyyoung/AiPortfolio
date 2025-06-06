@@ -207,6 +207,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all experiences endpoint
+  app.get("/api/experiences", async (_req, res) => {
+    try {
+      const experiences = await storage.getAllExperiences();
+      res.json({ 
+        success: true,
+        experiences
+      });
+    } catch (error) {
+      console.error("Get experiences error:", error);
+      res.status(500).json({ error: "Failed to get experiences" });
+    }
+  });
+
+  // Add experience endpoint
+  app.post("/api/experiences", async (req, res) => {
+    try {
+      const experienceData = req.body;
+      const result = await storage.addExperience(experienceData);
+      res.json({ 
+        success: true,
+        message: "Experience added successfully",
+        experience: result
+      });
+    } catch (error) {
+      console.error("Add experience error:", error);
+      res.status(500).json({ error: "Failed to add experience" });
+    }
+  });
+
+  // Update experience endpoint
+  app.put("/api/experiences/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid experience ID" });
+      }
+      
+      const experienceData = req.body;
+      const result = await storage.updateExperience(id, experienceData);
+      res.json({ 
+        success: true,
+        message: "Experience updated successfully",
+        experience: result
+      });
+    } catch (error) {
+      console.error("Update experience error:", error);
+      res.status(500).json({ error: "Failed to update experience" });
+    }
+  });
+
+  // Delete experience endpoint
+  app.delete("/api/experiences/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid experience ID" });
+      }
+      
+      await storage.deleteExperience(id);
+      res.json({ 
+        success: true,
+        message: "Experience deleted successfully"
+      });
+    } catch (error) {
+      console.error("Delete experience error:", error);
+      res.status(500).json({ error: "Failed to delete experience" });
+    }
+  });
+
   // Health check endpoint
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok", message: "Sunyoung's AI Agent API is running!" });
