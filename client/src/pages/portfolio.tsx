@@ -538,20 +538,14 @@ export default function Portfolio() {
               {isAskAboutExpanded && (
                 <div className="px-6 pb-3">
                   <div className="flex flex-wrap gap-2">
-                    {[
-                      "Show me your projects",
-                      "What's your work experience?",
-                      "Tell me about your technical skills",
-                      "What's your development philosophy?",
-                      "How can I contact you for collaboration?"
-                    ].map((question, index) => (
+                    {promptExamples.slice(0, 5).map((promptExample: PromptExample, index: number) => (
                       <button
                         key={index}
-                        onClick={() => handleQuickQuestion(question)}
+                        onClick={() => handleQuickQuestion(promptExample)}
                         disabled={askMutation.isPending}
                         className="px-3 py-1 text-xs bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {question}
+                        {promptExample.question}
                       </button>
                     ))}
                   </div>

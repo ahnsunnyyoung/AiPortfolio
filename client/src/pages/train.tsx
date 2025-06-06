@@ -74,6 +74,14 @@ export default function Train() {
     skills: "",
     website: ""
   });
+  const [showPromptForm, setShowPromptForm] = useState(false);
+  const [editingPrompt, setEditingPrompt] = useState<PromptExample | null>(null);
+  const [promptForm, setPromptForm] = useState({
+    question: "",
+    responseType: "ai",
+    isActive: true,
+    displayOrder: 0
+  });
   const { toast } = useToast();
 
   const trainingDataQuery = useQuery({
@@ -96,6 +104,14 @@ export default function Train() {
     queryKey: ['/api/experiences'],
     queryFn: async () => {
       const response = await apiRequest("GET", "/api/experiences");
+      return response.json();
+    }
+  });
+
+  const promptExamplesQuery = useQuery({
+    queryKey: ['/api/prompt-examples'],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/prompt-examples");
       return response.json();
     }
   });
@@ -386,6 +402,85 @@ export default function Train() {
     }
   });
 
+  const addPromptExampleMutation = useMutation({
+    mutationFn: async (promptData: any) => {
+      const response = await apiRequest("POST", "/api/prompt-examples", promptData);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Prompt Example Added",
+        description: "Prompt example has been added successfully",
+      });
+      resetPromptForm();
+      queryClient.invalidateQueries({ queryKey: ['/api/prompt-examples'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/prompt-examples/active'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Add Failed",
+        description: error.message || "Failed to add prompt example",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const updatePromptExampleMutation = useMutation({
+    mutationFn: async ({ id, prompt }: { id: number, prompt: any }) => {
+      const response = await apiRequest("PUT", `/api/prompt-examples/${id}`, prompt);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Prompt Example Updated",
+        description: "Prompt example has been updated successfully",
+      });
+      resetPromptForm();
+      queryClient.invalidateQueries({ queryKey: ['/api/prompt-examples'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/prompt-examples/active'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to update prompt example",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const deletePromptExampleMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/prompt-examples/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Prompt Example Deleted",
+        description: "Prompt example has been deleted successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/prompt-examples'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/prompt-examples/active'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Delete Failed",
+        description: error.message || "Failed to delete prompt example",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const resetPromptForm = () => {
+    setShowPromptForm(false);
+    setEditingPrompt(null);
+    setPromptForm({
+      question: "",
+      responseType: "ai",
+      isActive: true,
+      displayOrder: 0
+    });
+  };
+
   const resetExperienceForm = () => {
     setShowExperienceForm(false);
     setEditingExperience(null);
@@ -474,6 +569,43 @@ export default function Train() {
       ...prev,
       responsibilities: prev.responsibilities.filter((_, i) => i !== index)
     }));
+  };
+
+  const handlePromptEdit = (prompt: PromptExample) => {
+    setEditingPrompt(prompt);
+    setPromptForm({
+      question: prompt.question,
+      responseType: prompt.responseType,
+      isActive: prompt.isActive,
+      displayOrder: prompt.displayOrder
+    });
+    setShowPromptForm(true);
+  };
+
+  const handlePromptSubmit = () => {
+    if (!promptForm.question.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in the question field",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (editingPrompt) {
+      updatePromptExampleMutation.mutate({ 
+        id: editingPrompt.id, 
+        prompt: promptForm
+      });
+    } else {
+      addPromptExampleMutation.mutate(promptForm);
+    }
+  };
+
+  const handlePromptDelete = (id: number) => {
+    if (window.confirm("Are you sure you want to delete this prompt example?")) {
+      deletePromptExampleMutation.mutate(id);
+    }
   };
 
   const trainingData: TrainingData[] = trainingDataQuery.data?.data || [];
