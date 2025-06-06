@@ -3,7 +3,11 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generatePersonalizedResponse } from "./openai";
 import { z } from "zod";
-import { insertTrainingDataSchema, insertConversationSchema, insertPromptExampleSchema } from "../shared/schema";
+import {
+  insertTrainingDataSchema,
+  insertConversationSchema,
+  insertPromptExampleSchema,
+} from "../shared/schema";
 
 const askRequestSchema = z.object({
   question: z.string().min(1).max(1000),
@@ -17,30 +21,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await storage.initializeProjects();
   await storage.initializeExperiences();
   await storage.initializePromptExamples();
-  
+
   // Train endpoint - for adding knowledge to the AI
   app.post("/api/train", async (req, res) => {
     try {
       const trainingData = trainRequestSchema.parse(req.body);
-      
+
       const result = await storage.addTrainingData(trainingData);
-      
-      res.json({ 
+
+      res.json({
         success: true,
         message: "Training data added successfully",
         id: result.id,
-        timestamp: result.timestamp
+        timestamp: result.timestamp,
       });
     } catch (error) {
       console.error("Training error:", error);
       if (error instanceof z.ZodError) {
-        res.status(400).json({ 
+        res.status(400).json({
           error: "Invalid training data format",
-          details: error.errors
+          details: error.errors,
         });
       } else {
-        res.status(500).json({ 
-          error: "Failed to add training data" 
+        res.status(500).json({
+          error: "Failed to add training data",
         });
       }
     }
@@ -50,90 +54,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/ask", async (req, res) => {
     try {
       const { question, promptExampleId } = askRequestSchema.parse(req.body);
-      
+
       // If a prompt example ID is provided, check its response type
       if (promptExampleId) {
         const examples = await storage.getAllPromptExamples();
-        const promptExample = examples.find(ex => ex.id === promptExampleId);
-        
+        const promptExample = examples.find((ex) => ex.id === promptExampleId);
+
         if (promptExample) {
           if (promptExample.responseType === "experiences") {
             const experiences = await storage.getAllExperiences();
-            
+
             // Store the conversation
             await storage.addConversation({
               question,
-              answer: "EXPERIENCE_SHOWCASE" // Special marker for experience responses
+              answer: "EXPERIENCE_SHOWCASE", // Special marker for experience responses
             });
-            
-            res.json({ 
+
+            res.json({
               answer: "Here are my work experiences:",
               experiences: experiences,
-              isExperienceResponse: true
+              isExperienceResponse: true,
             });
             return;
           }
-          
+
           if (promptExample.responseType === "projects") {
             const projects = await storage.getAllProjects();
-            
+
             // Store the conversation
             await storage.addConversation({
               question,
-              answer: "PROJECT_SHOWCASE" // Special marker for project responses
+              answer: "PROJECT_SHOWCASE", // Special marker for project responses
             });
-            
-            res.json({ 
+
+            res.json({
               answer: "Here are my projects:",
               projects: projects,
-              isProjectResponse: true
+              isProjectResponse: true,
             });
             return;
           }
-          
+
           if (promptExample.responseType === "contacts") {
             // Store the conversation
             await storage.addConversation({
               question,
-              answer: "CONTACT_SHOWCASE" // Special marker for contact responses
+              answer: "CONTACT_SHOWCASE", // Special marker for contact responses
+            });
+
+            res.json({
+              answer: "Here's how you can contact me:",
+              contacts: {
+                email: "ahnsunnyyoung@gmail.com",
+                linkedin: "https://www.linkedin.com/in/ahnsunnyyoung/",
+                github: "https://github.com/ahnsunnyyoung",
+              },
+              isContactResponse: true,
+            });
+            return;
+          }
+          
+          if (promptExample.responseType === "skills") {
+            // Store the conversation
+            await storage.addConversation({
+              question,
+              answer: "SKILLS_SHOWCASE" // Special marker for skills responses
             });
             
             res.json({ 
-              answer: "Here's how you can contact me:",
-              contacts: {
-                email: "sunyoung.ahn@example.com",
-                linkedin: "https://linkedin.com/in/sunyoung-ahn",
-                github: "https://github.com/sunyoung-ahn"
+              answer: "Here are my technical skills and expertise:",
+              skills: {
+                programming: ["JavaScript", "TypeScript", "Python", "Java", "C++"],
+                frontend: ["React", "Next.js", "Vue.js", "HTML5", "CSS3", "Tailwind CSS"],
+                backend: ["Node.js", "Express.js", "FastAPI", "Spring Boot", "PostgreSQL", "MongoDB"],
+                tools: ["Git", "Docker", "AWS", "Vercel", "Figma", "VS Code"],
+                languages: ["Korean (Native)", "English (Fluent)", "Japanese (Conversational)"],
+                soft: ["Problem Solving", "Team Leadership", "Project Management", "UI/UX Design"]
               },
-              isContactResponse: true
+              isSkillsResponse: true
             });
             return;
           }
         }
       }
-      
+
       const aiResponse = await generatePersonalizedResponse(question);
-      
+
       // Store the conversation for context in future responses
-      await storage.addConversation({ 
-        question, 
-        answer: aiResponse 
-      });
-      
-      res.json({ 
+      await storage.addConversation({
+        question,
         answer: aiResponse,
-        timestamp: new Date().toISOString()
+      });
+
+      res.json({
+        answer: aiResponse,
+        timestamp: new Date().toISOString(),
       });
     } catch (error) {
       console.error("Ask error:", error);
       if (error instanceof z.ZodError) {
-        res.status(400).json({ 
+        res.status(400).json({
           error: "Invalid question format",
-          details: error.errors
+          details: error.errors,
         });
       } else {
-        res.status(500).json({ 
-          error: (error as Error).message || "Sorry, I'm having trouble responding right now. Please try again!" 
+        res.status(500).json({
+          error:
+            (error as Error).message ||
+            "Sorry, I'm having trouble responding right now. Please try again!",
         });
       }
     }
@@ -157,11 +185,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid training data ID" });
       }
-      
+
       await storage.deleteTrainingData(id);
-      res.json({ 
+      res.json({
         success: true,
-        message: "Training data deleted successfully"
+        message: "Training data deleted successfully",
       });
     } catch (error) {
       console.error("Delete training data error:", error);
@@ -197,10 +225,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const projectData = req.body;
       const result = await storage.addProject(projectData);
-      res.json({ 
+      res.json({
         success: true,
         message: "Project added successfully",
-        project: result
+        project: result,
       });
     } catch (error) {
       console.error("Add project error:", error);
@@ -215,13 +243,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid project ID" });
       }
-      
+
       const projectData = req.body;
       const result = await storage.updateProject(id, projectData);
-      res.json({ 
+      res.json({
         success: true,
         message: "Project updated successfully",
-        project: result
+        project: result,
       });
     } catch (error) {
       console.error("Update project error:", error);
@@ -236,11 +264,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid project ID" });
       }
-      
+
       await storage.deleteProject(id);
-      res.json({ 
+      res.json({
         success: true,
-        message: "Project deleted successfully"
+        message: "Project deleted successfully",
       });
     } catch (error) {
       console.error("Delete project error:", error);
@@ -252,9 +280,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/experiences", async (_req, res) => {
     try {
       const experiences = await storage.getAllExperiences();
-      res.json({ 
+      res.json({
         success: true,
-        experiences
+        experiences,
       });
     } catch (error) {
       console.error("Get experiences error:", error);
@@ -267,10 +295,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const experienceData = req.body;
       const result = await storage.addExperience(experienceData);
-      res.json({ 
+      res.json({
         success: true,
         message: "Experience added successfully",
-        experience: result
+        experience: result,
       });
     } catch (error) {
       console.error("Add experience error:", error);
@@ -285,13 +313,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid experience ID" });
       }
-      
+
       const experienceData = req.body;
       const result = await storage.updateExperience(id, experienceData);
-      res.json({ 
+      res.json({
         success: true,
         message: "Experience updated successfully",
-        experience: result
+        experience: result,
       });
     } catch (error) {
       console.error("Update experience error:", error);
@@ -306,11 +334,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid experience ID" });
       }
-      
+
       await storage.deleteExperience(id);
-      res.json({ 
+      res.json({
         success: true,
-        message: "Experience deleted successfully"
+        message: "Experience deleted successfully",
       });
     } catch (error) {
       console.error("Delete experience error:", error);
@@ -345,10 +373,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const exampleData = insertPromptExampleSchema.parse(req.body);
       const result = await storage.addPromptExample(exampleData);
-      res.json({ 
+      res.json({
         success: true,
         message: "Prompt example added successfully",
-        example: result
+        example: result,
       });
     } catch (error) {
       console.error("Add prompt example error:", error);
@@ -363,13 +391,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid prompt example ID" });
       }
-      
+
       const exampleData = insertPromptExampleSchema.parse(req.body);
       const result = await storage.updatePromptExample(id, exampleData);
-      res.json({ 
+      res.json({
         success: true,
         message: "Prompt example updated successfully",
-        example: result
+        example: result,
       });
     } catch (error) {
       console.error("Update prompt example error:", error);
@@ -384,11 +412,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid prompt example ID" });
       }
-      
+
       await storage.deletePromptExample(id);
-      res.json({ 
+      res.json({
         success: true,
-        message: "Prompt example deleted successfully"
+        message: "Prompt example deleted successfully",
       });
     } catch (error) {
       console.error("Delete prompt example error:", error);

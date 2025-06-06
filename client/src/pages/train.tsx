@@ -1357,6 +1357,7 @@ export default function Train() {
                     <option value="projects">Show Projects</option>
                     <option value="experiences">Show Experiences</option>
                     <option value="contacts">Show Contacts</option>
+                    <option value="skills">Show Skills</option>
                   </select>
                 </div>
                 
@@ -1434,11 +1435,13 @@ export default function Train() {
                               prompt.responseType === 'projects' ? 'bg-blue-100 text-blue-700' :
                               prompt.responseType === 'experiences' ? 'bg-green-100 text-green-700' :
                               prompt.responseType === 'contacts' ? 'bg-purple-100 text-purple-700' :
+                              prompt.responseType === 'skills' ? 'bg-orange-100 text-orange-700' :
                               'bg-gray-100 text-gray-700'
                             }`}>
                               {prompt.responseType === 'projects' ? 'Projects' :
                                prompt.responseType === 'experiences' ? 'Experiences' :
-                               prompt.responseType === 'contacts' ? 'Contacts' : 'AI Response'}
+                               prompt.responseType === 'contacts' ? 'Contacts' :
+                               prompt.responseType === 'skills' ? 'Skills' : 'AI Response'}
                             </span>
                             <span className="text-xs text-gray-500">Order: {prompt.displayOrder}</span>
                             {!prompt.isActive && <span className="text-xs text-red-500">Inactive</span>}

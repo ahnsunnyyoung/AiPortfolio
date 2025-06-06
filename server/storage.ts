@@ -280,6 +280,12 @@ export class DatabaseStorage implements IStorage {
           responseType: "contacts",
           isActive: true,
           displayOrder: 6
+        },
+        {
+          question: "어떤 기술 스택과 스킬을 가지고 계시나요?",
+          responseType: "skills",
+          isActive: true,
+          displayOrder: 7
         }
       ];
 

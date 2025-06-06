@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Send, Bot, User, Sparkles, Brain, X, Mail, Linkedin, Github } from "lucide-react";
+import { Send, Bot, User, Sparkles, Brain, X, Mail, Linkedin, Github, Code, Monitor, Server, Wrench, Globe, Users } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
@@ -53,9 +53,18 @@ interface Message {
     linkedin: string;
     github: string;
   };
+  skills?: {
+    programming: string[];
+    frontend: string[];
+    backend: string[];
+    tools: string[];
+    languages: string[];
+    soft: string[];
+  };
   isProjectResponse?: boolean;
   isExperienceResponse?: boolean;
   isContactResponse?: boolean;
+  isSkillsResponse?: boolean;
 }
 
 export default function Portfolio() {
@@ -115,9 +124,11 @@ export default function Portfolio() {
         projects: data.projects,
         experiences: data.experiences,
         contacts: data.contacts,
+        skills: data.skills,
         isProjectResponse: data.isProjectResponse,
         isExperienceResponse: data.isExperienceResponse,
-        isContactResponse: data.isContactResponse
+        isContactResponse: data.isContactResponse,
+        isSkillsResponse: data.isSkillsResponse
       };
       setMessages((prev) => [...prev, aiMessage]);
     },
