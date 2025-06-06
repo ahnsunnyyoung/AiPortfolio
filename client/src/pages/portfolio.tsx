@@ -19,7 +19,9 @@ export default function Portfolio() {
   const [isCardExpanded, setIsCardExpanded] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [password, setPassword] = useState("");
-  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(
+    null,
+  );
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
@@ -34,17 +36,19 @@ export default function Portfolio() {
         id: Date.now().toString() + "-ai",
         content: data.answer,
         isUser: false,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
-      setMessages(prev => [...prev, aiMessage]);
+      setMessages((prev) => [...prev, aiMessage]);
     },
     onError: (error: any) => {
       toast({
         title: "Connection Error",
-        description: error.message || "I'm having trouble connecting right now. Please try again!",
-        variant: "destructive"
+        description:
+          error.message ||
+          "I'm having trouble connecting right now. Please try again!",
+        variant: "destructive",
       });
-    }
+    },
   });
 
   const expandCard = () => {
@@ -56,9 +60,10 @@ export default function Portfolio() {
       setIsExpanded(true);
       const welcomeMessage: Message = {
         id: "welcome",
-        content: "Hi! I'm Sunyoung's AI agent. I've been trained with her personal knowledge and experiences. Ask me anything about her background, skills, projects, or thoughts!",
+        content:
+          "Hi! I'm Sunyoung's AI agent. I've been trained with her personal knowledge and experiences. Ask me anything about her background, skills, projects, or thoughts!",
         isUser: false,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
       setMessages([welcomeMessage]);
     }
@@ -81,10 +86,10 @@ export default function Portfolio() {
       id: Date.now().toString() + "-user",
       content: inputValue,
       isUser: true,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     askMutation.mutate(inputValue);
     setInputValue("");
   };
@@ -100,7 +105,7 @@ export default function Portfolio() {
     "What are your main skills and expertise?",
     "Tell me about your recent projects",
     "What's your development philosophy?",
-    "How can I contact you for collaboration?"
+    "How can I contact you for collaboration?",
   ];
 
   const handleQuickQuestion = (question: string) => {
@@ -110,10 +115,10 @@ export default function Portfolio() {
       id: Date.now().toString() + "-user",
       content: question,
       isUser: true,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     askMutation.mutate(question);
   };
 
@@ -140,7 +145,7 @@ export default function Portfolio() {
       toast({
         title: "Access Denied",
         description: "Incorrect password",
-        variant: "destructive"
+        variant: "destructive",
       });
       setPassword("");
     }
@@ -167,17 +172,15 @@ export default function Portfolio() {
               Sunyoung Ahn
             </h1>
             <p className="text-lg md:text-xl text-gray-600 italic mb-8">
-              "Shine brightly like the sunshine"
+              Ask Sunny AI anything! It might just know me better than I do.
             </p>
-            
-
           </div>
 
           {/* AI Agent Interface */}
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-8 mb-8">
             {/* Input with AI Agent Icon */}
             <div className="flex items-center gap-4 mb-6">
-              <div 
+              <div
                 className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer select-none active:scale-95 transition-transform"
                 onMouseDown={handleLongPressStart}
                 onMouseUp={handleLongPressEnd}
@@ -231,7 +234,9 @@ export default function Portfolio() {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6">
             <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm animate-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">Admin Access</h3>
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Admin Access
+                </h3>
                 <button
                   onClick={() => {
                     setShowPasswordModal(false);
@@ -242,7 +247,7 @@ export default function Portfolio() {
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -258,7 +263,7 @@ export default function Portfolio() {
                     autoFocus
                   />
                 </div>
-                
+
                 <button
                   onClick={handlePasswordSubmit}
                   disabled={!password.trim()}
@@ -322,9 +327,16 @@ export default function Portfolio() {
                       : "bg-gray-50 text-gray-800 rounded-tl-md"
                   }`}
                 >
-                  <p className="leading-relaxed whitespace-pre-wrap">{message.content}</p>
-                  <div className={`text-xs mt-2 opacity-70 ${message.isUser ? "text-blue-100" : "text-gray-500"}`}>
-                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  <p className="leading-relaxed whitespace-pre-wrap">
+                    {message.content}
+                  </p>
+                  <div
+                    className={`text-xs mt-2 opacity-70 ${message.isUser ? "text-blue-100" : "text-gray-500"}`}
+                  >
+                    {message.timestamp.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </div>
                 </div>
               </div>

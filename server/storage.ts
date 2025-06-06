@@ -1,10 +1,11 @@
 import { trainingData, conversations, type TrainingData, type InsertTrainingData, type Conversation, type InsertConversation } from "../shared/schema";
 import { db } from "./db";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 export interface IStorage {
   addTrainingData(data: InsertTrainingData): Promise<TrainingData>;
   getAllTrainingData(): Promise<TrainingData[]>;
+  deleteTrainingData(id: number): Promise<void>;
   addConversation(conversation: InsertConversation): Promise<Conversation>;
   getRecentConversations(limit?: number): Promise<Conversation[]>;
 }
@@ -23,6 +24,12 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(trainingData)
       .orderBy(desc(trainingData.timestamp));
+  }
+
+  async deleteTrainingData(id: number): Promise<void> {
+    await db
+      .delete(trainingData)
+      .where(eq(trainingData.id, id));
   }
 
   async addConversation(conversation: InsertConversation): Promise<Conversation> {

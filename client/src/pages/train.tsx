@@ -45,6 +45,27 @@ export default function Train() {
     }
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/training-data/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Knowledge Deleted",
+        description: "The training data has been removed successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/training-data'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Delete Failed",
+        description: error.message || "Failed to delete training data",
+        variant: "destructive"
+      });
+    }
+  });
+
   const handleTrain = () => {
     if (!trainingContent.trim()) return;
     trainMutation.mutate(trainingContent.trim());
@@ -54,6 +75,12 @@ export default function Train() {
     if (e.key === "Enter" && e.ctrlKey) {
       e.preventDefault();
       handleTrain();
+    }
+  };
+
+  const handleDelete = (id: number) => {
+    if (window.confirm("Are you sure you want to delete this knowledge entry?")) {
+      deleteMutation.mutate(id);
     }
   };
 
@@ -154,12 +181,24 @@ export default function Train() {
             ) : (
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {trainingData.map((item) => (
-                  <div key={item.id} className="bg-white rounded-lg p-4 border border-gray-200">
-                    <p className="text-gray-800 text-sm leading-relaxed mb-2">
-                      {item.content}
-                    </p>
-                    <div className="text-xs text-gray-500">
-                      Added: {new Date(item.timestamp).toLocaleString()}
+                  <div key={item.id} className="bg-white rounded-lg p-4 border border-gray-200 group">
+                    <div className="flex justify-between items-start gap-3">
+                      <div className="flex-1">
+                        <p className="text-gray-800 text-sm leading-relaxed mb-2">
+                          {item.content}
+                        </p>
+                        <div className="text-xs text-gray-500">
+                          Added: {new Date(item.timestamp).toLocaleString()}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        disabled={deleteMutation.isPending}
+                        className="opacity-0 group-hover:opacity-100 flex-shrink-0 p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Delete this knowledge entry"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 ))}

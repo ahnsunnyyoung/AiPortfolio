@@ -83,6 +83,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete training data endpoint
+  app.delete("/api/training-data/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid training data ID" });
+      }
+      
+      await storage.deleteTrainingData(id);
+      res.json({ 
+        success: true,
+        message: "Training data deleted successfully"
+      });
+    } catch (error) {
+      console.error("Delete training data error:", error);
+      res.status(500).json({ error: "Failed to delete training data" });
+    }
+  });
+
   // Get conversation history endpoint
   app.get("/api/conversations", async (req, res) => {
     try {
