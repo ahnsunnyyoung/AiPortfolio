@@ -278,7 +278,7 @@ export default function Train() {
 
   return (
     <div className="min-h-screen portfolio-gradient">
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="max-w-4xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link href="/" className="text-gray-600 hover:text-gray-800 transition-colors">

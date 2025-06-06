@@ -30,6 +30,18 @@ export const projects = pgTable("projects", {
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
+export const experiences = pgTable("experiences", {
+  id: serial("id").primaryKey(),
+  company: text("company").notNull(),
+  position: text("position").notNull(),
+  period: text("period").notNull(),
+  location: text("location").notNull(),
+  description: text("description").notNull(),
+  responsibilities: text("responsibilities").array().notNull(),
+  skills: text("skills").notNull(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
 export const insertTrainingDataSchema = createInsertSchema(trainingData).pick({
   content: true,
 });
@@ -52,9 +64,21 @@ export const insertProjectSchema = createInsertSchema(projects).pick({
   width: true,
 });
 
+export const insertExperienceSchema = createInsertSchema(experiences).pick({
+  company: true,
+  position: true,
+  period: true,
+  location: true,
+  description: true,
+  responsibilities: true,
+  skills: true,
+});
+
 export type InsertTrainingData = z.infer<typeof insertTrainingDataSchema>;
 export type TrainingData = typeof trainingData.$inferSelect;
 export type Conversation = typeof conversations.$inferSelect;
 export type InsertConversation = z.infer<typeof insertConversationSchema>;
 export type Project = typeof projects.$inferSelect;
 export type InsertProject = z.infer<typeof insertProjectSchema>;
+export type Experience = typeof experiences.$inferSelect;
+export type InsertExperience = z.infer<typeof insertExperienceSchema>;

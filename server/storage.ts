@@ -1,4 +1,4 @@
-import { trainingData, conversations, projects, type TrainingData, type InsertTrainingData, type Conversation, type InsertConversation, type Project, type InsertProject } from "../shared/schema";
+import { trainingData, conversations, projects, experiences, type TrainingData, type InsertTrainingData, type Conversation, type InsertConversation, type Project, type InsertProject, type Experience, type InsertExperience } from "../shared/schema";
 import { db } from "./db";
 import { desc, eq } from "drizzle-orm";
 
@@ -13,6 +13,11 @@ export interface IStorage {
   updateProject(id: number, project: InsertProject): Promise<Project>;
   deleteProject(id: number): Promise<void>;
   initializeProjects(): Promise<void>;
+  addExperience(experience: InsertExperience): Promise<Experience>;
+  getAllExperiences(): Promise<Experience[]>;
+  updateExperience(id: number, experience: InsertExperience): Promise<Experience>;
+  deleteExperience(id: number): Promise<void>;
+  initializeExperiences(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
