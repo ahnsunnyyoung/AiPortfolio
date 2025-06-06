@@ -113,28 +113,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
             return;
           }
-          
-          if (promptExample.responseType === "skills") {
-            // Store the conversation
-            await storage.addConversation({
-              question,
-              answer: "SKILLS_SHOWCASE" // Special marker for skills responses
-            });
-            
-            res.json({ 
-              answer: "Here are my technical skills and expertise:",
-              skills: {
-                programming: ["JavaScript", "TypeScript", "Python", "Java", "C++"],
-                frontend: ["React", "Next.js", "Vue.js", "HTML5", "CSS3", "Tailwind CSS"],
-                backend: ["Node.js", "Express.js", "FastAPI", "Spring Boot", "PostgreSQL", "MongoDB"],
-                tools: ["Git", "Docker", "AWS", "Vercel", "Figma", "VS Code"],
-                languages: ["Korean (Native)", "English (Fluent)", "Japanese (Conversational)"],
-                soft: ["Problem Solving", "Team Leadership", "Project Management", "UI/UX Design"]
-              },
-              isSkillsResponse: true
-            });
-            return;
-          }
         }
       }
 
