@@ -87,6 +87,7 @@ export const skills = pgTable("skills", {
 export const introduction = pgTable("introduction", {
   id: serial("id").primaryKey(),
   content: text("content").notNull(),
+  img: text("img"),
   isActive: boolean("is_active").default(true).notNull(),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
@@ -158,6 +159,7 @@ export const insertSkillSchema = createInsertSchema(skills).pick({
 
 export const insertIntroductionSchema = createInsertSchema(introduction).pick({
   content: true,
+  img: true,
   isActive: true,
 });
 

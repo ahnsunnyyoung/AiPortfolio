@@ -135,6 +135,7 @@ export default function Train() {
   const [editingSkill, setEditingSkill] = useState<number | null>(null);
   const [editingSkillName, setEditingSkillName] = useState("");
   const [introductionContent, setIntroductionContent] = useState("");
+  const [introductionImage, setIntroductionImage] = useState("");
   const { toast } = useToast();
 
   const trainingDataQuery = useQuery({
@@ -190,6 +191,20 @@ export default function Train() {
     queryFn: async () => {
       const response = await apiRequest("GET", "/api/skills");
       return response.json();
+    }
+  });
+
+  const introductionQuery = useQuery({
+    queryKey: ['/api/introduction'],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/introduction");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.introduction) {
+        setIntroductionContent(data.introduction.content || "");
+        setIntroductionImage(data.introduction.img || "");
+      }
     }
   });
 
@@ -376,6 +391,43 @@ export default function Train() {
       });
     }
   });
+
+  const updateIntroductionMutation = useMutation({
+    mutationFn: async ({ content, img }: { content: string, img?: string }) => {
+      const response = await apiRequest("PUT", "/api/introduction", { content, img });
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Introduction Updated",
+        description: "Introduction has been updated successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/introduction'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to update introduction",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleIntroductionSubmit = () => {
+    if (!introductionContent.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter introduction content",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    updateIntroductionMutation.mutate({
+      content: introductionContent,
+      img: introductionImage
+    });
+  };
 
   const handleProjectDelete = (id: number) => {
     if (window.confirm("Are you sure you want to delete this project?")) {

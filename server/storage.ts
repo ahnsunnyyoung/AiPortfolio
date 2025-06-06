@@ -43,7 +43,7 @@ export interface IStorage {
   initializeSkills(): Promise<void>;
   // Introduction management
   getIntroduction(): Promise<Introduction | undefined>;
-  updateIntroduction(content: string): Promise<Introduction>;
+  updateIntroduction(content: string, img?: string): Promise<Introduction>;
   initializeIntroduction(): Promise<void>;
 }
 
@@ -481,14 +481,14 @@ export class DatabaseStorage implements IStorage {
     return intro || undefined;
   }
 
-  async updateIntroduction(content: string): Promise<Introduction> {
+  async updateIntroduction(content: string, img?: string): Promise<Introduction> {
     // First, deactivate all existing introductions
     await db.update(introduction).set({ isActive: false });
     
     // Then create a new active introduction
     const [created] = await db
       .insert(introduction)
-      .values({ content, isActive: true })
+      .values({ content, img, isActive: true })
       .returning();
     return created;
   }
