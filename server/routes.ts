@@ -7,6 +7,7 @@ import { insertTrainingDataSchema, insertConversationSchema, insertPromptExample
 
 const askRequestSchema = z.object({
   question: z.string().min(1).max(1000),
+  promptExampleId: z.number().optional(),
 });
 
 const trainRequestSchema = insertTrainingDataSchema;
@@ -48,52 +49,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Ask endpoint - for asking questions to the trained AI
   app.post("/api/ask", async (req, res) => {
     try {
-      const { question } = askRequestSchema.parse(req.body);
+      const { question, promptExampleId } = askRequestSchema.parse(req.body);
       
-      // Check if the question is about work experience
-      const experienceKeywords = ['experience', 'experiences', 'job', 'jobs', 'career', 'employment', 'workplace', 'company', 'companies', 'position', 'role', 'roles'];
-      const isExperienceQuestion = experienceKeywords.some(keyword => 
-        question.toLowerCase().includes(keyword)
-      );
-      
-      if (isExperienceQuestion) {
-        const experiences = await storage.getAllExperiences();
+      // If a prompt example ID is provided, check its response type
+      if (promptExampleId) {
+        const examples = await storage.getAllPromptExamples();
+        const promptExample = examples.find(ex => ex.id === promptExampleId);
         
-        // Store the conversation
-        await storage.addConversation({
-          question,
-          answer: "EXPERIENCE_SHOWCASE" // Special marker for experience responses
-        });
-        
-        res.json({ 
-          answer: "Here are my work experiences:",
-          experiences: experiences,
-          isExperienceResponse: true
-        });
-        return;
-      }
-      
-      // Check if the question is about projects
-      const projectKeywords = ['project', 'projects', 'portfolio', 'built', 'developed', 'created', 'app', 'application', 'website'];
-      const isProjectQuestion = projectKeywords.some(keyword => 
-        question.toLowerCase().includes(keyword)
-      );
-      
-      if (isProjectQuestion) {
-        const projects = await storage.getAllProjects();
-        
-        // Store the conversation
-        await storage.addConversation({
-          question,
-          answer: "PROJECT_SHOWCASE" // Special marker for project responses
-        });
-        
-        res.json({ 
-          answer: "Here are my projects:",
-          projects: projects,
-          isProjectResponse: true
-        });
-        return;
+        if (promptExample) {
+          if (promptExample.responseType === "experiences") {
+            const experiences = await storage.getAllExperiences();
+            
+            // Store the conversation
+            await storage.addConversation({
+              question,
+              answer: "EXPERIENCE_SHOWCASE" // Special marker for experience responses
+            });
+            
+            res.json({ 
+              answer: "Here are my work experiences:",
+              experiences: experiences,
+              isExperienceResponse: true
+            });
+            return;
+          }
+          
+          if (promptExample.responseType === "projects") {
+            const projects = await storage.getAllProjects();
+            
+            // Store the conversation
+            await storage.addConversation({
+              question,
+              answer: "PROJECT_SHOWCASE" // Special marker for project responses
+            });
+            
+            res.json({ 
+              answer: "Here are my projects:",
+              projects: projects,
+              isProjectResponse: true
+            });
+            return;
+          }
+        }
       }
       
       const aiResponse = await generatePersonalizedResponse(question);

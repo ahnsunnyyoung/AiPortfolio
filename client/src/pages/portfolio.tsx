@@ -32,6 +32,15 @@ interface Experience {
   website?: string;
 }
 
+interface PromptExample {
+  id: number;
+  question: string;
+  responseType: string;
+  isActive: boolean;
+  displayOrder: number;
+  timestamp: string;
+}
+
 interface Message {
   id: string;
   content: string;

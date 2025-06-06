@@ -247,26 +247,31 @@ export class DatabaseStorage implements IStorage {
       const defaultExamples = [
         {
           question: "안녕하세요! 어떤 일을 하고 계신가요?",
+          responseType: "ai",
           isActive: true,
           displayOrder: 1
         },
         {
           question: "어떤 기술 스택을 사용하시나요?",
+          responseType: "ai",
           isActive: true,
           displayOrder: 2
         },
         {
           question: "현재 진행 중인 프로젝트가 있나요?",
+          responseType: "projects",
           isActive: true,
           displayOrder: 3
         },
         {
           question: "개발자로서의 경험에 대해 말씀해주세요",
+          responseType: "experiences",
           isActive: true,
           displayOrder: 4
         },
         {
           question: "새로운 기술 학습은 어떻게 하시나요?",
+          responseType: "ai",
           isActive: true,
           displayOrder: 5
         }

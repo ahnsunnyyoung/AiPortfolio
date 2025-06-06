@@ -47,7 +47,7 @@ interface PromptExample {
 
 export default function Train() {
   const [trainingContent, setTrainingContent] = useState("");
-  const [activeTab, setActiveTab] = useState<"knowledge" | "projects" | "experience">("knowledge");
+  const [activeTab, setActiveTab] = useState<"knowledge" | "projects" | "experience" | "prompts">("knowledge");
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [projectForm, setProjectForm] = useState({

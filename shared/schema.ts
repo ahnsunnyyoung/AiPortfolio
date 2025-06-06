@@ -46,6 +46,7 @@ export const experiences = pgTable("experiences", {
 export const promptExamples = pgTable("prompt_examples", {
   id: serial("id").primaryKey(),
   question: text("question").notNull(),
+  responseType: text("response_type").default("ai").notNull(), // "ai", "projects", "experiences"
   isActive: boolean("is_active").default(true).notNull(),
   displayOrder: serial("display_order").notNull(),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
@@ -86,6 +87,7 @@ export const insertExperienceSchema = createInsertSchema(experiences).pick({
 
 export const insertPromptExampleSchema = createInsertSchema(promptExamples).pick({
   question: true,
+  responseType: true,
   isActive: true,
   displayOrder: true,
 });
