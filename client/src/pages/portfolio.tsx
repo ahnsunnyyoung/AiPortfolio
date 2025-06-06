@@ -18,6 +18,7 @@ interface Project {
   imgAlt: string;
   moreLink?: string;
   width: string;
+  detailedContent?: string;
 }
 
 interface Experience {
@@ -30,6 +31,7 @@ interface Experience {
   responsibilities?: string[];
   skills?: string;
   website?: string;
+  detailedContent?: string;
 }
 
 interface PromptExample {
@@ -456,15 +458,25 @@ export default function Portfolio() {
                             </div>
                             <button
                               onClick={() => {
-                                const detailQuestion = `Tell me more details about the ${project.title} project`;
-                                handleQuickQuestion({
-                                  id: 0,
-                                  question: detailQuestion,
-                                  responseType: "ai",
-                                  isActive: true,
-                                  displayOrder: 0,
-                                  timestamp: new Date().toISOString()
-                                });
+                                const userMessage: Message = {
+                                  id: Date.now().toString(),
+                                  content: `Tell me more details about the ${project.title} project`,
+                                  isUser: true,
+                                  timestamp: new Date(),
+                                };
+                                
+                                const aiMessage: Message = {
+                                  id: (Date.now() + 1).toString(),
+                                  content: project.detailedContent || `More details about ${project.title} will be available soon.`,
+                                  isUser: false,
+                                  timestamp: new Date(),
+                                };
+                                
+                                setMessages(prev => [...prev, userMessage, aiMessage]);
+                                setRecentlyAskedQuestions(prev => [...prev, userMessage.content]);
+                                setTimeout(() => {
+                                  setRecentlyAskedQuestions(prev => prev.filter(q => q !== userMessage.content));
+                                }, 10000);
                               }}
                               className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
                             >
@@ -489,15 +501,25 @@ export default function Portfolio() {
                             </div>
                             <button
                               onClick={() => {
-                                const detailQuestion = `Tell me more details about the ${experience.position} role at ${experience.company}`;
-                                handleQuickQuestion({
-                                  id: 0,
-                                  question: detailQuestion,
-                                  responseType: "ai",
-                                  isActive: true,
-                                  displayOrder: 0,
-                                  timestamp: new Date().toISOString()
-                                });
+                                const userMessage: Message = {
+                                  id: Date.now().toString(),
+                                  content: `Tell me more details about the ${experience.position} role at ${experience.company}`,
+                                  isUser: true,
+                                  timestamp: new Date(),
+                                };
+                                
+                                const aiMessage: Message = {
+                                  id: (Date.now() + 1).toString(),
+                                  content: experience.detailedContent || `More details about the ${experience.position} role at ${experience.company} will be available soon.`,
+                                  isUser: false,
+                                  timestamp: new Date(),
+                                };
+                                
+                                setMessages(prev => [...prev, userMessage, aiMessage]);
+                                setRecentlyAskedQuestions(prev => [...prev, userMessage.content]);
+                                setTimeout(() => {
+                                  setRecentlyAskedQuestions(prev => prev.filter(q => q !== userMessage.content));
+                                }, 10000);
                               }}
                               className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
                             >

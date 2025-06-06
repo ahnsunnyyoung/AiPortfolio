@@ -27,6 +27,7 @@ export const projects = pgTable("projects", {
   imgAlt: text("img_alt").notNull(),
   moreLink: text("more_link"),
   width: text("width").notNull(),
+  detailedContent: text("detailed_content"),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
@@ -40,6 +41,7 @@ export const experiences = pgTable("experiences", {
   responsibilities: text("responsibilities").array(),
   skills: text("skills"),
   website: text("website"),
+  detailedContent: text("detailed_content"),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
@@ -100,6 +102,7 @@ export const insertProjectSchema = createInsertSchema(projects).pick({
   imgAlt: true,
   moreLink: true,
   width: true,
+  detailedContent: true,
 });
 
 export const insertExperienceSchema = createInsertSchema(experiences).pick({
@@ -111,6 +114,7 @@ export const insertExperienceSchema = createInsertSchema(experiences).pick({
   responsibilities: true,
   skills: true,
   website: true,
+  detailedContent: true,
 });
 
 export const insertPromptExampleSchema = createInsertSchema(promptExamples).pick({
