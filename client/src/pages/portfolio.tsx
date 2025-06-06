@@ -573,6 +573,109 @@ export default function Portfolio() {
                     </div>
                   )}
                   
+                  {/* Skills Display */}
+                  {message.isSkillsResponse && message.skills && (
+                    <div className="space-y-3 mt-4">
+                      <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full flex items-center justify-center">
+                            <Code className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-gray-800 text-lg">Technical Skills & Expertise</h4>
+                            <p className="text-orange-600 text-sm">My technical capabilities</p>
+                          </div>
+                        </div>
+                        
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <div className="bg-white rounded-lg border border-orange-100 p-4">
+                            <div className="flex items-center gap-2 mb-3">
+                              <Code className="w-4 h-4 text-orange-600" />
+                              <h5 className="font-semibold text-gray-800">Programming Languages</h5>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {message.skills.programming.map((skill, index) => (
+                                <span key={index} className="px-2 py-1 bg-orange-50 text-orange-700 text-sm rounded-full border border-orange-200">
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div className="bg-white rounded-lg border border-orange-100 p-4">
+                            <div className="flex items-center gap-2 mb-3">
+                              <Monitor className="w-4 h-4 text-blue-600" />
+                              <h5 className="font-semibold text-gray-800">Frontend</h5>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {message.skills.frontend.map((skill, index) => (
+                                <span key={index} className="px-2 py-1 bg-blue-50 text-blue-700 text-sm rounded-full border border-blue-200">
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div className="bg-white rounded-lg border border-orange-100 p-4">
+                            <div className="flex items-center gap-2 mb-3">
+                              <Server className="w-4 h-4 text-green-600" />
+                              <h5 className="font-semibold text-gray-800">Backend & Database</h5>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {message.skills.backend.map((skill, index) => (
+                                <span key={index} className="px-2 py-1 bg-green-50 text-green-700 text-sm rounded-full border border-green-200">
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div className="bg-white rounded-lg border border-orange-100 p-4">
+                            <div className="flex items-center gap-2 mb-3">
+                              <Wrench className="w-4 h-4 text-purple-600" />
+                              <h5 className="font-semibold text-gray-800">Tools & Platforms</h5>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {message.skills.tools.map((skill, index) => (
+                                <span key={index} className="px-2 py-1 bg-purple-50 text-purple-700 text-sm rounded-full border border-purple-200">
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div className="bg-white rounded-lg border border-orange-100 p-4">
+                            <div className="flex items-center gap-2 mb-3">
+                              <Globe className="w-4 h-4 text-indigo-600" />
+                              <h5 className="font-semibold text-gray-800">Languages</h5>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {message.skills.languages.map((skill, index) => (
+                                <span key={index} className="px-2 py-1 bg-indigo-50 text-indigo-700 text-sm rounded-full border border-indigo-200">
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div className="bg-white rounded-lg border border-orange-100 p-4">
+                            <div className="flex items-center gap-2 mb-3">
+                              <Users className="w-4 h-4 text-pink-600" />
+                              <h5 className="font-semibold text-gray-800">Soft Skills</h5>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {message.skills.soft.map((skill, index) => (
+                                <span key={index} className="px-2 py-1 bg-pink-50 text-pink-700 text-sm rounded-full border border-pink-200">
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div
                     className={`text-xs mt-2 opacity-70 ${message.isUser ? "text-blue-100" : "text-gray-500"}`}
                   >
