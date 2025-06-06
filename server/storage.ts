@@ -1,39 +1,45 @@
-import { users, type User, type InsertUser } from "@shared/schema";
-
-// modify the interface with any CRUD methods
-// you might need
+import { trainingData, conversations, type TrainingData, type InsertTrainingData, type Conversation, type InsertConversation } from "../shared/schema";
+import { db } from "./db";
+import { desc } from "drizzle-orm";
 
 export interface IStorage {
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  addTrainingData(data: InsertTrainingData): Promise<TrainingData>;
+  getAllTrainingData(): Promise<TrainingData[]>;
+  addConversation(conversation: InsertConversation): Promise<Conversation>;
+  getRecentConversations(limit?: number): Promise<Conversation[]>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  currentId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.currentId = 1;
+export class DatabaseStorage implements IStorage {
+  async addTrainingData(data: InsertTrainingData): Promise<TrainingData> {
+    const [result] = await db
+      .insert(trainingData)
+      .values(data)
+      .returning();
+    return result;
   }
 
-  async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+  async getAllTrainingData(): Promise<TrainingData[]> {
+    return await db
+      .select()
+      .from(trainingData)
+      .orderBy(desc(trainingData.timestamp));
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async addConversation(conversation: InsertConversation): Promise<Conversation> {
+    const [result] = await db
+      .insert(conversations)
+      .values(conversation)
+      .returning();
+    return result;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async getRecentConversations(limit: number = 10): Promise<Conversation[]> {
+    return await db
+      .select()
+      .from(conversations)
+      .orderBy(desc(conversations.timestamp))
+      .limit(limit);
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
