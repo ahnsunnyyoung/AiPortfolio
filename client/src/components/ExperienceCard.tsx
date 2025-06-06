@@ -10,6 +10,7 @@ interface Experience {
   responsibilities?: string[];
   skills?: string;
   website?: string;
+  img?: string;
   detailedContent?: string;
 }
 

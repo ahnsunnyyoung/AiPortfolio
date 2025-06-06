@@ -450,10 +450,6 @@ export default function Portfolio() {
                       : "bg-gray-50 text-gray-800 rounded-tl-md"
                   }`}
                 >
-                  <p className="leading-relaxed whitespace-pre-wrap">
-                    {message.content}
-                  </p>
-                  
                   {/* Project List Display */}
                   {message.isProjectResponse && message.projects && (
                     <div className="mt-4 space-y-4">
@@ -582,6 +578,13 @@ export default function Portfolio() {
                         </div>
                       ))}
                     </div>
+                  )}
+                  
+                  {/* Text content (appears after cards for project and experience responses) */}
+                  {!message.isUser && (
+                    <p className="leading-relaxed whitespace-pre-wrap mt-4">
+                      {message.content}
+                    </p>
                   )}
                   
                   {/* Contact Information Display */}
