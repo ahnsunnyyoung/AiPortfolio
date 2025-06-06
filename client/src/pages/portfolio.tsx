@@ -4,12 +4,29 @@ import { Send, Bot, User, Sparkles, Brain, X } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import ProjectCard from "@/components/ProjectCard";
+
+interface Project {
+  id: number;
+  title: string;
+  period: string;
+  subtitle: string;
+  summary: string;
+  contents: string[];
+  tech: string;
+  img: string;
+  imgAlt: string;
+  moreLink?: string;
+  width: string;
+}
 
 interface Message {
   id: string;
   content: string;
   isUser: boolean;
   timestamp: Date;
+  projects?: Project[];
+  isProjectResponse?: boolean;
 }
 
 export default function Portfolio() {
