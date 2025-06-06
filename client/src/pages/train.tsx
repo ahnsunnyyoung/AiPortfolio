@@ -199,14 +199,14 @@ export default function Train() {
     queryFn: async () => {
       const response = await apiRequest("GET", "/api/introduction");
       return response.json();
-    },
-    onSuccess: (data) => {
-      if (data.introduction) {
-        setIntroductionContent(data.introduction.content || "");
-        setIntroductionImage(data.introduction.img || "");
-      }
     }
   });
+
+  // Set introduction content when data is loaded
+  if (introductionQuery.data?.introduction && introductionContent === "" && introductionImage === "") {
+    setIntroductionContent(introductionQuery.data.introduction.content || "");
+    setIntroductionImage(introductionQuery.data.introduction.img || "");
+  }
 
   const trainMutation = useMutation({
     mutationFn: async (content: string) => {
@@ -1034,6 +1034,17 @@ export default function Train() {
           >
             <Code className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
             Skills
+          </button>
+          <button
+            onClick={() => setActiveTab("introduction")}
+            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+              activeTab === "introduction"
+                ? "bg-blue-500 text-white shadow-sm"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            <User className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
+            Introduction
           </button>
         </div>
 
@@ -2265,6 +2276,97 @@ export default function Train() {
                 </div>
               </DragDropContext>
             )}
+          </div>
+        ) : activeTab === "introduction" ? (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Introduction
+            </h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Your Photo
+                </label>
+                <div className="flex items-center gap-4">
+                  {introductionImage && (
+                    <div className="relative">
+                      <img
+                        src={introductionImage}
+                        alt="Profile"
+                        className="w-20 h-20 rounded-lg object-cover border border-gray-300"
+                      />
+                      <button
+                        onClick={() => setIntroductionImage("")}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      value={introductionImage}
+                      onChange={(e) => setIntroductionImage(e.target.value)}
+                      placeholder="Enter image URL or upload to a service like Imgur"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Upload your photo to an image hosting service and paste the URL here
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Introduction Text
+                </label>
+                <textarea
+                  value={introductionContent}
+                  onChange={(e) => setIntroductionContent(e.target.value)}
+                  placeholder="Write your introduction text that will be shown when someone asks about you..."
+                  className="w-full h-64 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  disabled={updateIntroductionMutation.isPending}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  This text will be used when someone asks "Tell me about yourself" or similar introduction questions
+                </p>
+              </div>
+
+              <button
+                onClick={handleIntroductionSubmit}
+                disabled={!introductionContent.trim() || updateIntroductionMutation.isPending}
+                className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 disabled:from-gray-300 disabled:to-gray-300 text-white py-3 px-6 rounded-lg font-medium transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {updateIntroductionMutation.isPending ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                ) : (
+                  <Save className="w-5 h-5" />
+                )}
+                {updateIntroductionMutation.isPending ? "Updating..." : "Update Introduction"}
+              </button>
+
+              {introductionQuery.data?.introduction && (
+                <div className="border-t border-gray-200 pt-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Current Introduction Preview:</h3>
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    {introductionQuery.data.introduction.img && (
+                      <img
+                        src={introductionQuery.data.introduction.img}
+                        alt="Profile"
+                        className="w-16 h-16 rounded-lg object-cover mb-3 border border-gray-300"
+                      />
+                    )}
+                    <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                      {introductionQuery.data.introduction.content}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         ) : null}
       </div>

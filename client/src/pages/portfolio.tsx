@@ -68,6 +68,7 @@ interface Message {
   isExperienceResponse?: boolean;
   isContactResponse?: boolean;
   isSkillsResponse?: boolean;
+  isIntroductionResponse?: boolean;
 }
 
 export default function Portfolio() {
