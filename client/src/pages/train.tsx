@@ -269,6 +269,56 @@ export default function Train() {
     setIntroductionImage(introductionQuery.data.introduction.img || "");
   }
 
+  // Training Data Mutations
+  const addTrainingMutation = useMutation({
+    mutationFn: async (content: string) => {
+      const response = await apiRequest("POST", "/api/training-data", { content, isActive: true });
+      return response.json();
+    },
+    onSuccess: () => {
+      setTrainingContent("");
+      toast({ title: "Knowledge Added", description: "Training data added successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/training-data'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to Add",
+        description: error.message || "Failed to add training data",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const updateTrainingMutation = useMutation({
+    mutationFn: async ({ id, content }: { id: number, content: string }) => {
+      const response = await apiRequest("PUT", `/api/training-data/${id}`, { content, isActive: true });
+      return response.json();
+    },
+    onSuccess: () => {
+      setEditingKnowledge(null);
+      setEditingContent("");
+      toast({ title: "Knowledge Updated", description: "Training data updated successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/training-data'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to update training data",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const deleteTrainingMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/training-data/${id}`);
+    },
+    onSuccess: () => {
+      toast({ title: "Knowledge Deleted", description: "Training data deleted successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/training-data'] });
+    }
+  });
+
   const updateIntroductionMutation = useMutation({
     mutationFn: async ({ content, img }: { content: string, img?: string }) => {
       const response = await apiRequest("PUT", "/api/introduction", { content, img });
@@ -289,6 +339,28 @@ export default function Train() {
       });
     }
   });
+
+  // Handler functions
+  const handleAddTrainingData = () => {
+    if (!trainingContent.trim()) return;
+    addTrainingMutation.mutate(trainingContent);
+  };
+
+  const handleEditTrainingData = (data: any) => {
+    setEditingKnowledge(data.id);
+    setEditingContent(data.content);
+  };
+
+  const handleUpdateTrainingData = () => {
+    if (!editingContent.trim() || !editingKnowledge) return;
+    updateTrainingMutation.mutate({ id: editingKnowledge, content: editingContent });
+  };
+
+  const handleDeleteTrainingData = (id: number) => {
+    if (confirm("Are you sure you want to delete this training data?")) {
+      deleteTrainingMutation.mutate(id);
+    }
+  };
 
   const handleIntroductionSubmit = () => {
     if (!introductionContent.trim()) {
@@ -458,12 +530,16 @@ export default function Train() {
                 </div>
 
                 <button
-                  onClick={() => {/* Add training logic */}}
-                  disabled={!trainingContent.trim()}
+                  onClick={handleAddTrainingData}
+                  disabled={!trainingContent.trim() || addTrainingMutation.isPending}
                   className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 disabled:from-gray-300 disabled:to-gray-300 text-white py-3 px-6 rounded-lg font-medium transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  <Save className="w-5 h-5" />
-                  Add Knowledge
+                  {addTrainingMutation.isPending ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  ) : (
+                    <Save className="w-5 h-5" />
+                  )}
+                  {addTrainingMutation.isPending ? "Adding..." : "Add Knowledge"}
                 </button>
               </div>
             </div>
@@ -481,13 +557,60 @@ export default function Train() {
                 ) : (
                   trainingData.map((data: any) => (
                     <div key={data.id} className="border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
-                      <p className="text-sm text-gray-600 mb-2">{data.content}</p>
-                      <div className="flex justify-between items-center text-xs text-gray-500">
-                        <span>{new Date(data.timestamp).toLocaleDateString()}</span>
-                        <span className={data.isActive ? "text-green-600" : "text-red-600"}>
-                          {data.isActive ? "Active" : "Inactive"}
-                        </span>
-                      </div>
+                      {editingKnowledge === data.id ? (
+                        <div className="space-y-3">
+                          <textarea
+                            value={editingContent}
+                            onChange={(e) => setEditingContent(e.target.value)}
+                            className="w-full h-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={handleUpdateTrainingData}
+                              disabled={updateTrainingMutation.isPending}
+                              className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-sm disabled:opacity-50"
+                            >
+                              {updateTrainingMutation.isPending ? "Saving..." : "Save"}
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditingKnowledge(null);
+                                setEditingContent("");
+                              }}
+                              className="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <p className="text-sm text-gray-600 mb-2">{data.content}</p>
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                              <span>{new Date(data.timestamp).toLocaleDateString()}</span>
+                              <span className={data.isActive ? "text-green-600" : "text-red-600"}>
+                                {data.isActive ? "Active" : "Inactive"}
+                              </span>
+                            </div>
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => handleEditTrainingData(data)}
+                                className="p-1 text-blue-500 hover:bg-blue-50 rounded"
+                              >
+                                <Edit3 className="w-3 h-3" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteTrainingData(data.id)}
+                                className="p-1 text-red-500 hover:bg-red-50 rounded"
+                                disabled={deleteTrainingMutation.isPending}
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   ))
                 )}
@@ -647,13 +770,42 @@ export default function Train() {
               ) : (
                 projects.map((project: any) => (
                   <div key={project.id} className="border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-start gap-3 mb-2">
                       {project.img && (
-                        <img src={project.img} alt={project.imgAlt} className="w-10 h-10 rounded object-cover" />
+                        <img src={project.img} alt={project.imgAlt} className="w-10 h-10 rounded object-cover flex-shrink-0" />
                       )}
-                      <div className="flex-1">
-                        <h3 className="font-medium text-gray-800">{project.title}</h3>
-                        <p className="text-sm text-gray-600">{project.period}</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="flex-1">
+                            <h3 className="font-medium text-gray-800">{project.title}</h3>
+                            <p className="text-sm text-gray-600">{project.period}</p>
+                            <p className="text-xs text-gray-500">{project.subtitle}</p>
+                          </div>
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => {
+                                setEditingProject(project);
+                                setProjectForm({
+                                  title: project.title,
+                                  period: project.period,
+                                  subtitle: project.subtitle,
+                                  summary: project.summary,
+                                  contents: project.contents,
+                                  tech: project.tech,
+                                  img: project.img,
+                                  imgAlt: project.imgAlt,
+                                  moreLink: project.moreLink || "",
+                                  width: project.width,
+                                  detailedContent: project.detailedContent || ""
+                                });
+                                setShowProjectForm(true);
+                              }}
+                              className="p-1 text-blue-500 hover:bg-blue-50 rounded"
+                            >
+                              <Edit3 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <p className="text-sm text-gray-600 mb-2">{project.summary}</p>
@@ -682,14 +834,41 @@ export default function Train() {
               ) : (
                 experiences.map((experience: any) => (
                   <div key={experience.id} className="border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-start gap-3 mb-2">
                       {experience.img && (
-                        <img src={experience.img} alt={experience.company} className="w-10 h-10 rounded object-cover" />
+                        <img src={experience.img} alt={experience.company} className="w-10 h-10 rounded object-cover flex-shrink-0" />
                       )}
-                      <div className="flex-1">
-                        <h3 className="font-medium text-gray-800">{experience.position}</h3>
-                        <p className="text-sm text-gray-600">{experience.company} • {experience.period}</p>
-                        <p className="text-xs text-gray-500">{experience.location}</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="flex-1">
+                            <h3 className="font-medium text-gray-800">{experience.position}</h3>
+                            <p className="text-sm text-gray-600">{experience.company} • {experience.period}</p>
+                            <p className="text-xs text-gray-500">{experience.location}</p>
+                          </div>
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => {
+                                setEditingExperience(experience);
+                                setExperienceForm({
+                                  company: experience.company,
+                                  position: experience.position,
+                                  period: experience.period,
+                                  location: experience.location,
+                                  description: experience.description || "",
+                                  responsibilities: experience.responsibilities || [""],
+                                  skills: experience.skills || "",
+                                  website: experience.website || "",
+                                  img: experience.img || "",
+                                  detailedContent: experience.detailedContent || ""
+                                });
+                                setShowExperienceForm(true);
+                              }}
+                              className="p-1 text-blue-500 hover:bg-blue-50 rounded"
+                            >
+                              <Edit3 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     {experience.description && (
@@ -745,6 +924,23 @@ export default function Train() {
             {contact ? (
               <div className="space-y-3">
                 <div className="border border-gray-200 rounded-lg p-3">
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="font-medium text-gray-800">Contact Details</h3>
+                    <button
+                      onClick={() => {
+                        setContactForm({
+                          email: contact.email,
+                          linkedin: contact.linkedin || "",
+                          github: contact.github || "",
+                          website: contact.website || "",
+                          phone: contact.phone || ""
+                        });
+                      }}
+                      className="p-1 text-blue-500 hover:bg-blue-50 rounded"
+                    >
+                      <Edit3 className="w-3 h-3" />
+                    </button>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Email</label>
@@ -778,7 +974,23 @@ export default function Train() {
                 </div>
               </div>
             ) : (
-              <p className="text-gray-500 text-center py-8">No contact information available.</p>
+              <div className="text-center py-8">
+                <p className="text-gray-500 mb-3">No contact information available.</p>
+                <button
+                  onClick={() => {
+                    setContactForm({
+                      email: "",
+                      linkedin: "",
+                      github: "",
+                      website: "",
+                      phone: ""
+                    });
+                  }}
+                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+                >
+                  Add Contact Info
+                </button>
+              </div>
             )}
           </div>
         ) : (
