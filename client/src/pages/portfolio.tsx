@@ -554,7 +554,7 @@ export default function Portfolio() {
                                   onClick={() => {
                                     const userMessage: Message = {
                                       id: Date.now().toString(),
-                                      content: `Tell me more details about the ${project.title} project`,
+                                      content: `${t.tellMeMoreProject} ${project.title} ${t.project}`,
                                       isUser: true,
                                       timestamp: new Date(),
                                     };
@@ -651,7 +651,7 @@ export default function Portfolio() {
                                     onClick={() => {
                                       const userMessage: Message = {
                                         id: Date.now().toString(),
-                                        content: `Tell me more details about the ${experience.position} role at ${experience.company}`,
+                                        content: `${experience.position} ${t.roleAt} ${experience.company}${t.tellMeMoreExperience}`,
                                         isUser: true,
                                         timestamp: new Date(),
                                       };

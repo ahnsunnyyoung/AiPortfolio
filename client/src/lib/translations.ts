@@ -145,11 +145,6 @@ export const translations: Record<string, Translations> = {
     project: "프로젝트",
     roleAt: "역할을",
     
-    tellMeMoreProject: "프로젝트에 대해 더 자세히 알려주세요",
-    tellMeMoreExperience: "에서의 업무에 대해 더 자세히 알려주세요", 
-    project: "프로젝트",
-    roleAt: "역할을",
-    
     email: "Email",
     linkedin: "LinkedIn",
     github: "GitHub",
