@@ -11,14 +11,56 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>(() => {
-    const saved = localStorage.getItem('language');
-    return (saved as Language) || 'en';
-  });
+  const [language, setLanguage] = useState<Language>('en');
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Detect language from IP geolocation
+  useEffect(() => {
+    const detectLanguage = async () => {
+      try {
+        // Check if user has a saved preference first
+        const saved = localStorage.getItem('language');
+        if (saved && Object.keys(languages).includes(saved)) {
+          setLanguage(saved as Language);
+          setIsInitialized(true);
+          return;
+        }
+
+        // Detect location from IP
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        const countryCode = data.country_code?.toLowerCase();
+
+        // Map country codes to supported languages
+        const countryToLanguage: Record<string, Language> = {
+          'kr': 'ko', // South Korea
+          'de': 'de', // Germany
+          'at': 'de', // Austria
+          'ch': 'de', // Switzerland (German-speaking regions)
+          'nl': 'nl', // Netherlands
+          'be': 'nl', // Belgium (Dutch-speaking regions)
+        };
+
+        const detectedLanguage = countryToLanguage[countryCode] || 'en';
+        setLanguage(detectedLanguage);
+        localStorage.setItem('language', detectedLanguage);
+      } catch (error) {
+        console.log('Failed to detect location, using English as default');
+        setLanguage('en');
+        localStorage.setItem('language', 'en');
+      } finally {
+        setIsInitialized(true);
+      }
+    };
+
+    detectLanguage();
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem('language', language);
-  }, [language]);
+    if (isInitialized) {
+      localStorage.setItem('language', language);
+    }
+  }, [language, isInitialized]);
 
   const value = {
     language,

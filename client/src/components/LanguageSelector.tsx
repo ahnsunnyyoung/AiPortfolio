@@ -18,10 +18,7 @@ export default function LanguageSelector() {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-3 py-2 bg-white/80 backdrop-blur-sm rounded-lg border border-white/50 hover:bg-white/90 transition-all duration-200 shadow-sm"
       >
-        <span className="text-lg">{availableLanguages[language].flag}</span>
-        <span className="text-sm font-medium text-gray-700">
-          {availableLanguages[language].name}
-        </span>
+        <span className="text-xl">{availableLanguages[language].flag}</span>
         <ChevronDown 
           className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
             isOpen ? 'rotate-180' : ''
