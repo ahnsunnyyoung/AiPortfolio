@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Plus, Save, Trash2, Edit3 } from "lucide-react";
+import { Plus, Save, Trash2, Edit3, X } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -12,6 +12,7 @@ interface TrainingData {
 }
 
 export default function TrainingKnowledge() {
+  const [showModal, setShowModal] = useState(false);
   const [trainingContent, setTrainingContent] = useState("");
   const [editingKnowledge, setEditingKnowledge] = useState<number | null>(null);
   const [editingContent, setEditingContent] = useState("");
@@ -94,6 +95,8 @@ export default function TrainingKnowledge() {
   const handleTrain = () => {
     if (!trainingContent.trim()) return;
     trainMutation.mutate(trainingContent);
+    setShowModal(false);
+    setTrainingContent("");
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -122,49 +125,20 @@ export default function TrainingKnowledge() {
   const trainingData = trainingDataQuery.data?.data || [];
 
   return (
-    <div className="grid lg:grid-cols-2 gap-4 sm:gap-8">
-      {/* Training Form */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+    <div className="space-y-6">
+      {/* Add Button */}
+      <div className="flex justify-end">
+        <button
+          onClick={() => setShowModal(true)}
+          className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-all flex items-center gap-2 shadow-lg"
+        >
           <Plus className="w-5 h-5" />
-          Add New Knowledge
-        </h2>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Training Content
-            </label>
-            <textarea
-              value={trainingContent}
-              onChange={(e) => setTrainingContent(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Tell me about yourself, your skills, experiences, thoughts, or any information you want the AI to remember and share..."
-              className="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              disabled={trainMutation.isPending}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Press Ctrl+Enter to save quickly
-            </p>
-          </div>
-
-          <button
-            onClick={handleTrain}
-            disabled={!trainingContent.trim() || trainMutation.isPending}
-            className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 disabled:from-gray-300 disabled:to-gray-300 text-white py-3 px-6 rounded-lg font-medium transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {trainMutation.isPending ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-            ) : (
-              <Save className="w-5 h-5" />
-            )}
-            {trainMutation.isPending ? "Training..." : "Train AI"}
-          </button>
-        </div>
+          Add Knowledge
+        </button>
       </div>
 
       {/* Training Data List */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
           Training Data ({trainingData.length})
         </h2>
@@ -241,6 +215,75 @@ export default function TrainingKnowledge() {
           )}
         </div>
       </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                  <Plus className="w-5 h-5" />
+                  Add New Knowledge
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowModal(false);
+                    setTrainingContent("");
+                  }}
+                  className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Training Content
+                  </label>
+                  <textarea
+                    value={trainingContent}
+                    onChange={(e) => setTrainingContent(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Tell me about yourself, your skills, experiences, thoughts, or any information you want the AI to remember and share..."
+                    className="w-full h-40 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    disabled={trainMutation.isPending}
+                    autoFocus
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Press Ctrl+Enter to save quickly
+                  </p>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={handleTrain}
+                    disabled={!trainingContent.trim() || trainMutation.isPending}
+                    className="flex-1 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 disabled:from-gray-300 disabled:to-gray-300 text-white py-3 px-6 rounded-lg font-medium transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {trainMutation.isPending ? (
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    ) : (
+                      <Save className="w-5 h-5" />
+                    )}
+                    {trainMutation.isPending ? "Training..." : "Train AI"}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowModal(false);
+                      setTrainingContent("");
+                    }}
+                    className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
