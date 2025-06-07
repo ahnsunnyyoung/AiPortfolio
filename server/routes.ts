@@ -58,7 +58,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Ask endpoint - for asking questions to the trained AI
   app.post("/api/ask", async (req, res) => {
     try {
-      const { question, promptExampleId } = askRequestSchema.parse(req.body);
+      const { question, promptExampleId, language } = askRequestSchema.parse(req.body);
 
       // If a prompt example ID is provided, check its response type
       if (promptExampleId) {
@@ -75,8 +75,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
               answer: "EXPERIENCE_SHOWCASE", // Special marker for experience responses
             });
 
+            // Translate the response message
+            const experienceMessage = "Here are my work experiences:";
+            const translatedMessage = await translateText({ 
+              text: experienceMessage, 
+              targetLanguage: language, 
+              context: "work experience introduction" 
+            });
+
             res.json({
-              answer: "Here are my work experiences:",
+              answer: translatedMessage,
               experiences: experiences,
               isExperienceResponse: true,
             });
@@ -109,8 +117,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
               answer: "CONTACT_SHOWCASE", // Special marker for contact responses
             });
 
+            // Translate the response message
+            const contactMessage = "Here's how you can contact me:";
+            const translatedMessage = await translateText({ 
+              text: contactMessage, 
+              targetLanguage: language, 
+              context: "contact information introduction" 
+            });
+
             res.json({
-              answer: "Here's how you can contact me:",
+              answer: translatedMessage,
               contacts: contact || {
                 email: "ahnsunnyyoung@gmail.com",
                 linkedin: "https://www.linkedin.com/in/ahnsunnyyoung/",
@@ -140,9 +156,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
               answer: "SKILLS_SHOWCASE" // Special marker for skills responses
             });
             
+            // Translate the response message and skills
+            const skillsMessage = "Here are my technical skills and expertise:";
+            const translatedMessage = await translateText({ 
+              text: skillsMessage, 
+              targetLanguage: language, 
+              context: "technical skills introduction" 
+            });
+
+            // Translate skills content
+            const translatedSkillsData = await translateSkillsAndContent({ skills: organizedSkills }, language);
+
             res.json({ 
-              answer: "Here are my technical skills and expertise:",
-              skills: organizedSkills,
+              answer: translatedMessage,
+              skills: translatedSkillsData.skills,
               skillCategories: skillCategories,
               isSkillsResponse: true
             });
@@ -158,8 +185,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
               answer: introduction?.content || "INTRODUCTION_SHOWCASE",
             });
 
+            // Translate the introduction content
+            const introContent = introduction?.content || "Hello! I'm Sunyoung Ahn, also known as Sunny. I'm a frontend developer with five years of experience.";
+            const translatedIntro = await translateText({ 
+              text: introContent, 
+              targetLanguage: language, 
+              context: "personal introduction" 
+            });
+
             res.json({
-              answer: introduction?.content || "Hello! I'm Sunyoung Ahn, also known as Sunny. I'm a frontend developer with five years of experience.",
+              answer: translatedIntro,
               isIntroductionResponse: true,
             });
             return;
@@ -169,14 +204,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const aiResponse = await generatePersonalizedResponse(question);
 
+      // Translate AI response if not in English
+      const translatedResponse = await translateText({ 
+        text: aiResponse, 
+        targetLanguage: language, 
+        context: "AI assistant response about personal portfolio and professional experience" 
+      });
+
       // Store the conversation for context in future responses
       await storage.addConversation({
         question,
-        answer: aiResponse,
+        answer: translatedResponse,
       });
 
       res.json({
-        answer: aiResponse,
+        answer: translatedResponse,
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
