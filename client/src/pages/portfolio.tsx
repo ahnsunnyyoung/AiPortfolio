@@ -4,8 +4,10 @@ import { Send, Bot, User, Sparkles, Brain, X, Mail, Linkedin, Github, Code, Moni
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import { useLanguage } from "@/hooks/useLanguage";
 import ProjectCard from "@/components/ProjectCard";
 import ExperienceCard from "@/components/ExperienceCard";
+import LanguageSelector from "@/components/LanguageSelector";
 
 interface Project {
   id: number;
@@ -88,6 +90,7 @@ export default function Portfolio() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const { t } = useLanguage();
 
   // Fetch active prompt examples
   const { data: promptExamplesData } = useQuery({

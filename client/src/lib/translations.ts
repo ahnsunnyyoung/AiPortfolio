@@ -92,17 +92,72 @@ export const translations: Record<string, Translations> = {
     linkedin: "링크드인",
     github: "깃허브",
     website: "웹사이트"
+  },
+  de: {
+    askMe: "Fragen Sie mich alles",
+    typeMessage: "Ihre Nachricht eingeben...",
+    sendMessage: "Nachricht senden",
+    thinking: "Denke nach...",
+    askAbout: "Fragen über",
+    
+    home: "Startseite",
+    about: "Über mich",
+    projects: "Projekte",
+    experience: "Erfahrung",
+    contact: "Kontakt",
+    
+    projectsTitle: "Meine Projekte",
+    experienceTitle: "Meine Erfahrung",
+    skillsTitle: "Meine Fähigkeiten",
+    contactTitle: "Kontaktinformationen",
+    
+    experienceYears: "Erfahrung",
+    technologies: "Technologien",
+    
+    askMore: "Mehr erfahren",
+    learnMore: "Mehr lernen",
+    
+    email: "E-Mail",
+    linkedin: "LinkedIn",
+    github: "GitHub",
+    website: "Website"
+  },
+  nl: {
+    askMe: "Vraag me alles",
+    typeMessage: "Typ je bericht...",
+    sendMessage: "Bericht verzenden",
+    thinking: "Aan het denken...",
+    askAbout: "Vraag over",
+    
+    home: "Home",
+    about: "Over mij",
+    projects: "Projecten",
+    experience: "Ervaring",
+    contact: "Contact",
+    
+    projectsTitle: "Mijn Projecten",
+    experienceTitle: "Mijn Ervaring",
+    skillsTitle: "Mijn Vaardigheden",
+    contactTitle: "Contactinformatie",
+    
+    experienceYears: "ervaring",
+    technologies: "Technologieën",
+    
+    askMore: "Meer weten",
+    learnMore: "Meer leren",
+    
+    email: "E-mail",
+    linkedin: "LinkedIn",
+    github: "GitHub",
+    website: "Website"
   }
 };
 
-export type Language = 'en' | 'ko' | 'ja' | 'zh' | 'es' | 'fr' | 'de';
+export type Language = 'en' | 'ko' | 'de' | 'nl';
 
 export const languages: Record<Language, { name: string; flag: string }> = {
   en: { name: 'English', flag: '🇺🇸' },
   ko: { name: '한국어', flag: '🇰🇷' },
-  ja: { name: '日本語', flag: '🇯🇵' },
-  zh: { name: '中文', flag: '🇨🇳' },
-  es: { name: 'Español', flag: '🇪🇸' },
-  fr: { name: 'Français', flag: '🇫🇷' },
-  de: { name: 'Deutsch', flag: '🇩🇪' }
+  de: { name: 'Deutsch', flag: '🇩🇪' },
+  nl: { name: 'Nederlands', flag: '🇳🇱' }
 };
