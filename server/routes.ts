@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generatePersonalizedResponse } from "./openai";
+import { translateText, translateSkillsAndContent } from "./translate";
 import { z } from "zod";
 import {
   insertTrainingDataSchema,
@@ -12,6 +13,7 @@ import {
 const askRequestSchema = z.object({
   question: z.string().min(1).max(1000),
   promptExampleId: z.number().optional(),
+  language: z.string().default('en'),
 });
 
 const trainRequestSchema = insertTrainingDataSchema;

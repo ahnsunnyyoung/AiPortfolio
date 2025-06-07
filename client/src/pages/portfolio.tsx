@@ -90,7 +90,7 @@ export default function Portfolio() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   // Fetch active prompt examples
   const { data: promptExamplesData } = useQuery({
@@ -127,7 +127,7 @@ export default function Portfolio() {
 
   const askMutation = useMutation({
     mutationFn: async ({ question, promptExampleId }: { question: string; promptExampleId?: number }) => {
-      const response = await apiRequest("POST", "/api/ask", { question, promptExampleId });
+      const response = await apiRequest("POST", "/api/ask", { question, promptExampleId, language });
       return response.json();
     },
     onSuccess: (data) => {
