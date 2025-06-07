@@ -491,7 +491,7 @@ export default function Portfolio() {
       </div>
 
       {/* Header */}
-      <div className="text-center py-4 px-4 sm:px-6 border-b border-white/20 flex-shrink-0">
+      <div className="text-center py-4 px-4 sm:px-6 border-b border-white/20 flex-shrink-0 bg-white/10 sm:bg-transparent backdrop-blur-sm">
         <div className="flex items-center justify-between sm:justify-center gap-3">
           {/* Back button for mobile */}
           <button
