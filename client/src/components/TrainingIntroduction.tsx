@@ -8,6 +8,11 @@ interface Introduction {
   id: number;
   content: string;
   img?: string;
+  name?: string;
+  title?: string;
+  location?: string;
+  experience?: string;
+  technologies?: string;
   isActive: boolean;
   timestamp: string;
 }

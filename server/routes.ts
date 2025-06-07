@@ -570,12 +570,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/introduction", async (req, res) => {
     try {
-      const { content, img } = req.body;
+      const { content, img, name, title, location, experience, technologies } = req.body;
       if (!content || typeof content !== 'string') {
         return res.status(400).json({ success: false, error: "Content is required" });
       }
       
-      const introduction = await storage.updateIntroduction(content, img);
+      const introduction = await storage.updateIntroduction({
+        content,
+        img,
+        name,
+        title,
+        location,
+        experience,
+        technologies
+      });
       res.json({ success: true, introduction, message: "Introduction updated successfully" });
     } catch (error) {
       console.error("Update introduction error:", error);

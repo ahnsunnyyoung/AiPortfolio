@@ -43,7 +43,7 @@ export interface IStorage {
   initializeSkills(): Promise<void>;
   // Introduction management
   getIntroduction(): Promise<Introduction | undefined>;
-  updateIntroduction(content: string, img?: string): Promise<Introduction>;
+  updateIntroduction(data: InsertIntroduction): Promise<Introduction>;
   initializeIntroduction(): Promise<void>;
 }
 
@@ -481,14 +481,14 @@ export class DatabaseStorage implements IStorage {
     return intro || undefined;
   }
 
-  async updateIntroduction(content: string, img?: string): Promise<Introduction> {
+  async updateIntroduction(data: InsertIntroduction): Promise<Introduction> {
     // First, deactivate all existing introductions
     await db.update(introduction).set({ isActive: false });
     
     // Then create a new active introduction
     const [created] = await db
       .insert(introduction)
-      .values({ content, img, isActive: true })
+      .values({ ...data, isActive: true })
       .returning();
     return created;
   }
@@ -502,7 +502,14 @@ I have a passion for transforming complex challenges into elegant and simple int
 
 Outside of work, I enjoy weight training, knitting, and baking, which reflect my attention to detail, discipline, and creativity. I'm also fluent in English and Korean and currently learning German. If you'd like to know more, feel free to ask!`;
       
-      await this.updateIntroduction(defaultIntroduction);
+      await this.updateIntroduction({
+        content: defaultIntroduction,
+        name: "Sunyoung Ahn (Sunny)",
+        title: "Frontend Developer",
+        location: "Dublin, Ireland",
+        experience: "5+ years",
+        technologies: "React, Flutter, Firebase, Google Cloud"
+      });
     }
   }
 }
