@@ -88,7 +88,7 @@ export default function Portfolio() {
   const [isThinking, setIsThinking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const welcomeMessageShown = useRef(false);
+
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { t, language } = useLanguage();
@@ -137,9 +137,8 @@ export default function Portfolio() {
       
       // Add a thinking delay to make the AI feel more natural
       setTimeout(() => {
-        const aiMessageId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-ai`;
         const aiMessage: Message = {
-          id: aiMessageId,
+          id: Date.now().toString() + "-ai",
           content: data.answer,
           isUser: false,
           timestamp: new Date(),
@@ -153,17 +152,7 @@ export default function Portfolio() {
           isSkillsResponse: data.isSkillsResponse,
           isIntroductionResponse: data.isIntroductionResponse
         };
-        
-        // Prevent duplicate AI messages by checking content and recent timestamps
-        setMessages((prev) => {
-          const isDuplicate = prev.some(msg => 
-            msg.content === data.answer && 
-            !msg.isUser && 
-            (Date.now() - msg.timestamp.getTime()) < 2000 // within 2 seconds
-          );
-          if (isDuplicate) return prev;
-          return [...prev, aiMessage];
-        });
+        setMessages((prev) => [...prev, aiMessage]);
         setIsThinking(false);
       }, 800); // 0.8 second thinking delay
     },
@@ -212,35 +201,24 @@ export default function Portfolio() {
 
     startConversation();
 
-    const questionText = inputValue;
-    const userMessageId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-user`;
     const userMessage: Message = {
-      id: userMessageId,
-      content: questionText,
+      id: Date.now().toString() + "-user",
+      content: inputValue,
       isUser: true,
       timestamp: new Date(),
     };
 
-    // Prevent duplicate user messages by checking content and recent timestamps
-    setMessages((prev) => {
-      const isDuplicate = prev.some(msg => 
-        msg.content === questionText && 
-        msg.isUser && 
-        (Date.now() - msg.timestamp.getTime()) < 1000 // within 1 second
-      );
-      if (isDuplicate) return prev;
-      return [...prev, userMessage];
-    });
+    setMessages((prev) => [...prev, userMessage]);
     
     // Add to recently asked questions if it matches a quick question
-    if (promptExamples.some((example: PromptExample) => example.question === questionText)) {
-      setRecentlyAskedQuestions(prev => [...prev, questionText]);
+    if (promptExamples.some((example: PromptExample) => example.question === inputValue)) {
+      setRecentlyAskedQuestions(prev => [...prev, inputValue]);
       setTimeout(() => {
-        setRecentlyAskedQuestions(prev => prev.filter(q => q !== questionText));
+        setRecentlyAskedQuestions(prev => prev.filter(q => q !== inputValue));
       }, 10000);
     }
     
-    askMutation.mutate({ question: questionText });
+    askMutation.mutate({ question: inputValue });
     setInputValue("");
   };
 
@@ -267,24 +245,14 @@ export default function Portfolio() {
     const question = promptExample.question;
     startConversation();
 
-    const userMessageId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-user`;
     const userMessage: Message = {
-      id: userMessageId,
+      id: Date.now().toString() + "-user",
       content: question,
       isUser: true,
       timestamp: new Date(),
     };
 
-    // Prevent duplicate user messages by checking content and recent timestamps
-    setMessages((prev) => {
-      const isDuplicate = prev.some(msg => 
-        msg.content === question && 
-        msg.isUser && 
-        (Date.now() - msg.timestamp.getTime()) < 1000 // within 1 second
-      );
-      if (isDuplicate) return prev;
-      return [...prev, userMessage];
-    });
+    setMessages((prev) => [...prev, userMessage]);
     
     // Add to recently asked questions and remove after 10 seconds
     setRecentlyAskedQuestions(prev => [...prev, question]);
