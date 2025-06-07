@@ -469,8 +469,8 @@ export default function Portfolio() {
   // Expanded state - full conversation
   return (
     <div className="h-screen portfolio-gradient flex flex-col overflow-hidden relative">
-      {/* Language Selector - Top Right */}
-      <div className="absolute top-4 right-4 z-20">
+      {/* Language Selector - Top Right - Hidden on mobile when chat expanded */}
+      <div className="absolute top-4 right-4 z-20 hidden sm:block">
         <LanguageSelector />
       </div>
 
