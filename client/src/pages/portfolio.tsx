@@ -541,16 +541,16 @@ export default function Portfolio() {
                         </div>
                       ))}
                       </div>
-                    </>
+                    </div>
                   )}
                   
                   {/* Experience List Display */}
                   {message.isExperienceResponse && message.experiences && (
-                    <>
+                    <div>
                       <p className="whitespace-pre-wrap mb-4">{message.content}</p>
                       <div className="mt-4 space-y-4">
-                      {message.experiences.map((experience) => (
-                        <div key={experience.id}>
+                        {message.experiences.map((experience) => (
+                          <div key={experience.id}>
                           {/* Basic Experience Info (for initial list view) */}
                           {message.experiences && message.experiences.length > 1 && (
                             <div className="bg-white rounded-lg border border-gray-200 p-4">
@@ -609,7 +609,7 @@ export default function Portfolio() {
                         </div>
                       ))}
                       </div>
-                    </>
+                    </div>
                   )}
                   
                   {/* Personal Information Card for Introduction */}
