@@ -301,6 +301,9 @@ export default function Portfolio() {
     .slice(0, 4);
 
   const handleQuickQuestion = (promptExample: PromptExample) => {
+    // Prevent multiple rapid clicks
+    if (askMutation.isPending) return;
+    
     const question = promptExample.question;
     startConversation();
 
