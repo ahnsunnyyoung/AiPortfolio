@@ -138,7 +138,8 @@ export default function Portfolio() {
           isProjectResponse: data.isProjectResponse,
           isExperienceResponse: data.isExperienceResponse,
           isContactResponse: data.isContactResponse,
-          isSkillsResponse: data.isSkillsResponse
+          isSkillsResponse: data.isSkillsResponse,
+          isIntroductionResponse: data.isIntroductionResponse
         };
         setMessages((prev) => [...prev, aiMessage]);
         setIsThinking(false);
