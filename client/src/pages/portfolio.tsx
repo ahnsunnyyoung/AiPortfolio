@@ -782,13 +782,13 @@ export default function Portfolio() {
 
                   {/* Personal Information Card for Introduction */}
                   {message.isIntroductionResponse && (
-                    <div className="space-y-4">
+                    <div className="space-y-4 w-full">
                       {/* Personal card first */}
-                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
-                        <div className="flex items-start gap-4">
+                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-3 sm:p-6 w-full">
+                        <div className="flex items-start gap-2 sm:gap-4">
                           <div className="flex-shrink-0">
                             {introduction?.img ? (
-                              <div className="w-20 h-20 rounded-full overflow-hidden border-3 border-white shadow-lg">
+                              <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 sm:border-3 border-white shadow-lg">
                                 <img
                                   src={introduction.img}
                                   alt="Profile"
@@ -796,44 +796,50 @@ export default function Portfolio() {
                                 />
                               </div>
                             ) : (
-                              <div className="w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center border-3 border-white shadow-lg">
-                                <User className="w-10 h-10 text-white" />
+                              <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center border-2 sm:border-3 border-white shadow-lg">
+                                <User className="w-6 h-6 sm:w-10 sm:h-10 text-white" />
                               </div>
                             )}
                           </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h3 className="text-xl font-bold text-gray-800">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
+                              <h3 className="text-lg sm:text-xl font-bold text-gray-800 truncate">
                                 {introduction?.name || "Sunyoung Ahn"}
                               </h3>
-                              <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full font-medium">
+                              <span className="px-2 sm:px-3 py-1 bg-blue-100 text-blue-800 text-xs sm:text-sm rounded-full font-medium self-start">
                                 {introduction?.title || "Frontend Developer"}
                               </span>
                             </div>
-                            <div className="space-y-2 text-sm text-gray-600">
+                            <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-600">
                               {introduction?.location && (
                                 <div className="flex items-center gap-2">
-                                  <Globe className="w-4 h-4 text-blue-500" />
-                                  <span>{introduction.location}</span>
+                                  <Globe className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500 flex-shrink-0" />
+                                  <span className="truncate">{introduction.location}</span>
                                 </div>
                               )}
                               {introduction?.experience && (
                                 <div className="flex items-center gap-2">
-                                  <User className="w-4 h-4 text-blue-500" />
-                                  <span>
+                                  <User className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500 flex-shrink-0" />
+                                  <span className="truncate">
                                     {introduction.experience} experience
                                   </span>
                                 </div>
                               )}
                               {introduction?.technologies && (
-                                <div className="flex items-center gap-2">
-                                  <Code className="w-4 h-4 text-blue-500" />
-                                  <span>
+                                <div className="flex items-start gap-2">
+                                  <Code className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                                  <div className="flex flex-wrap gap-1 min-w-0">
                                     {introduction.technologies
                                       .split(",")
-                                      .map((tech: string) => tech.trim())
-                                      .join(" • ")}
-                                  </span>
+                                      .map((tech: string, index: number) => (
+                                        <span 
+                                          key={index}
+                                          className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded text-xs"
+                                        >
+                                          {tech.trim()}
+                                        </span>
+                                      ))}
+                                  </div>
                                 </div>
                               )}
                             </div>
