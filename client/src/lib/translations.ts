@@ -33,6 +33,11 @@ export interface Translations {
   hide: string;
   show: string;
   
+  tellMeMoreProject: string;
+  tellMeMoreExperience: string;
+  project: string;
+  roleAt: string;
+  
   // Contact info
   email: string;
   linkedin: string;
@@ -82,6 +87,11 @@ export const translations: Record<string, Translations> = {
     hide: "Hide",
     show: "Show",
     
+    tellMeMoreProject: "Tell me more details about the",
+    tellMeMoreExperience: "Tell me more details about the",
+    project: "project",
+    roleAt: "role at",
+    
     email: "Email",
     linkedin: "LinkedIn",
     github: "GitHub",
@@ -130,6 +140,16 @@ export const translations: Record<string, Translations> = {
     hide: "숨기기",
     show: "보기",
     
+    tellMeMoreProject: "프로젝트에 대해 더 자세히 알려주세요",
+    tellMeMoreExperience: "에서의 업무에 대해 더 자세히 알려주세요",
+    project: "프로젝트",
+    roleAt: "역할을",
+    
+    tellMeMoreProject: "프로젝트에 대해 더 자세히 알려주세요",
+    tellMeMoreExperience: "에서의 업무에 대해 더 자세히 알려주세요", 
+    project: "프로젝트",
+    roleAt: "역할을",
+    
     email: "Email",
     linkedin: "LinkedIn",
     github: "GitHub",
@@ -175,6 +195,11 @@ export const translations: Record<string, Translations> = {
     hide: "Verstecken",
     show: "Zeigen",
     
+    tellMeMoreProject: "Erzähl mir mehr Details über das",
+    tellMeMoreExperience: "Erzähl mir mehr Details über die",
+    project: "Projekt",
+    roleAt: "Rolle bei",
+    
     email: "E-Mail",
     linkedin: "LinkedIn",
     github: "GitHub",
@@ -219,6 +244,11 @@ export const translations: Record<string, Translations> = {
     learnMore: "Meer leren",
     hide: "Verbergen",
     show: "Tonen",
+    
+    tellMeMoreProject: "Vertel me meer details over het",
+    tellMeMoreExperience: "Vertel me meer details over de",
+    project: "project",
+    roleAt: "rol bij",
     
     email: "E-mail",
     linkedin: "LinkedIn",
