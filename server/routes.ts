@@ -182,7 +182,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
               const categorySkills = allSkills
                 .filter(skill => skill.categoryId === category.id)
                 .map(skill => skill.name);
-              organizedSkills[category.name.toLowerCase()] = categorySkills;
+              
+              // Map category names to frontend expected keys
+              let categoryKey = category.name.toLowerCase();
+              if (categoryKey === 'soft skills') {
+                categoryKey = 'soft';
+              }
+              organizedSkills[categoryKey] = categorySkills;
             }
             
             // Store the conversation
