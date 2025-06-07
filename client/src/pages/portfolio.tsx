@@ -1,6 +1,23 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Send, Bot, User, Sparkles, Brain, X, Mail, Linkedin, Github, Code, Monitor, Server, Wrench, Globe, Users, ExternalLink } from "lucide-react";
+import {
+  Send,
+  Bot,
+  User,
+  Sparkles,
+  Brain,
+  X,
+  Mail,
+  Linkedin,
+  Github,
+  Code,
+  Monitor,
+  Server,
+  Wrench,
+  Globe,
+  Users,
+  ExternalLink,
+} from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
@@ -83,7 +100,9 @@ export default function Portfolio() {
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(
     null,
   );
-  const [recentlyAskedQuestions, setRecentlyAskedQuestions] = useState<string[]>([]);
+  const [recentlyAskedQuestions, setRecentlyAskedQuestions] = useState<
+    string[]
+  >([]);
   const [isAskAboutExpanded, setIsAskAboutExpanded] = useState(true);
   const [isThinking, setIsThinking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -96,13 +115,18 @@ export default function Portfolio() {
   // Fetch active prompt examples
   const { data: promptExamplesData } = useQuery({
     queryKey: ["/api/prompt-examples/active", language],
-    queryFn: () => apiRequest("GET", `/api/prompt-examples/active?language=${language}`).then(res => res.json())
+    queryFn: () =>
+      apiRequest(
+        "GET",
+        `/api/prompt-examples/active?language=${language}`,
+      ).then((res) => res.json()),
   });
 
   // Fetch introduction data for personal card
   const { data: introductionData } = useQuery({
     queryKey: ["/api/introduction"],
-    queryFn: () => apiRequest("GET", "/api/introduction").then(res => res.json())
+    queryFn: () =>
+      apiRequest("GET", "/api/introduction").then((res) => res.json()),
   });
 
   const promptExamples = promptExamplesData?.examples || [];
@@ -111,30 +135,44 @@ export default function Portfolio() {
   // Handle click outside to close chat
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (isExpanded && chatContainerRef.current && !chatContainerRef.current.contains(event.target as Node)) {
+      if (
+        isExpanded &&
+        chatContainerRef.current &&
+        !chatContainerRef.current.contains(event.target as Node)
+      ) {
         setIsExpanded(false);
         // Don't clear messages and inputValue to preserve conversation history
       }
     };
 
     if (isExpanded) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isExpanded]);
 
   const askMutation = useMutation({
-    mutationFn: async ({ question, promptExampleId }: { question: string; promptExampleId?: number }) => {
-      const response = await apiRequest("POST", "/api/ask", { question, promptExampleId, language });
+    mutationFn: async ({
+      question,
+      promptExampleId,
+    }: {
+      question: string;
+      promptExampleId?: number;
+    }) => {
+      const response = await apiRequest("POST", "/api/ask", {
+        question,
+        promptExampleId,
+        language,
+      });
       return response.json();
     },
     onSuccess: (data) => {
       // Start thinking animation
       setIsThinking(true);
-      
+
       // Add a thinking delay to make the AI feel more natural
       setTimeout(() => {
         const aiMessage: Message = {
@@ -150,7 +188,7 @@ export default function Portfolio() {
           isExperienceResponse: data.isExperienceResponse,
           isContactResponse: data.isContactResponse,
           isSkillsResponse: data.isSkillsResponse,
-          isIntroductionResponse: data.isIntroductionResponse
+          isIntroductionResponse: data.isIntroductionResponse,
         };
         setMessages((prev) => [...prev, aiMessage]);
         setIsThinking(false);
@@ -208,15 +246,21 @@ export default function Portfolio() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    
+
     // Add to recently asked questions if it matches a quick question
-    if (promptExamples.some((example: PromptExample) => example.question === inputValue)) {
-      setRecentlyAskedQuestions(prev => [...prev, inputValue]);
+    if (
+      promptExamples.some(
+        (example: PromptExample) => example.question === inputValue,
+      )
+    ) {
+      setRecentlyAskedQuestions((prev) => [...prev, inputValue]);
       setTimeout(() => {
-        setRecentlyAskedQuestions(prev => prev.filter(q => q !== inputValue));
+        setRecentlyAskedQuestions((prev) =>
+          prev.filter((q) => q !== inputValue),
+        );
       }, 10000);
     }
-    
+
     askMutation.mutate({ question: inputValue });
     setInputValue("");
   };
@@ -230,7 +274,10 @@ export default function Portfolio() {
 
   // Filter out recently asked questions and show only 4
   const quickQuestions = promptExamples
-    .filter((example: PromptExample) => !recentlyAskedQuestions.includes(example.question))
+    .filter(
+      (example: PromptExample) =>
+        !recentlyAskedQuestions.includes(example.question),
+    )
     .slice(0, 4);
 
   const handleQuickQuestion = (promptExample: PromptExample) => {
@@ -245,13 +292,13 @@ export default function Portfolio() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    
+
     // Add to recently asked questions and remove after 10 seconds
-    setRecentlyAskedQuestions(prev => [...prev, question]);
+    setRecentlyAskedQuestions((prev) => [...prev, question]);
     setTimeout(() => {
-      setRecentlyAskedQuestions(prev => prev.filter(q => q !== question));
+      setRecentlyAskedQuestions((prev) => prev.filter((q) => q !== question));
     }, 10000);
-    
+
     askMutation.mutate({ question, promptExampleId: promptExample.id });
   };
 
@@ -299,7 +346,7 @@ export default function Portfolio() {
         <div className="absolute top-4 right-4 z-10">
           <LanguageSelector />
         </div>
-        
+
         <div className="text-center max-w-4xl mx-auto w-full">
           {/* Logo Area */}
           <div className="mb-6 sm:mb-8">
@@ -353,16 +400,18 @@ export default function Portfolio() {
 
             {/* Quick Questions */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {quickQuestions.map((promptExample: PromptExample, index: number) => (
-                <button
-                  key={index}
-                  onClick={() => handleQuickQuestion(promptExample)}
-                  disabled={askMutation.isPending}
-                  className="text-left p-3 bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-lg text-sm text-gray-700 hover:text-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {promptExample.question}
-                </button>
-              ))}
+              {quickQuestions.map(
+                (promptExample: PromptExample, index: number) => (
+                  <button
+                    key={index}
+                    onClick={() => handleQuickQuestion(promptExample)}
+                    disabled={askMutation.isPending}
+                    className="text-left p-3 bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-lg text-sm text-gray-700 hover:text-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {promptExample.question}
+                  </button>
+                ),
+              )}
             </div>
           </div>
         </div>
@@ -424,7 +473,7 @@ export default function Portfolio() {
       <div className="absolute top-4 right-4 z-20">
         <LanguageSelector />
       </div>
-      
+
       {/* Minimized Header */}
       <div className="text-center py-4 px-6 border-b border-white/20 flex-shrink-0">
         <div className="flex items-center justify-center gap-3">
@@ -441,7 +490,10 @@ export default function Portfolio() {
 
       {/* Chat Container */}
       <div className="flex-1 max-w-4xl mx-auto w-full px-6 py-6 flex flex-col min-h-0">
-        <div ref={chatContainerRef} className="flex-1 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden flex flex-col min-h-0">
+        <div
+          ref={chatContainerRef}
+          className="flex-1 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden flex flex-col min-h-0"
+        >
           <div className="flex-1 overflow-y-auto p-6 space-y-6 chat-container">
             {messages.map((message) => (
               <div
@@ -465,23 +517,18 @@ export default function Portfolio() {
                 </div>
                 <div
                   className={`rounded-2xl px-6 py-4 ${
-                    (message.isProjectResponse || message.isExperienceResponse) ? "max-w-5xl" : "max-w-2xl"
+                    message.isProjectResponse || message.isExperienceResponse
+                      ? "max-w-5xl"
+                      : "max-w-2xl"
                   } ${
                     message.isUser
                       ? "bg-blue-500 text-white rounded-tr-md"
                       : "bg-gray-50 text-gray-800 rounded-tl-md"
                   }`}
                 >
-                  {/* Regular message content */}
-                  {!message.isProjectResponse && !message.isExperienceResponse && !message.isContactResponse && !message.isSkillsResponse && !message.isIntroductionResponse && (
-                    <p className="text-sm leading-relaxed">{message.content}</p>
-                  )}
-
                   {/* Project List Display */}
                   {message.isProjectResponse && message.projects && (
                     <div className="space-y-4">
-                      {/* Introduction text first */}
-                      <p className="text-sm leading-relaxed">{message.content}</p>
                       {message.projects.map((project) => (
                         <div key={project.id}>
                           {/* Basic Project Info (for initial list view) */}
@@ -489,9 +536,15 @@ export default function Portfolio() {
                             <div className="bg-white rounded-lg border border-gray-200 p-4">
                               <div className="flex justify-between items-start gap-3">
                                 <div className="flex-1">
-                                  <h4 className="font-semibold text-gray-800 text-lg">{project.title}</h4>
-                                  <p className="text-gray-600 text-sm mb-1">{project.period}</p>
-                                  <p className="text-gray-700 text-sm">{project.summary}</p>
+                                  <h4 className="font-semibold text-gray-800 text-lg">
+                                    {project.title}
+                                  </h4>
+                                  <p className="text-gray-600 text-sm mb-1">
+                                    {project.period}
+                                  </p>
+                                  <p className="text-gray-700 text-sm">
+                                    {project.summary}
+                                  </p>
                                 </div>
                                 <button
                                   onClick={() => {
@@ -501,27 +554,42 @@ export default function Portfolio() {
                                       isUser: true,
                                       timestamp: new Date(),
                                     };
-                                    
-                                    setMessages(prev => [...prev, userMessage]);
-                                    setRecentlyAskedQuestions(prev => [...prev, userMessage.content]);
+
+                                    setMessages((prev) => [
+                                      ...prev,
+                                      userMessage,
+                                    ]);
+                                    setRecentlyAskedQuestions((prev) => [
+                                      ...prev,
+                                      userMessage.content,
+                                    ]);
                                     setTimeout(() => {
-                                      setRecentlyAskedQuestions(prev => prev.filter(q => q !== userMessage.content));
+                                      setRecentlyAskedQuestions((prev) =>
+                                        prev.filter(
+                                          (q) => q !== userMessage.content,
+                                        ),
+                                      );
                                     }, 10000);
-                                    
+
                                     // Start thinking animation
                                     setIsThinking(true);
-                                    
+
                                     // Add thinking delay for "Ask more" responses too
                                     setTimeout(() => {
                                       const aiMessage: Message = {
                                         id: (Date.now() + 1).toString(),
-                                        content: project.detailedContent || `More details about ${project.title} will be available soon.`,
+                                        content:
+                                          project.detailedContent ||
+                                          `More details about ${project.title} will be available soon.`,
                                         isUser: false,
                                         timestamp: new Date(),
                                         projects: [project],
                                         isProjectResponse: true,
                                       };
-                                      setMessages(prev => [...prev, aiMessage]);
+                                      setMessages((prev) => [
+                                        ...prev,
+                                        aiMessage,
+                                      ]);
                                       setIsThinking(false);
                                     }, 800);
                                   }}
@@ -532,90 +600,115 @@ export default function Portfolio() {
                               </div>
                             </div>
                           )}
-                          
+
                           {/* Detailed Project Card (for "Ask more" responses) */}
-                          {message.projects && message.projects.length === 1 && (
-                            <div className="mt-6">
-                              <ProjectCard project={project} />
-                            </div>
-                          )}
+                          {message.projects &&
+                            message.projects.length === 1 && (
+                              <div className="mt-6">
+                                <ProjectCard project={project} />
+                              </div>
+                            )}
                         </div>
                       ))}
                     </div>
                   )}
-                  
+
                   {/* Experience List Display */}
                   {message.isExperienceResponse && message.experiences && (
                     <div className="space-y-4">
-                      {/* Introduction text first */}
-                      <p className="text-sm leading-relaxed">{message.content}</p>
                       {message.experiences.map((experience) => (
                         <div key={experience.id}>
                           {/* Basic Experience Info (for initial list view) */}
-                          {message.experiences && message.experiences.length > 1 && (
-                            <div className="bg-white rounded-lg border border-gray-200 p-4">
-                              <div className="flex justify-between items-start gap-3">
-                                <div className="flex-1">
-                                  <h4 className="font-semibold text-gray-800 text-lg">{experience.position}</h4>
-                                  <p className="text-blue-600 font-medium text-sm">{experience.company}</p>
-                                  <p className="text-gray-600 text-sm">{experience.period} • {experience.location}</p>
-                                </div>
-                                <button
-                                  onClick={() => {
-                                    const userMessage: Message = {
-                                      id: Date.now().toString(),
-                                      content: `Tell me more details about the ${experience.position} role at ${experience.company}`,
-                                      isUser: true,
-                                      timestamp: new Date(),
-                                    };
-                                    
-                                    setMessages(prev => [...prev, userMessage]);
-                                    setRecentlyAskedQuestions(prev => [...prev, userMessage.content]);
-                                    setTimeout(() => {
-                                      setRecentlyAskedQuestions(prev => prev.filter(q => q !== userMessage.content));
-                                    }, 10000);
-                                    
-                                    // Start thinking animation
-                                    setIsThinking(true);
-                                
-                                    // Add thinking delay for experience "Ask more" responses
-                                    setTimeout(() => {
-                                      const aiMessage: Message = {
-                                        id: (Date.now() + 1).toString(),
-                                        content: experience.detailedContent || `More details about the ${experience.position} role at ${experience.company} will be available soon.`,
-                                        isUser: false,
+                          {message.experiences &&
+                            message.experiences.length > 1 && (
+                              <div className="bg-white rounded-lg border border-gray-200 p-4">
+                                <div className="flex justify-between items-start gap-3">
+                                  <div className="flex-1">
+                                    <h4 className="font-semibold text-gray-800 text-lg">
+                                      {experience.position}
+                                    </h4>
+                                    <p className="text-blue-600 font-medium text-sm">
+                                      {experience.company}
+                                    </p>
+                                    <p className="text-gray-600 text-sm">
+                                      {experience.period} •{" "}
+                                      {experience.location}
+                                    </p>
+                                  </div>
+                                  <button
+                                    onClick={() => {
+                                      const userMessage: Message = {
+                                        id: Date.now().toString(),
+                                        content: `Tell me more details about the ${experience.position} role at ${experience.company}`,
+                                        isUser: true,
                                         timestamp: new Date(),
-                                        experiences: [experience],
-                                        isExperienceResponse: true,
                                       };
-                                      setMessages(prev => [...prev, aiMessage]);
-                                      setIsThinking(false);
-                                    }, 800);
-                                  }}
-                                  className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
-                                >
-                                  Ask more
-                                </button>
+
+                                      setMessages((prev) => [
+                                        ...prev,
+                                        userMessage,
+                                      ]);
+                                      setRecentlyAskedQuestions((prev) => [
+                                        ...prev,
+                                        userMessage.content,
+                                      ]);
+                                      setTimeout(() => {
+                                        setRecentlyAskedQuestions((prev) =>
+                                          prev.filter(
+                                            (q) => q !== userMessage.content,
+                                          ),
+                                        );
+                                      }, 10000);
+
+                                      // Start thinking animation
+                                      setIsThinking(true);
+
+                                      // Add thinking delay for experience "Ask more" responses
+                                      setTimeout(() => {
+                                        const aiMessage: Message = {
+                                          id: (Date.now() + 1).toString(),
+                                          content:
+                                            experience.detailedContent ||
+                                            `More details about the ${experience.position} role at ${experience.company} will be available soon.`,
+                                          isUser: false,
+                                          timestamp: new Date(),
+                                          experiences: [experience],
+                                          isExperienceResponse: true,
+                                        };
+                                        setMessages((prev) => [
+                                          ...prev,
+                                          aiMessage,
+                                        ]);
+                                        setIsThinking(false);
+                                      }, 800);
+                                    }}
+                                    className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
+                                  >
+                                    Ask more
+                                  </button>
+                                </div>
                               </div>
-                            </div>
-                          )}
-                          
+                            )}
+
                           {/* Detailed Experience Card (for "Ask more" responses) */}
-                          {message.experiences && message.experiences.length === 1 && (
-                            <div className="mt-6">
-                              <ExperienceCard experience={experience} />
-                            </div>
-                          )}
+                          {message.experiences &&
+                            message.experiences.length === 1 && (
+                              <div className="mt-6">
+                                <ExperienceCard experience={experience} />
+                              </div>
+                            )}
                         </div>
                       ))}
                     </div>
                   )}
-                  
+
                   {/* Personal Information Card for Introduction */}
                   {message.isIntroductionResponse && (
                     <div className="space-y-4">
                       {/* Introduction text first */}
-                      <p className="text-sm leading-relaxed">{message.content}</p>
+                      <p className="text-sm leading-relaxed">
+                        {message.content}
+                      </p>
                       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">
@@ -652,13 +745,20 @@ export default function Portfolio() {
                               {introduction?.experience && (
                                 <div className="flex items-center gap-2">
                                   <User className="w-4 h-4 text-blue-500" />
-                                  <span>{introduction.experience} experience</span>
+                                  <span>
+                                    {introduction.experience} experience
+                                  </span>
                                 </div>
                               )}
                               {introduction?.technologies && (
                                 <div className="flex items-center gap-2">
                                   <Code className="w-4 h-4 text-blue-500" />
-                                  <span>{introduction.technologies.split(',').map((tech: string) => tech.trim()).join(' • ')}</span>
+                                  <span>
+                                    {introduction.technologies
+                                      .split(",")
+                                      .map((tech: string) => tech.trim())
+                                      .join(" • ")}
+                                  </span>
                                 </div>
                               )}
                             </div>
@@ -668,37 +768,47 @@ export default function Portfolio() {
                     </div>
                   )}
 
-                  {/* Text content (appears after cards for project and experience responses) */}
+                  {/* Text content (only for non-special responses) */}
                   {message.isUser ? (
                     <p className="leading-relaxed whitespace-pre-wrap">
                       {message.content}
                     </p>
                   ) : (
-                    <p className="leading-relaxed whitespace-pre-wrap mt-4">
-                      {message.content}
-                    </p>
+                    !message.isProjectResponse && !message.isExperienceResponse && !message.isContactResponse && !message.isSkillsResponse && !message.isIntroductionResponse && (
+                      <p className="leading-relaxed whitespace-pre-wrap mt-4">
+                        {message.content}
+                      </p>
+                    )
                   )}
-                  
+
                   {/* Contact Information Display */}
                   {message.isContactResponse && message.contacts && (
-                    <div className="space-y-3 mt-4">
+                    <div className="space-y-4">
+                      {/* Introduction text first */}
+                      <p className="text-sm leading-relaxed">{message.content}</p>
                       <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-6">
                         <div className="flex items-center gap-3 mb-4">
                           <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
                             <Mail className="w-5 h-5 text-white" />
                           </div>
                           <div>
-                            <h4 className="font-semibold text-gray-800 text-lg">{t.contactTitle}</h4>
-                            <p className="text-purple-600 text-sm">{t.letsConnect}</p>
+                            <h4 className="font-semibold text-gray-800 text-lg">
+                              {t.contactTitle}
+                            </h4>
+                            <p className="text-purple-600 text-sm">
+                              {t.letsConnect}
+                            </p>
                           </div>
                         </div>
-                        
+
                         <div className="space-y-3">
                           <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-purple-100">
                             <Mail className="w-5 h-5 text-purple-600" />
                             <div>
-                              <p className="text-sm font-medium text-gray-800">{t.email}</p>
-                              <a 
+                              <p className="text-sm font-medium text-gray-800">
+                                {t.email}
+                              </p>
+                              <a
                                 href={`mailto:${message.contacts.email}`}
                                 className="text-purple-600 hover:text-purple-700 hover:underline text-sm"
                               >
@@ -706,12 +816,14 @@ export default function Portfolio() {
                               </a>
                             </div>
                           </div>
-                          
+
                           <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-purple-100">
                             <Linkedin className="w-5 h-5 text-blue-600" />
                             <div>
-                              <p className="text-sm font-medium text-gray-800">{t.linkedin}</p>
-                              <a 
+                              <p className="text-sm font-medium text-gray-800">
+                                {t.linkedin}
+                              </p>
+                              <a
                                 href={message.contacts.linkedin}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -721,12 +833,14 @@ export default function Portfolio() {
                               </a>
                             </div>
                           </div>
-                          
+
                           <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-purple-100">
                             <Github className="w-5 h-5 text-gray-700" />
                             <div>
-                              <p className="text-sm font-medium text-gray-800">GitHub</p>
-                              <a 
+                              <p className="text-sm font-medium text-gray-800">
+                                GitHub
+                              </p>
+                              <a
                                 href={message.contacts.github}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -740,100 +854,140 @@ export default function Portfolio() {
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Skills Display */}
                   {message.isSkillsResponse && message.skills && (
-                    <div className="space-y-3 mt-4">
+                    <div className="space-y-4">
+                      {/* Introduction text first */}
+                      <p className="text-sm leading-relaxed">{message.content}</p>
                       <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-6">
                         <div className="flex items-center gap-3 mb-4">
                           <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full flex items-center justify-center">
                             <Code className="w-5 h-5 text-white" />
                           </div>
                           <div>
-                            <h4 className="font-semibold text-gray-800 text-lg">Technical Skills & Expertise</h4>
-                            <p className="text-orange-600 text-sm">My technical capabilities</p>
+                            <h4 className="font-semibold text-gray-800 text-lg">
+                              Technical Skills & Expertise
+                            </h4>
+                            <p className="text-orange-600 text-sm">
+                              My technical capabilities
+                            </p>
                           </div>
                         </div>
-                        
+
                         <div className="grid gap-4 md:grid-cols-2">
                           <div className="bg-white rounded-lg border border-orange-100 p-4">
                             <div className="flex items-center gap-2 mb-3">
                               <Code className="w-4 h-4 text-orange-600" />
-                              <h5 className="font-semibold text-gray-800">Programming Languages</h5>
+                              <h5 className="font-semibold text-gray-800">
+                                Programming Languages
+                              </h5>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {message.skills?.programming?.map((skill, index) => (
-                                <span key={index} className="px-2 py-1 bg-orange-50 text-orange-700 text-sm rounded-full border border-orange-200">
-                                  {skill}
-                                </span>
-                              )) || []}
+                              {message.skills?.programming?.map(
+                                (skill, index) => (
+                                  <span
+                                    key={index}
+                                    className="px-2 py-1 bg-orange-50 text-orange-700 text-sm rounded-full border border-orange-200"
+                                  >
+                                    {skill}
+                                  </span>
+                                ),
+                              ) || []}
                             </div>
                           </div>
-                          
+
                           <div className="bg-white rounded-lg border border-orange-100 p-4">
                             <div className="flex items-center gap-2 mb-3">
                               <Monitor className="w-4 h-4 text-blue-600" />
-                              <h5 className="font-semibold text-gray-800">Frontend</h5>
+                              <h5 className="font-semibold text-gray-800">
+                                Frontend
+                              </h5>
                             </div>
                             <div className="flex flex-wrap gap-2">
                               {message.skills?.frontend?.map((skill, index) => (
-                                <span key={index} className="px-2 py-1 bg-blue-50 text-blue-700 text-sm rounded-full border border-blue-200">
+                                <span
+                                  key={index}
+                                  className="px-2 py-1 bg-blue-50 text-blue-700 text-sm rounded-full border border-blue-200"
+                                >
                                   {skill}
                                 </span>
                               )) || []}
                             </div>
                           </div>
-                          
+
                           <div className="bg-white rounded-lg border border-orange-100 p-4">
                             <div className="flex items-center gap-2 mb-3">
                               <Server className="w-4 h-4 text-green-600" />
-                              <h5 className="font-semibold text-gray-800">Backend & Database</h5>
+                              <h5 className="font-semibold text-gray-800">
+                                Backend & Database
+                              </h5>
                             </div>
                             <div className="flex flex-wrap gap-2">
                               {message.skills?.backend?.map((skill, index) => (
-                                <span key={index} className="px-2 py-1 bg-green-50 text-green-700 text-sm rounded-full border border-green-200">
+                                <span
+                                  key={index}
+                                  className="px-2 py-1 bg-green-50 text-green-700 text-sm rounded-full border border-green-200"
+                                >
                                   {skill}
                                 </span>
                               )) || []}
                             </div>
                           </div>
-                          
+
                           <div className="bg-white rounded-lg border border-orange-100 p-4">
                             <div className="flex items-center gap-2 mb-3">
                               <Wrench className="w-4 h-4 text-purple-600" />
-                              <h5 className="font-semibold text-gray-800">Tools & Platforms</h5>
+                              <h5 className="font-semibold text-gray-800">
+                                Tools & Platforms
+                              </h5>
                             </div>
                             <div className="flex flex-wrap gap-2">
                               {message.skills?.tools?.map((skill, index) => (
-                                <span key={index} className="px-2 py-1 bg-purple-50 text-purple-700 text-sm rounded-full border border-purple-200">
+                                <span
+                                  key={index}
+                                  className="px-2 py-1 bg-purple-50 text-purple-700 text-sm rounded-full border border-purple-200"
+                                >
                                   {skill}
                                 </span>
                               )) || []}
                             </div>
                           </div>
-                          
+
                           <div className="bg-white rounded-lg border border-orange-100 p-4">
                             <div className="flex items-center gap-2 mb-3">
                               <Globe className="w-4 h-4 text-indigo-600" />
-                              <h5 className="font-semibold text-gray-800">Languages</h5>
+                              <h5 className="font-semibold text-gray-800">
+                                Languages
+                              </h5>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {message.skills?.languages?.map((skill, index) => (
-                                <span key={index} className="px-2 py-1 bg-indigo-50 text-indigo-700 text-sm rounded-full border border-indigo-200">
-                                  {skill}
-                                </span>
-                              )) || []}
+                              {message.skills?.languages?.map(
+                                (skill, index) => (
+                                  <span
+                                    key={index}
+                                    className="px-2 py-1 bg-indigo-50 text-indigo-700 text-sm rounded-full border border-indigo-200"
+                                  >
+                                    {skill}
+                                  </span>
+                                ),
+                              ) || []}
                             </div>
                           </div>
-                          
+
                           <div className="bg-white rounded-lg border border-orange-100 p-4">
                             <div className="flex items-center gap-2 mb-3">
                               <Users className="w-4 h-4 text-pink-600" />
-                              <h5 className="font-semibold text-gray-800">Soft Skills</h5>
+                              <h5 className="font-semibold text-gray-800">
+                                Soft Skills
+                              </h5>
                             </div>
                             <div className="flex flex-wrap gap-2">
                               {message.skills?.soft?.map((skill, index) => (
-                                <span key={index} className="px-2 py-1 bg-pink-50 text-pink-700 text-sm rounded-full border border-pink-200">
+                                <span
+                                  key={index}
+                                  className="px-2 py-1 bg-pink-50 text-pink-700 text-sm rounded-full border border-pink-200"
+                                >
                                   {skill}
                                 </span>
                               )) || []}
@@ -843,7 +997,7 @@ export default function Portfolio() {
                       </div>
                     </div>
                   )}
-                  
+
                   <div
                     className={`text-xs mt-2 opacity-70 ${message.isUser ? "text-blue-100" : "text-gray-500"}`}
                   >
@@ -890,16 +1044,18 @@ export default function Portfolio() {
               {isAskAboutExpanded && (
                 <div className="px-6 pb-3">
                   <div className="flex flex-wrap gap-2">
-                    {quickQuestions.map((promptExample: PromptExample, index: number) => (
-                      <button
-                        key={index}
-                        onClick={() => handleQuickQuestion(promptExample)}
-                        disabled={askMutation.isPending}
-                        className="px-3 py-1 text-xs bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {promptExample.question}
-                      </button>
-                    ))}
+                    {quickQuestions.map(
+                      (promptExample: PromptExample, index: number) => (
+                        <button
+                          key={index}
+                          onClick={() => handleQuickQuestion(promptExample)}
+                          disabled={askMutation.isPending}
+                          className="px-3 py-1 text-xs bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {promptExample.question}
+                        </button>
+                      ),
+                    )}
                   </div>
                 </div>
               )}
