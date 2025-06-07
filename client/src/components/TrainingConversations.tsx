@@ -91,25 +91,27 @@ export default function TrainingConversations() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
           <button
             onClick={() => setHideShowcases(!hideShowcases)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`flex items-center gap-2 px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
               hideShowcases
-                ? "bg-blue-100 text-blue-700"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                ? "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                : "bg-blue-100 text-blue-700"
             }`}
           >
-            {hideShowcases ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            {hideShowcases ? "Hiding Showcases" : "Show All"}
+            {hideShowcases ? <Eye className="w-3 h-3 sm:w-4 sm:h-4" /> : <EyeOff className="w-3 h-3 sm:w-4 sm:h-4" />}
+            <span className="hidden sm:inline">{hideShowcases ? "Show All" : "Hide Showcases"}</span>
+            <span className="sm:hidden">{hideShowcases ? "All" : "Filter"}</span>
           </button>
           
           <button
             onClick={toggleSortOrder}
-            className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-600 transition-colors"
+            className="flex items-center gap-2 px-2 sm:px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-xs sm:text-sm font-medium text-gray-600 transition-colors"
           >
-            <ArrowUpDown className="w-4 h-4" />
-            {sortOrder === "desc" ? "Newest First" : "Oldest First"}
+            <ArrowUpDown className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">{sortOrder === "desc" ? "Oldest First" : "Newest First"}</span>
+            <span className="sm:hidden">{sortOrder === "desc" ? "Old" : "New"}</span>
           </button>
         </div>
       </div>
@@ -126,7 +128,7 @@ export default function TrainingConversations() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 max-h-[500px] sm:max-h-[600px] overflow-y-auto">
           {sortedConversations.map((conversation: Conversation) => (
             <div
               key={conversation.id}

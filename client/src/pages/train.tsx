@@ -126,50 +126,54 @@ export default function Train() {
         </div>
 
         {/* Main Tab Navigation */}
-        <div className="flex space-x-1 bg-white/80 backdrop-blur-sm rounded-lg p-1 mb-6 sm:mb-8 border border-white/50">
+        <div className="flex flex-wrap sm:flex-nowrap space-x-1 bg-white/80 backdrop-blur-sm rounded-lg p-1 mb-6 sm:mb-8 border border-white/50 overflow-x-auto">
           <button
             onClick={() => setActiveTab("knowledge")}
-            className={`flex-1 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
               activeTab === "knowledge"
                 ? "bg-blue-500 text-white shadow-sm"
                 : "text-gray-600 hover:text-gray-800"
             }`}
           >
             <Brain className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
-            AI Knowledge
+            <span className="hidden sm:inline">AI Knowledge</span>
+            <span className="sm:hidden">Knowledge</span>
           </button>
           <button
             onClick={() => setActiveTab("prompts")}
-            className={`flex-1 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
               activeTab === "prompts"
                 ? "bg-blue-500 text-white shadow-sm"
                 : "text-gray-600 hover:text-gray-800"
             }`}
           >
             <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
-            Quick Questions
+            <span className="hidden sm:inline">Quick Questions</span>
+            <span className="sm:hidden">Questions</span>
           </button>
           <button
             onClick={() => setActiveTab("responses")}
-            className={`flex-1 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
               activeTab === "responses"
                 ? "bg-blue-500 text-white shadow-sm"
                 : "text-gray-600 hover:text-gray-800"
             }`}
           >
             <Code className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
-            Responses
+            <span className="hidden sm:inline">Responses</span>
+            <span className="sm:hidden">Responses</span>
           </button>
           <button
             onClick={() => setActiveTab("conversations")}
-            className={`flex-1 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
               activeTab === "conversations"
                 ? "bg-blue-500 text-white shadow-sm"
                 : "text-gray-600 hover:text-gray-800"
             }`}
           >
             <History className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
-            Conversations
+            <span className="hidden sm:inline">Conversations</span>
+            <span className="sm:hidden">History</span>
           </button>
         </div>
 
