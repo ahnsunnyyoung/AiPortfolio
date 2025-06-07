@@ -177,8 +177,7 @@ export default function Portfolio() {
       if (messages.length === 0) {
         const welcomeMessage: Message = {
           id: "welcome",
-          content:
-            "Hi! I'm Sunyoung's AI agent. I've been trained with her personal knowledge and experiences. Ask me anything about her background, skills, projects, or thoughts!",
+          content: t.aiIntroduction,
           isUser: false,
           timestamp: new Date(),
         };
@@ -335,7 +334,7 @@ export default function Portfolio() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Ask me anything about Sunyoung..."
+                  placeholder={t.askMeAbout}
                   className="flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                   disabled={askMutation.isPending}
                   onClick={startConversation}

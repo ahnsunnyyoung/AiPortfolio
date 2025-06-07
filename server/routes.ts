@@ -83,9 +83,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
               context: "work experience introduction" 
             });
 
+            // Translate detailed content for experiences
+            const translatedData = await translateProjectsAndExperiences({ experiences }, language);
+
             res.json({
               answer: translatedMessage,
-              experiences: experiences,
+              experiences: translatedData.experiences,
               isExperienceResponse: true,
             });
             return;
