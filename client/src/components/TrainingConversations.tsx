@@ -101,7 +101,7 @@ export default function TrainingConversations() {
             }`}
           >
             {hideShowcases ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            {hideShowcases ? "Hide Showcases" : "Show All"}
+            {hideShowcases ? "Hiding Showcases" : "Show All"}
           </button>
           
           <button
@@ -126,30 +126,30 @@ export default function TrainingConversations() {
           </p>
         </div>
       ) : (
-        <div className="space-y-4 max-h-96 overflow-y-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto">
           {sortedConversations.map((conversation: Conversation) => (
             <div
               key={conversation.id}
-              className="bg-white rounded-lg border border-gray-100 p-4 hover:shadow-sm transition-shadow"
+              className="bg-white rounded-lg border border-gray-100 p-3 hover:shadow-sm transition-shadow"
             >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <Clock className="w-4 h-4" />
-                  {format(new Date(conversation.timestamp), "MMM d, yyyy 'at' h:mm a")}
+              <div className="mb-2">
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <Clock className="w-3 h-3" />
+                  {format(new Date(conversation.timestamp), "MMM d 'at' h:mm a")}
                 </div>
               </div>
               
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div>
                   <div className="text-xs font-medium text-blue-600 mb-1">QUESTION</div>
-                  <p className="text-sm text-gray-800 bg-blue-50 rounded-lg p-3 border border-blue-100">
+                  <p className="text-xs text-gray-800 bg-blue-50 rounded p-2 border border-blue-100 line-clamp-2">
                     {conversation.question}
                   </p>
                 </div>
                 
                 <div>
                   <div className="text-xs font-medium text-green-600 mb-1">ANSWER</div>
-                  <p className="text-sm text-gray-700 bg-green-50 rounded-lg p-3 border border-green-100 max-h-32 overflow-y-auto">
+                  <p className="text-xs text-gray-700 bg-green-50 rounded p-2 border border-green-100 max-h-20 overflow-y-auto line-clamp-3">
                     {conversation.answer}
                   </p>
                 </div>
