@@ -135,10 +135,14 @@ export default function Portfolio() {
 
   // Cache prompt examples when conversation starts to prevent mid-chat updates
   useEffect(() => {
-    if (promptExamples.length > 0 && (!isExpanded || cachedPromptExamples.length === 0)) {
+    if (promptExamples.length > 0 && cachedPromptExamples.length === 0) {
       setCachedPromptExamples(promptExamples);
     }
-  }, [promptExamples, isExpanded, cachedPromptExamples.length]);
+    // Only update cache if conversation is not active (no messages)
+    if (promptExamples.length > 0 && messages.length === 0) {
+      setCachedPromptExamples(promptExamples);
+    }
+  }, [promptExamples, cachedPromptExamples.length, messages.length]);
 
   // Handle click outside to close chat
   useEffect(() => {
