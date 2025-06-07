@@ -13,6 +13,7 @@ export const conversations = pgTable("conversations", {
   id: serial("id").primaryKey(),
   question: text("question").notNull(),
   answer: text("answer").notNull(),
+  sessionId: text("session_id"),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
@@ -114,7 +115,8 @@ export const insertTrainingDataSchema = createInsertSchema(trainingData).pick({
 export const insertConversationSchema = createInsertSchema(conversations).pick({
   question: true,
   answer: true,
-});
+  sessionId: true,
+}).partial({ sessionId: true });
 
 export const insertProjectSchema = createInsertSchema(projects).pick({
   title: true,
