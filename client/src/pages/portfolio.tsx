@@ -95,8 +95,7 @@ export default function Portfolio() {
   const [inputValue, setInputValue] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isCardExpanded, setIsCardExpanded] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [password, setPassword] = useState("");
+
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(
     null,
   );
@@ -369,7 +368,7 @@ export default function Portfolio() {
 
   const handleLongPressStart = () => {
     const timer = setTimeout(() => {
-      setShowPasswordModal(true);
+      setLocation("/train");
     }, 2000); // 2 seconds long press
     setLongPressTimer(timer);
   };
@@ -378,28 +377,6 @@ export default function Portfolio() {
     if (longPressTimer) {
       clearTimeout(longPressTimer);
       setLongPressTimer(null);
-    }
-  };
-
-  const handlePasswordSubmit = () => {
-    if (password === "ahn9930") {
-      setLocation("/train");
-      setShowPasswordModal(false);
-      setPassword("");
-    } else {
-      toast({
-        title: "Access Denied",
-        description: "Incorrect password",
-        variant: "destructive",
-      });
-      setPassword("");
-    }
-  };
-
-  const handlePasswordKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handlePasswordSubmit();
     }
   };
 
@@ -481,52 +458,7 @@ export default function Portfolio() {
           </div>
         </div>
 
-        {/* Password Modal */}
-        {showPasswordModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-            <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm animate-in zoom-in-95 duration-200">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">
-                  Admin Access
-                </h3>
-                <button
-                  onClick={() => {
-                    setShowPasswordModal(false);
-                    setPassword("");
-                  }}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    onKeyPress={handlePasswordKeyPress}
-                    placeholder="Enter password"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    autoFocus
-                  />
-                </div>
-
-                <button
-                  onClick={handlePasswordSubmit}
-                  disabled={!password.trim()}
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:from-gray-300 disabled:to-gray-300 text-white py-3 px-6 rounded-lg font-medium transition-all disabled:cursor-not-allowed"
-                >
-                  Access Training
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
