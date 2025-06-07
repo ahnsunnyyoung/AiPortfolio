@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Brain, ArrowLeft, Code, User, Briefcase, MessageCircle } from "lucide-react";
+import { Brain, ArrowLeft, Code, User, Briefcase, MessageCircle, History } from "lucide-react";
 import { Link } from "wouter";
 import TrainingKnowledge from "@/components/TrainingKnowledge";
 import TrainingIntroduction from "@/components/TrainingIntroduction";
@@ -8,9 +8,10 @@ import TrainingExperience from "@/components/TrainingExperience";
 import TrainingPrompts from "@/components/TrainingPrompts";
 import TrainingContact from "@/components/TrainingContact";
 import TrainingSkills from "@/components/TrainingSkills";
+import TrainingConversations from "@/components/TrainingConversations";
 
 export default function Train() {
-  const [activeTab, setActiveTab] = useState<"knowledge" | "prompts" | "responses">("knowledge");
+  const [activeTab, setActiveTab] = useState<"knowledge" | "prompts" | "responses" | "conversations">("knowledge");
   const [activeResponseTab, setActiveResponseTab] = useState<"introduction" | "projects" | "experience" | "skills" | "contact">("introduction");
 
   return (
@@ -66,6 +67,17 @@ export default function Train() {
           >
             <Code className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
             Responses
+          </button>
+          <button
+            onClick={() => setActiveTab("conversations")}
+            className={`flex-1 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+              activeTab === "conversations"
+                ? "bg-blue-500 text-white shadow-sm"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            <History className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
+            Conversations
           </button>
         </div>
 
@@ -133,6 +145,7 @@ export default function Train() {
         {/* Tab Content */}
         {activeTab === "knowledge" && <TrainingKnowledge />}
         {activeTab === "prompts" && <TrainingPrompts />}
+        {activeTab === "conversations" && <TrainingConversations />}
         {activeTab === "responses" && (
           <>
             {activeResponseTab === "introduction" && <TrainingIntroduction />}

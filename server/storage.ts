@@ -10,6 +10,7 @@ export interface IStorage {
   deleteTrainingData(id: number): Promise<void>;
   addConversation(conversation: InsertConversation): Promise<Conversation>;
   getRecentConversations(limit?: number): Promise<Conversation[]>;
+  getAllConversations(): Promise<Conversation[]>;
   addProject(project: InsertProject): Promise<Project>;
   getAllProjects(): Promise<Project[]>;
   updateProject(id: number, project: InsertProject): Promise<Project>;
@@ -103,6 +104,13 @@ export class DatabaseStorage implements IStorage {
       .from(conversations)
       .orderBy(desc(conversations.timestamp))
       .limit(limit);
+  }
+
+  async getAllConversations(): Promise<Conversation[]> {
+    return await db
+      .select()
+      .from(conversations)
+      .orderBy(desc(conversations.timestamp));
   }
 
   async addProject(project: InsertProject): Promise<Project> {
