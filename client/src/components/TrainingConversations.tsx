@@ -55,52 +55,69 @@ export default function TrainingConversations() {
     );
   });
 
-  // Group conversations by time periods
-  const groupConversationsByTime = (conversations: Conversation[]): ConversationGroup[] => {
+  // Group conversations by session
+  const groupConversationsBySession = (conversations: Conversation[]): ConversationGroup[] => {
     const sorted = [...conversations].sort((a: Conversation, b: Conversation) => {
       const dateA = new Date(a.timestamp).getTime();
       const dateB = new Date(b.timestamp).getTime();
       return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
     });
 
-    const groups: ConversationGroup[] = [];
-    let currentGroup: ConversationGroup | null = null;
-
+    const sessionGroups = new Map<string, Conversation[]>();
+    
+    // Group by sessionId first
     for (const conversation of sorted) {
-      const convDate = new Date(conversation.timestamp);
-      let timeLabel = "";
-
-      if (isToday(convDate)) {
-        timeLabel = "Today";
-      } else if (isYesterday(convDate)) {
-        timeLabel = "Yesterday";
-      } else {
-        timeLabel = format(convDate, "MMM d, yyyy");
+      const sessionId = conversation.sessionId || 'legacy';
+      if (!sessionGroups.has(sessionId)) {
+        sessionGroups.set(sessionId, []);
       }
-
-      // Group conversations within 30 minutes of each other
-      if (currentGroup && currentGroup.timeLabel === timeLabel) {
-        const lastConvTime = new Date(currentGroup.conversations[currentGroup.conversations.length - 1].timestamp);
-        const timeDiff = Math.abs(differenceInMinutes(convDate, lastConvTime));
-        
-        if (timeDiff <= 30) {
-          currentGroup.conversations.push(conversation);
-          continue;
-        }
-      }
-
-      // Create new group
-      currentGroup = {
-        timeLabel,
-        conversations: [conversation]
-      };
-      groups.push(currentGroup);
+      sessionGroups.get(sessionId)!.push(conversation);
     }
 
-    return groups;
+    // Convert to ConversationGroup array
+    const groups: ConversationGroup[] = [];
+    
+    for (const [sessionId, conversations] of Array.from(sessionGroups.entries())) {
+      if (conversations.length === 0) continue;
+      
+      // Sort conversations within session by timestamp
+      conversations.sort((a: Conversation, b: Conversation) => {
+        const dateA = new Date(a.timestamp).getTime();
+        const dateB = new Date(b.timestamp).getTime();
+        return dateA - dateB; // Always chronological within session
+      });
+      
+      const firstConversation = conversations[0];
+      const convDate = new Date(firstConversation.timestamp);
+      
+      let sessionLabel = "";
+      if (sessionId === 'legacy') {
+        sessionLabel = "Legacy Conversations";
+      } else if (isToday(convDate)) {
+        sessionLabel = `Today - ${format(convDate, "HH:mm")}`;
+      } else if (isYesterday(convDate)) {
+        sessionLabel = `Yesterday - ${format(convDate, "HH:mm")}`;
+      } else {
+        sessionLabel = format(convDate, "MMM d, yyyy - HH:mm");
+      }
+
+      groups.push({
+        sessionLabel,
+        sessionId: sessionId === 'legacy' ? null : sessionId,
+        conversations,
+        startTime: convDate
+      });
+    }
+
+    // Sort groups by start time
+    return groups.sort((a, b) => {
+      return sortOrder === "desc" 
+        ? b.startTime.getTime() - a.startTime.getTime()
+        : a.startTime.getTime() - b.startTime.getTime();
+    });
   };
 
-  const conversationGroups = groupConversationsByTime(filteredConversations);
+  const conversationGroups = groupConversationsBySession(filteredConversations);
 
   const toggleSortOrder = () => {
     setSortOrder(prev => prev === "desc" ? "asc" : "desc");
@@ -181,7 +198,7 @@ export default function TrainingConversations() {
             <div key={groupIndex} className="space-y-3">
               <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
                 <Clock className="w-4 h-4 text-gray-500" />
-                <h4 className="text-sm font-semibold text-gray-700">{group.timeLabel}</h4>
+                <h4 className="text-sm font-semibold text-gray-700">{group.sessionLabel}</h4>
                 <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                   {group.conversations.length} conversation{group.conversations.length > 1 ? 's' : ''}
                 </span>
