@@ -769,10 +769,7 @@ export default function Portfolio() {
                   {/* Personal Information Card for Introduction */}
                   {message.isIntroductionResponse && (
                     <div className="space-y-4">
-                      {/* Introduction text first */}
-                      <p className="text-sm leading-relaxed">
-                        {message.content}
-                      </p>
+                      {/* Personal card first */}
                       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">
@@ -829,6 +826,10 @@ export default function Portfolio() {
                           </div>
                         </div>
                       </div>
+                      {/* Introduction text after card */}
+                      <p className="text-sm leading-relaxed">
+                        {message.content}
+                      </p>
                     </div>
                   )}
 
