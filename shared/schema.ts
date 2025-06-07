@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, boolean, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, boolean, integer, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -97,6 +97,15 @@ export const introduction = pgTable("introduction", {
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
+export const translations = pgTable("translations", {
+  id: serial("id").primaryKey(),
+  originalText: text("original_text").notNull(),
+  translatedText: text("translated_text").notNull(),
+  language: text("language").notNull(),
+  context: text("context"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
 export const insertTrainingDataSchema = createInsertSchema(trainingData).pick({
   content: true,
   isActive: true,
@@ -173,6 +182,13 @@ export const insertIntroductionSchema = createInsertSchema(introduction).pick({
   isActive: true,
 });
 
+export const insertTranslationSchema = createInsertSchema(translations).pick({
+  originalText: true,
+  translatedText: true,
+  language: true,
+  context: true,
+});
+
 export type InsertTrainingData = z.infer<typeof insertTrainingDataSchema>;
 export type TrainingData = typeof trainingData.$inferSelect;
 export type Conversation = typeof conversations.$inferSelect;
@@ -191,3 +207,5 @@ export type Skill = typeof skills.$inferSelect;
 export type InsertSkill = z.infer<typeof insertSkillSchema>;
 export type Introduction = typeof introduction.$inferSelect;
 export type InsertIntroduction = z.infer<typeof insertIntroductionSchema>;
+export type Translation = typeof translations.$inferSelect;
+export type InsertTranslation = z.infer<typeof insertTranslationSchema>;

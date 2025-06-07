@@ -100,8 +100,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
               answer: "PROJECT_SHOWCASE", // Special marker for project responses
             });
 
+            // Translate the response message
+            const projectMessage = "Here are my projects:";
+            const translatedMessage = await translateText({ 
+              text: projectMessage, 
+              targetLanguage: language, 
+              context: "projects introduction" 
+            });
+
             res.json({
-              answer: "Here are my projects:",
+              answer: translatedMessage,
               projects: projects,
               isProjectResponse: true,
             });
