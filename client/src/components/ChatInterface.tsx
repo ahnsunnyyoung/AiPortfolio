@@ -11,6 +11,16 @@ interface Message {
   timestamp: Date;
 }
 
+interface ChatResponse {
+  answer: string;
+  sessionId?: string;
+  timestamp?: string;
+  rateLimit?: {
+    remaining: number;
+    resetTime: number;
+  };
+}
+
 export default function ChatInterface() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -22,27 +32,48 @@ export default function ChatInterface() {
     }
   ]);
   const [inputValue, setInputValue] = useState("");
+  const [currentSessionId, setCurrentSessionId] = useState<string | undefined>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   const chatMutation = useMutation({
     mutationFn: async (message: string) => {
-      const response = await apiRequest("POST", "/api/chat", { message });
+      const sessionHistory = messages
+        .filter(m => m.id !== "welcome")
+        .slice(-10) // Last 10 messages for context
+        .map(m => ({
+          question: m.isUser ? m.content : "",
+          answer: !m.isUser ? m.content : ""
+        }))
+        .filter(m => m.question || m.answer);
+
+      const response = await apiRequest("POST", "/api/ask", { 
+        question: message,
+        sessionId: currentSessionId,
+        sessionHistory,
+        language: 'en'
+      });
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data: ChatResponse) => {
       const aiMessage: Message = {
         id: Date.now().toString() + "-ai",
-        content: data.message,
+        content: data.answer,
         isUser: false,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, aiMessage]);
+      
+      // Update session ID if provided
+      if (data.sessionId) {
+        setCurrentSessionId(data.sessionId);
+      }
     },
-    onError: () => {
+    onError: (error: any) => {
+      const errorMessage = error?.message || "Sorry, I'm having trouble responding right now. Please try again!";
       toast({
         title: "Chat Error",
-        description: "Sorry, I'm having trouble responding right now. Please try again!",
+        description: errorMessage,
         variant: "destructive"
       });
     }

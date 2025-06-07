@@ -8,6 +8,7 @@ interface Conversation {
   question: string;
   answer: string;
   timestamp: string;
+  sessionId?: string;
 }
 
 interface ConversationsResponse {
@@ -16,8 +17,10 @@ interface ConversationsResponse {
 }
 
 interface ConversationGroup {
-  timeLabel: string;
+  sessionLabel: string;
+  sessionId: string | null;
   conversations: Conversation[];
+  startTime: Date;
 }
 
 export default function TrainingConversations() {

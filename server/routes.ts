@@ -256,6 +256,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             await storage.addConversation({
               question,
               answer: "INTRODUCTION_SHOWCASE",
+              sessionId: currentSessionId,
             });
 
             // Translate the introduction content
@@ -288,10 +289,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.addConversation({
         question,
         answer: translatedResponse,
+        sessionId: currentSessionId,
       });
 
       res.json({
         answer: translatedResponse,
+        sessionId: currentSessionId,
         timestamp: new Date().toISOString(),
         rateLimit: {
           remaining: aiRateLimiter.getRemainingRequests(clientIP),
