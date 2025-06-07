@@ -272,12 +272,18 @@ export default function Portfolio() {
     }
   };
 
-  // Filter out recently asked questions and show only 4
+  // Sort prompt examples - recently asked questions go to the end
   const quickQuestions = promptExamples
-    .filter(
-      (example: PromptExample) =>
-        !recentlyAskedQuestions.includes(example.question),
-    )
+    .sort((a: PromptExample, b: PromptExample) => {
+      const aRecentlyAsked = recentlyAskedQuestions.includes(a.question);
+      const bRecentlyAsked = recentlyAskedQuestions.includes(b.question);
+      
+      if (aRecentlyAsked && !bRecentlyAsked) return 1; // a goes after b
+      if (!aRecentlyAsked && bRecentlyAsked) return -1; // a goes before b
+      
+      // If both or neither are recently asked, maintain original order
+      return a.displayOrder - b.displayOrder;
+    })
     .slice(0, 4);
 
   const handleQuickQuestion = (promptExample: PromptExample) => {
