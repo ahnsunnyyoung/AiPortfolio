@@ -595,30 +595,48 @@ export default function Portfolio() {
                       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">
-                            <div className="w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center border-3 border-white shadow-lg">
-                              <User className="w-10 h-10 text-white" />
-                            </div>
+                            {introduction?.img ? (
+                              <div className="w-20 h-20 rounded-full overflow-hidden border-3 border-white shadow-lg">
+                                <img
+                                  src={introduction.img}
+                                  alt="Profile"
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center border-3 border-white shadow-lg">
+                                <User className="w-10 h-10 text-white" />
+                              </div>
+                            )}
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
-                              <h3 className="text-xl font-bold text-gray-800">Sunyoung Ahn</h3>
+                              <h3 className="text-xl font-bold text-gray-800">
+                                {introduction?.name || "Sunyoung Ahn"}
+                              </h3>
                               <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full font-medium">
-                                Frontend Developer
+                                {introduction?.title || "Frontend Developer"}
                               </span>
                             </div>
                             <div className="space-y-2 text-sm text-gray-600">
-                              <div className="flex items-center gap-2">
-                                <Globe className="w-4 h-4 text-blue-500" />
-                                <span>Seoul, South Korea</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <User className="w-4 h-4 text-blue-500" />
-                                <span>Frontend Developer with 3+ years experience</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Code className="w-4 h-4 text-blue-500" />
-                                <span>React • TypeScript • JavaScript • Node.js</span>
-                              </div>
+                              {introduction?.location && (
+                                <div className="flex items-center gap-2">
+                                  <Globe className="w-4 h-4 text-blue-500" />
+                                  <span>{introduction.location}</span>
+                                </div>
+                              )}
+                              {introduction?.experience && (
+                                <div className="flex items-center gap-2">
+                                  <User className="w-4 h-4 text-blue-500" />
+                                  <span>{introduction.experience} experience</span>
+                                </div>
+                              )}
+                              {introduction?.technologies && (
+                                <div className="flex items-center gap-2">
+                                  <Code className="w-4 h-4 text-blue-500" />
+                                  <span>{introduction.technologies.split(',').map((tech: string) => tech.trim()).join(' • ')}</span>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>

@@ -285,7 +285,7 @@ export default function TrainingIntroduction() {
                     {introductionQuery.data.introduction.technologies && (
                       <div className="mt-3">
                         <div className="flex flex-wrap gap-1">
-                          {introductionQuery.data.introduction.technologies.split(',').map((tech, index) => (
+                          {introductionQuery.data.introduction.technologies.split(',').map((tech: string, index: number) => (
                             <span key={index} className="px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium">
                               {tech.trim()}
                             </span>
