@@ -20,6 +20,11 @@ interface Introduction {
 export default function TrainingIntroduction() {
   const [introductionContent, setIntroductionContent] = useState("");
   const [introductionImage, setIntroductionImage] = useState("");
+  const [name, setName] = useState("");
+  const [title, setTitle] = useState("");
+  const [location, setLocation] = useState("");
+  const [experience, setExperience] = useState("");
+  const [technologies, setTechnologies] = useState("");
   const { toast } = useToast();
 
   const introductionQuery = useQuery({
@@ -32,15 +37,21 @@ export default function TrainingIntroduction() {
 
   // Set introduction content when data is loaded
   useEffect(() => {
-    if (introductionQuery.data?.introduction && introductionContent === "" && introductionImage === "") {
-      setIntroductionContent(introductionQuery.data.introduction.content || "");
-      setIntroductionImage(introductionQuery.data.introduction.img || "");
+    if (introductionQuery.data?.introduction) {
+      const intro = introductionQuery.data.introduction;
+      if (introductionContent === "") setIntroductionContent(intro.content || "");
+      if (introductionImage === "") setIntroductionImage(intro.img || "");
+      if (name === "") setName(intro.name || "");
+      if (title === "") setTitle(intro.title || "");
+      if (location === "") setLocation(intro.location || "");
+      if (experience === "") setExperience(intro.experience || "");
+      if (technologies === "") setTechnologies(intro.technologies || "");
     }
-  }, [introductionQuery.data, introductionContent, introductionImage]);
+  }, [introductionQuery.data, introductionContent, introductionImage, name, title, location, experience, technologies]);
 
   const updateIntroductionMutation = useMutation({
-    mutationFn: async ({ content, img }: { content: string, img?: string }) => {
-      const response = await apiRequest("PUT", "/api/introduction", { content, img });
+    mutationFn: async (data: { content: string, img?: string, name?: string, title?: string, location?: string, experience?: string, technologies?: string }) => {
+      const response = await apiRequest("PUT", "/api/introduction", data);
       return response.json();
     },
     onSuccess: () => {
@@ -59,6 +70,18 @@ export default function TrainingIntroduction() {
     }
   });
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setIntroductionImage(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleIntroductionSubmit = () => {
     if (!introductionContent.trim()) {
       toast({
@@ -71,7 +94,12 @@ export default function TrainingIntroduction() {
 
     updateIntroductionMutation.mutate({
       content: introductionContent,
-      img: introductionImage
+      img: introductionImage,
+      name,
+      title,
+      location,
+      experience,
+      technologies
     });
   };
 
@@ -104,18 +132,90 @@ export default function TrainingIntroduction() {
               </div>
             )}
             <div className="flex-1">
-              <input
-                type="text"
-                value={introductionImage}
-                onChange={(e) => setIntroductionImage(e.target.value)}
-                placeholder="Enter image URL or upload to a service like Imgur"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Upload your photo to an image hosting service and paste the URL here
-              </p>
+              <div className="space-y-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <input
+                  type="text"
+                  value={introductionImage}
+                  onChange={(e) => setIntroductionImage(e.target.value)}
+                  placeholder="Or enter image URL"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
             </div>
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g., Sunyoung Ahn (Sunny)"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Title
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g., Frontend Developer"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Location
+            </label>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="e.g., Dublin, Ireland"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Experience
+            </label>
+            <input
+              type="text"
+              value={experience}
+              onChange={(e) => setExperience(e.target.value)}
+              placeholder="e.g., 5+ years"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Technologies
+          </label>
+          <input
+            type="text"
+            value={technologies}
+            onChange={(e) => setTechnologies(e.target.value)}
+            placeholder="e.g., React, Flutter, Firebase, Google Cloud"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
         </div>
 
         <div>
@@ -149,15 +249,55 @@ export default function TrainingIntroduction() {
 
         {introductionQuery.data?.introduction && (
           <div className="border-t border-gray-200 pt-4">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Current Introduction Preview:</h3>
+            <h3 className="text-sm font-medium text-gray-700 mb-3">Chat Preview:</h3>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              {introductionQuery.data.introduction.img && (
-                <img
-                  src={introductionQuery.data.introduction.img}
-                  alt="Profile"
-                  className="w-16 h-16 rounded-lg object-cover mb-3 border border-gray-300"
-                />
-              )}
+              {/* Personal Card Preview */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
+                <div className="flex items-start gap-4">
+                  {introductionQuery.data.introduction.img && (
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex-shrink-0 overflow-hidden">
+                      <img
+                        src={introductionQuery.data.introduction.img}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900 text-lg leading-tight">
+                      {introductionQuery.data.introduction.name || "Your Name"}
+                    </h3>
+                    <p className="text-blue-600 font-medium text-sm mt-1">
+                      {introductionQuery.data.introduction.title || "Your Title"}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-gray-600">
+                      {introductionQuery.data.introduction.location && (
+                        <span className="flex items-center gap-1">
+                          📍 {introductionQuery.data.introduction.location}
+                        </span>
+                      )}
+                      {introductionQuery.data.introduction.experience && (
+                        <span className="flex items-center gap-1">
+                          💼 {introductionQuery.data.introduction.experience}
+                        </span>
+                      )}
+                    </div>
+                    {introductionQuery.data.introduction.technologies && (
+                      <div className="mt-3">
+                        <div className="flex flex-wrap gap-1">
+                          {introductionQuery.data.introduction.technologies.split(',').map((tech, index) => (
+                            <span key={index} className="px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium">
+                              {tech.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Introduction Text */}
               <p className="text-sm text-gray-600 whitespace-pre-wrap">
                 {introductionQuery.data.introduction.content}
               </p>

@@ -95,7 +95,14 @@ export default function Portfolio() {
     queryFn: () => apiRequest("GET", "/api/prompt-examples/active").then(res => res.json())
   });
 
+  // Fetch introduction data for personal card
+  const { data: introductionData } = useQuery({
+    queryKey: ["/api/introduction"],
+    queryFn: () => apiRequest("GET", "/api/introduction").then(res => res.json())
+  });
+
   const promptExamples = promptExamplesData?.examples || [];
+  const introduction = introductionData?.introduction;
 
   // Handle click outside to close chat
   useEffect(() => {
