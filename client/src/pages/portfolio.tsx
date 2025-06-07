@@ -304,7 +304,7 @@ export default function Portfolio() {
           {/* Logo Area */}
           <div className="mb-6 sm:mb-8">
             <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-3 sm:mb-4 font-medium">
-              Frontend Developer
+              {t.frontendDeveloper}
             </p>
             <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-bold text-gray-800 mb-4 sm:mb-6 leading-tight text-shadow">
               Sunyoung Ahn
@@ -434,7 +434,7 @@ export default function Portfolio() {
           <h1 className="text-xl font-bold text-gray-800">Sunyoung Ahn</h1>
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-xs text-gray-600">AI Online</span>
+            <span className="text-xs text-gray-600">{t.aiOnline}</span>
           </div>
         </div>
       </div>
@@ -678,7 +678,7 @@ export default function Portfolio() {
                           </div>
                           <div>
                             <h4 className="font-semibold text-gray-800 text-lg">{t.contactTitle}</h4>
-                            <p className="text-purple-600 text-sm">Let's connect!</p>
+                            <p className="text-purple-600 text-sm">{t.letsConnect}</p>
                           </div>
                         </div>
                         
@@ -873,7 +873,7 @@ export default function Portfolio() {
                   onClick={() => setIsAskAboutExpanded(!isAskAboutExpanded)}
                   className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  {isAskAboutExpanded ? "Hide" : "Show"}
+                  {isAskAboutExpanded ? t.hide : t.show}
                 </button>
               </div>
               {isAskAboutExpanded && (
