@@ -88,6 +88,7 @@ export default function Portfolio() {
   const [isThinking, setIsThinking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const welcomeMessageShown = useRef(false);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { t, language } = useLanguage();
