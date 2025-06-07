@@ -471,10 +471,17 @@ export default function Portfolio() {
                       : "bg-gray-50 text-gray-800 rounded-tl-md"
                   }`}
                 >
+                  {/* Message content for non-special responses */}
+                  {!message.isProjectResponse && !message.isExperienceResponse && !message.isContactResponse && !message.isSkillsResponse && !message.isIntroductionResponse && (
+                    <p className="whitespace-pre-wrap">{message.content}</p>
+                  )}
+                  
                   {/* Project List Display */}
                   {message.isProjectResponse && message.projects && (
-                    <div className="mt-4 space-y-4">
-                      {message.projects.map((project) => (
+                    <div>
+                      <p className="whitespace-pre-wrap mb-4">{message.content}</p>
+                      <div className="mt-4 space-y-4">
+                        {message.projects.map((project) => (
                         <div key={project.id}>
                           {/* Basic Project Info (for initial list view) */}
                           {message.projects && message.projects.length > 1 && (
@@ -533,12 +540,15 @@ export default function Portfolio() {
                           )}
                         </div>
                       ))}
-                    </div>
+                      </div>
+                    </>
                   )}
                   
                   {/* Experience List Display */}
                   {message.isExperienceResponse && message.experiences && (
-                    <div className="mt-4 space-y-4">
+                    <>
+                      <p className="whitespace-pre-wrap mb-4">{message.content}</p>
+                      <div className="mt-4 space-y-4">
                       {message.experiences.map((experience) => (
                         <div key={experience.id}>
                           {/* Basic Experience Info (for initial list view) */}
@@ -598,7 +608,8 @@ export default function Portfolio() {
                           )}
                         </div>
                       ))}
-                    </div>
+                      </div>
+                    </>
                   )}
                   
                   {/* Personal Information Card for Introduction */}
