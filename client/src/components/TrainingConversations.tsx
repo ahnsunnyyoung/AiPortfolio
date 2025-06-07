@@ -34,6 +34,7 @@ export default function TrainingConversations() {
       "SKILLS_SHOWCASE", 
       "EXPERIENCE_SHOWCASE",
       "CONTACT_SHOWCASE",
+      "INTRODUCTION_SHOWCASE",
       "Here are my projects:",
       "Here's how you can contact me:",
       "다음은 저의 기술적 역량",

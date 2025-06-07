@@ -81,7 +81,7 @@ interface Message {
     backend: string[];
     tools: string[];
     languages: string[];
-    soft: string[];
+    "soft skills": string[];
   };
   isProjectResponse?: boolean;
   isExperienceResponse?: boolean;

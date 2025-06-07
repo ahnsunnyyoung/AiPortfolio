@@ -215,7 +215,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Store the conversation
             await storage.addConversation({
               question,
-              answer: introduction?.content || "INTRODUCTION_SHOWCASE",
+              answer: "INTRODUCTION_SHOWCASE",
             });
 
             // Translate the introduction content
