@@ -88,6 +88,7 @@ export default function Portfolio() {
   const [isThinking, setIsThinking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const welcomeMessageShown = useRef(false);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { t, language } = useLanguage();
@@ -180,8 +181,9 @@ export default function Portfolio() {
   const startConversation = () => {
     if (!isExpanded) {
       setIsExpanded(true);
-      // Add welcome message when chat first opens
-      if (messages.length === 0) {
+      // Add welcome message when chat first opens, but only once
+      if (messages.length === 0 && !welcomeMessageShown.current) {
+        welcomeMessageShown.current = true;
         const welcomeMessage: Message = {
           id: "welcome",
           content: t.aiIntroduction,
