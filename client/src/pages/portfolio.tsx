@@ -173,16 +173,6 @@ export default function Portfolio() {
   const startConversation = () => {
     if (!isExpanded) {
       setIsExpanded(true);
-      // Only add welcome message if there are no existing messages
-      if (messages.length === 0) {
-        const welcomeMessage: Message = {
-          id: "welcome",
-          content: t.aiIntroduction,
-          isUser: false,
-          timestamp: new Date(),
-        };
-        setMessages([welcomeMessage]);
-      }
     }
   };
 
