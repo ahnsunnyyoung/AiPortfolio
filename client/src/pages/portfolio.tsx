@@ -529,6 +529,10 @@ export default function Portfolio() {
                   {/* Project List Display */}
                   {message.isProjectResponse && message.projects && (
                     <div className="space-y-4">
+                      {/* Introduction text first only for multiple projects (list view) */}
+                      {message.projects.length > 1 && (
+                        <p className="text-sm leading-relaxed">{message.content}</p>
+                      )}
                       {message.projects.map((project) => (
                         <div key={project.id}>
                           {/* Basic Project Info (for initial list view) */}
@@ -604,8 +608,12 @@ export default function Portfolio() {
                           {/* Detailed Project Card (for "Ask more" responses) */}
                           {message.projects &&
                             message.projects.length === 1 && (
-                              <div className="mt-6">
-                                <ProjectCard project={project} />
+                              <div className="space-y-4">
+                                <div className="mt-6">
+                                  <ProjectCard project={project} />
+                                </div>
+                                {/* Content appears after the detailed card for single project responses */}
+                                <p className="text-sm leading-relaxed mt-4">{message.content}</p>
                               </div>
                             )}
                         </div>
@@ -616,6 +624,10 @@ export default function Portfolio() {
                   {/* Experience List Display */}
                   {message.isExperienceResponse && message.experiences && (
                     <div className="space-y-4">
+                      {/* Introduction text first only for multiple experiences (list view) */}
+                      {message.experiences.length > 1 && (
+                        <p className="text-sm leading-relaxed">{message.content}</p>
+                      )}
                       {message.experiences.map((experience) => (
                         <div key={experience.id}>
                           {/* Basic Experience Info (for initial list view) */}
@@ -693,8 +705,12 @@ export default function Portfolio() {
                           {/* Detailed Experience Card (for "Ask more" responses) */}
                           {message.experiences &&
                             message.experiences.length === 1 && (
-                              <div className="mt-6">
-                                <ExperienceCard experience={experience} />
+                              <div className="space-y-4">
+                                <div className="mt-6">
+                                  <ExperienceCard experience={experience} />
+                                </div>
+                                {/* Content appears after the detailed card for single experience responses */}
+                                <p className="text-sm leading-relaxed mt-4">{message.content}</p>
                               </div>
                             )}
                         </div>
