@@ -137,7 +137,7 @@ export default function Portfolio() {
       
       // Add a thinking delay to make the AI feel more natural
       setTimeout(() => {
-        const aiMessageId = Date.now().toString() + "-ai";
+        const aiMessageId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-ai`;
         const aiMessage: Message = {
           id: aiMessageId,
           content: data.answer,
@@ -154,10 +154,14 @@ export default function Portfolio() {
           isIntroductionResponse: data.isIntroductionResponse
         };
         
-        // Prevent duplicate messages by checking if message with same ID already exists
+        // Prevent duplicate AI messages by checking content and recent timestamps
         setMessages((prev) => {
-          const exists = prev.some(msg => msg.id === aiMessageId);
-          if (exists) return prev;
+          const isDuplicate = prev.some(msg => 
+            msg.content === data.answer && 
+            !msg.isUser && 
+            (Date.now() - msg.timestamp.getTime()) < 2000 // within 2 seconds
+          );
+          if (isDuplicate) return prev;
           return [...prev, aiMessage];
         });
         setIsThinking(false);
@@ -208,30 +212,35 @@ export default function Portfolio() {
 
     startConversation();
 
-    const userMessageId = Date.now().toString() + "-user";
+    const questionText = inputValue;
+    const userMessageId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-user`;
     const userMessage: Message = {
       id: userMessageId,
-      content: inputValue,
+      content: questionText,
       isUser: true,
       timestamp: new Date(),
     };
 
-    // Prevent duplicate user messages
+    // Prevent duplicate user messages by checking content and recent timestamps
     setMessages((prev) => {
-      const exists = prev.some(msg => msg.id === userMessageId);
-      if (exists) return prev;
+      const isDuplicate = prev.some(msg => 
+        msg.content === questionText && 
+        msg.isUser && 
+        (Date.now() - msg.timestamp.getTime()) < 1000 // within 1 second
+      );
+      if (isDuplicate) return prev;
       return [...prev, userMessage];
     });
     
     // Add to recently asked questions if it matches a quick question
-    if (promptExamples.some((example: PromptExample) => example.question === inputValue)) {
-      setRecentlyAskedQuestions(prev => [...prev, inputValue]);
+    if (promptExamples.some((example: PromptExample) => example.question === questionText)) {
+      setRecentlyAskedQuestions(prev => [...prev, questionText]);
       setTimeout(() => {
-        setRecentlyAskedQuestions(prev => prev.filter(q => q !== inputValue));
+        setRecentlyAskedQuestions(prev => prev.filter(q => q !== questionText));
       }, 10000);
     }
     
-    askMutation.mutate({ question: inputValue });
+    askMutation.mutate({ question: questionText });
     setInputValue("");
   };
 
@@ -258,7 +267,7 @@ export default function Portfolio() {
     const question = promptExample.question;
     startConversation();
 
-    const userMessageId = Date.now().toString() + "-user";
+    const userMessageId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-user`;
     const userMessage: Message = {
       id: userMessageId,
       content: question,
@@ -266,10 +275,14 @@ export default function Portfolio() {
       timestamp: new Date(),
     };
 
-    // Prevent duplicate user messages
+    // Prevent duplicate user messages by checking content and recent timestamps
     setMessages((prev) => {
-      const exists = prev.some(msg => msg.id === userMessageId);
-      if (exists) return prev;
+      const isDuplicate = prev.some(msg => 
+        msg.content === question && 
+        msg.isUser && 
+        (Date.now() - msg.timestamp.getTime()) < 1000 // within 1 second
+      );
+      if (isDuplicate) return prev;
       return [...prev, userMessage];
     });
     
