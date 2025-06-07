@@ -173,6 +173,16 @@ export default function Portfolio() {
   const startConversation = () => {
     if (!isExpanded) {
       setIsExpanded(true);
+      // Only add welcome message if there are no existing messages
+      if (messages.length === 0) {
+        const welcomeMessage: Message = {
+          id: "welcome",
+          content: t.aiIntroduction,
+          isUser: false,
+          timestamp: new Date(),
+        };
+        setMessages([welcomeMessage]);
+      }
     }
   };
 
@@ -217,9 +227,16 @@ export default function Portfolio() {
     }
   };
 
-  // Filter out recently asked questions and show only 4
+  // Sort questions: move recently asked to the end, then take first 4
   const quickQuestions = promptExamples
-    .filter((example: PromptExample) => !recentlyAskedQuestions.includes(example.question))
+    .sort((a: PromptExample, b: PromptExample) => {
+      const aIsRecent = recentlyAskedQuestions.includes(a.question);
+      const bIsRecent = recentlyAskedQuestions.includes(b.question);
+      
+      if (aIsRecent && !bIsRecent) return 1; // a goes to end
+      if (!aIsRecent && bIsRecent) return -1; // b goes to end
+      return a.displayOrder - b.displayOrder; // maintain original order
+    })
     .slice(0, 4);
 
   const handleQuickQuestion = (promptExample: PromptExample) => {
