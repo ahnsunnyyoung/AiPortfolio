@@ -136,8 +136,9 @@ export default function Portfolio() {
       
       // Add a thinking delay to make the AI feel more natural
       setTimeout(() => {
+        const aiMessageId = Date.now().toString() + "-ai";
         const aiMessage: Message = {
-          id: Date.now().toString() + "-ai",
+          id: aiMessageId,
           content: data.answer,
           isUser: false,
           timestamp: new Date(),
@@ -151,7 +152,13 @@ export default function Portfolio() {
           isSkillsResponse: data.isSkillsResponse,
           isIntroductionResponse: data.isIntroductionResponse
         };
-        setMessages((prev) => [...prev, aiMessage]);
+        
+        // Prevent duplicate messages by checking if message with same ID already exists
+        setMessages((prev) => {
+          const exists = prev.some(msg => msg.id === aiMessageId);
+          if (exists) return prev;
+          return [...prev, aiMessage];
+        });
         setIsThinking(false);
       }, 800); // 0.8 second thinking delay
     },
@@ -199,14 +206,20 @@ export default function Portfolio() {
 
     startConversation();
 
+    const userMessageId = Date.now().toString() + "-user";
     const userMessage: Message = {
-      id: Date.now().toString() + "-user",
+      id: userMessageId,
       content: inputValue,
       isUser: true,
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    // Prevent duplicate user messages
+    setMessages((prev) => {
+      const exists = prev.some(msg => msg.id === userMessageId);
+      if (exists) return prev;
+      return [...prev, userMessage];
+    });
     
     // Add to recently asked questions if it matches a quick question
     if (promptExamples.some((example: PromptExample) => example.question === inputValue)) {
@@ -243,14 +256,20 @@ export default function Portfolio() {
     const question = promptExample.question;
     startConversation();
 
+    const userMessageId = Date.now().toString() + "-user";
     const userMessage: Message = {
-      id: Date.now().toString() + "-user",
+      id: userMessageId,
       content: question,
       isUser: true,
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    // Prevent duplicate user messages
+    setMessages((prev) => {
+      const exists = prev.some(msg => msg.id === userMessageId);
+      if (exists) return prev;
+      return [...prev, userMessage];
+    });
     
     // Add to recently asked questions and remove after 10 seconds
     setRecentlyAskedQuestions(prev => [...prev, question]);
