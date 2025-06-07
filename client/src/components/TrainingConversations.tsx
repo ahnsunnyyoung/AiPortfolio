@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { MessageCircle, Clock, Filter, ArrowUpDown, Eye, EyeOff } from "lucide-react";
+import { MessageCircle, Clock, Filter, ArrowUpDown, Eye, EyeOff, X, User, Bot } from "lucide-react";
 import { format, differenceInMinutes, startOfDay, isToday, isYesterday } from "date-fns";
 
 interface Conversation {
@@ -26,6 +26,7 @@ interface ConversationGroup {
 export default function TrainingConversations() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [hideShowcases, setHideShowcases] = useState(true);
+  const [selectedSession, setSelectedSession] = useState<ConversationGroup | null>(null);
 
   const conversationsQuery = useQuery<ConversationsResponse>({
     queryKey: ["/api/conversations"],
@@ -193,50 +194,98 @@ export default function TrainingConversations() {
           </p>
         </div>
       ) : (
-        <div className="space-y-6 max-h-[500px] sm:max-h-[600px] overflow-y-auto">
+        <div className="space-y-4 max-h-[500px] sm:max-h-[600px] overflow-y-auto">
           {conversationGroups.map((group: ConversationGroup, groupIndex: number) => (
-            <div key={groupIndex} className="space-y-3">
-              <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
-                <Clock className="w-4 h-4 text-gray-500" />
-                <h4 className="text-sm font-semibold text-gray-700">{group.sessionLabel}</h4>
-                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                  {group.conversations.length} conversation{group.conversations.length > 1 ? 's' : ''}
-                </span>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {group.conversations.map((conversation: Conversation) => (
-                  <div
-                    key={conversation.id}
-                    className="bg-white rounded-lg border border-gray-100 p-3 hover:shadow-sm transition-shadow"
-                  >
-                    <div className="mb-2">
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <Clock className="w-3 h-3" />
-                        {format(new Date(conversation.timestamp), "h:mm a")}
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div>
-                        <div className="text-xs font-medium text-blue-600 mb-1">QUESTION</div>
-                        <p className="text-xs text-gray-800 bg-blue-50 rounded p-2 border border-blue-100 line-clamp-2">
-                          {conversation.question}
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <div className="text-xs font-medium text-green-600 mb-1">ANSWER</div>
-                        <p className="text-xs text-gray-700 bg-green-50 rounded p-2 border border-green-100 max-h-20 overflow-y-auto line-clamp-3">
-                          {conversation.answer}
-                        </p>
-                      </div>
+            <div
+              key={groupIndex}
+              onClick={() => setSelectedSession(group)}
+              className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all cursor-pointer hover:border-blue-300"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-50 rounded-lg">
+                    <MessageCircle className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-800">{group.sessionLabel}</h4>
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Clock className="w-4 h-4" />
+                      <span>{group.conversations.length} messages</span>
+                      <span>•</span>
+                      <span>{format(group.startTime, "MMM d, yyyy")}</span>
                     </div>
                   </div>
-                ))}
+                </div>
+                <div className="text-gray-400">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+              
+              {/* Preview of first question */}
+              <div className="mt-3 text-sm text-gray-600 line-clamp-1">
+                {group.conversations[0]?.question}
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Session Detail Modal */}
+      {selectedSession && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">{selectedSession.sessionLabel}</h3>
+                <p className="text-sm text-gray-500">
+                  {selectedSession.conversations.length} messages • {format(selectedSession.startTime, "MMM d, yyyy 'at' h:mm a")}
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedSession(null)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {selectedSession.conversations.map((conversation: Conversation, index: number) => (
+                <div key={conversation.id} className="space-y-3">
+                  {/* User Message */}
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-blue-100 rounded-full">
+                      <User className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="bg-blue-50 rounded-lg p-3">
+                        <p className="text-gray-800">{conversation.question}</p>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {format(new Date(conversation.timestamp), "h:mm a")}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* AI Response */}
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-green-100 rounded-full">
+                      <Bot className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="bg-gray-50 rounded-lg p-3">
+                        <p className="text-gray-800 whitespace-pre-wrap">{conversation.answer}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </div>
