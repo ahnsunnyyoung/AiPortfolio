@@ -667,7 +667,8 @@ export default function Portfolio() {
                                       setIsThinking(false);
                                     }, 800);
                                   }}
-                                  className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
+                                  disabled={askMutation.isPending || isDisplayingResponse}
+                                  className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                   {t.askMore}
                                 </button>
@@ -788,7 +789,8 @@ export default function Portfolio() {
                                         setIsThinking(false);
                                       }, 800);
                                     }}
-                                    className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
+                                    disabled={askMutation.isPending || isDisplayingResponse}
+                                    className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
                                     {t.askMore}
                                   </button>
@@ -1166,7 +1168,7 @@ export default function Portfolio() {
                         <button
                           key={index}
                           onClick={() => handleQuickQuestion(promptExample)}
-                          disabled={askMutation.isPending}
+                          disabled={askMutation.isPending || isDisplayingResponse}
                           className="px-2 sm:px-3 py-1 text-xs bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {promptExample.question}
@@ -1189,11 +1191,11 @@ export default function Portfolio() {
                 onKeyPress={handleKeyPress}
                 placeholder={t.typeMessage}
                 className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm sm:text-base"
-                disabled={askMutation.isPending}
+                disabled={askMutation.isPending || isDisplayingResponse}
               />
               <button
                 onClick={handleSendMessage}
-                disabled={!inputValue.trim() || askMutation.isPending}
+                disabled={!inputValue.trim() || askMutation.isPending || isDisplayingResponse}
                 className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:from-gray-300 disabled:to-gray-300 text-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
                 aria-label={t.sendMessage}
               >
