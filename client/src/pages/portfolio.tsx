@@ -551,10 +551,34 @@ export default function Portfolio() {
                                   </p>
                                 </div>
                                 <button
-                                  onClick={() => {
+                                  onClick={async () => {
+                                    const originalContent = `Tell me more details about the ${project.title} project`;
+                                    
+                                    // Translate the user message if not English
+                                    let translatedContent = originalContent;
+                                    if (language !== 'en') {
+                                      try {
+                                        const response = await fetch('/api/translate', {
+                                          method: 'POST',
+                                          headers: { 'Content-Type': 'application/json' },
+                                          body: JSON.stringify({
+                                            text: originalContent,
+                                            targetLanguage: language,
+                                            context: 'user_question'
+                                          })
+                                        });
+                                        const data = await response.json();
+                                        if (data.success) {
+                                          translatedContent = data.translatedText;
+                                        }
+                                      } catch (error) {
+                                        console.error('Translation failed:', error);
+                                      }
+                                    }
+
                                     const userMessage: Message = {
                                       id: Date.now().toString(),
-                                      content: `${t.tellMeMoreProject} ${project.title} ${t.project}`,
+                                      content: translatedContent,
                                       isUser: true,
                                       timestamp: new Date(),
                                     };
@@ -648,10 +672,34 @@ export default function Portfolio() {
                                     </p>
                                   </div>
                                   <button
-                                    onClick={() => {
+                                    onClick={async () => {
+                                      const originalContent = `Tell me more details about the ${experience.position} role at ${experience.company}`;
+                                      
+                                      // Translate the user message if not English
+                                      let translatedContent = originalContent;
+                                      if (language !== 'en') {
+                                        try {
+                                          const response = await fetch('/api/translate', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                              text: originalContent,
+                                              targetLanguage: language,
+                                              context: 'user_question'
+                                            })
+                                          });
+                                          const data = await response.json();
+                                          if (data.success) {
+                                            translatedContent = data.translatedText;
+                                          }
+                                        } catch (error) {
+                                          console.error('Translation failed:', error);
+                                        }
+                                      }
+
                                       const userMessage: Message = {
                                         id: Date.now().toString(),
-                                        content: `${experience.position} ${t.roleAt} ${experience.company}${t.tellMeMoreExperience}`,
+                                        content: translatedContent,
                                         isUser: true,
                                         timestamp: new Date(),
                                       };

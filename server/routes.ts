@@ -667,6 +667,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Translation endpoint
+  app.post("/api/translate", async (req, res) => {
+    try {
+      const { text, targetLanguage, context } = req.body;
+      
+      if (!text || !targetLanguage) {
+        return res.status(400).json({ error: "Text and target language are required" });
+      }
+
+      const translatedText = await translateText({ text, targetLanguage, context });
+      res.json({
+        success: true,
+        translatedText,
+        originalText: text,
+        targetLanguage
+      });
+    } catch (error) {
+      console.error("Translation error:", error);
+      res.status(500).json({ error: "Failed to translate text" });
+    }
+  });
+
   // Health check endpoint
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok", message: "Sunyoung's AI Agent API is running!" });
