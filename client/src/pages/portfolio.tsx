@@ -173,6 +173,16 @@ export default function Portfolio() {
   const startConversation = () => {
     if (!isExpanded) {
       setIsExpanded(true);
+      // Add welcome message when chat first opens
+      if (messages.length === 0) {
+        const welcomeMessage: Message = {
+          id: "welcome",
+          content: t.aiIntroduction,
+          isUser: false,
+          timestamp: new Date(),
+        };
+        setMessages([welcomeMessage]);
+      }
     }
   };
 
