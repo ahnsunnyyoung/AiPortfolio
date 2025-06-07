@@ -10,7 +10,8 @@ import TrainingContact from "@/components/TrainingContact";
 import TrainingSkills from "@/components/TrainingSkills";
 
 export default function Train() {
-  const [activeTab, setActiveTab] = useState<"knowledge" | "projects" | "experience" | "prompts" | "contact" | "skills" | "introduction">("knowledge");
+  const [activeTab, setActiveTab] = useState<"knowledge" | "prompts" | "responses">("knowledge");
+  const [activeResponseTab, setActiveResponseTab] = useState<"introduction" | "projects" | "experience" | "skills" | "contact">("introduction");
 
   return (
     <div className="min-h-screen portfolio-gradient">
@@ -31,11 +32,11 @@ export default function Train() {
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex space-x-1 bg-white/80 backdrop-blur-sm rounded-lg p-1 mb-6 sm:mb-8 border border-white/50 overflow-x-auto">
+        {/* Main Tab Navigation */}
+        <div className="flex space-x-1 bg-white/80 backdrop-blur-sm rounded-lg p-1 mb-6 sm:mb-8 border border-white/50">
           <button
             onClick={() => setActiveTab("knowledge")}
-            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+            className={`flex-1 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
               activeTab === "knowledge"
                 ? "bg-blue-500 text-white shadow-sm"
                 : "text-gray-600 hover:text-gray-800"
@@ -45,30 +46,8 @@ export default function Train() {
             AI Knowledge
           </button>
           <button
-            onClick={() => setActiveTab("projects")}
-            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
-              activeTab === "projects"
-                ? "bg-blue-500 text-white shadow-sm"
-                : "text-gray-600 hover:text-gray-800"
-            }`}
-          >
-            <Code className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
-            Projects
-          </button>
-          <button
-            onClick={() => setActiveTab("experience")}
-            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
-              activeTab === "experience"
-                ? "bg-blue-500 text-white shadow-sm"
-                : "text-gray-600 hover:text-gray-800"
-            }`}
-          >
-            <Briefcase className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
-            Experience
-          </button>
-          <button
             onClick={() => setActiveTab("prompts")}
-            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+            className={`flex-1 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
               activeTab === "prompts"
                 ? "bg-blue-500 text-white shadow-sm"
                 : "text-gray-600 hover:text-gray-800"
@@ -78,48 +57,91 @@ export default function Train() {
             Quick Questions
           </button>
           <button
-            onClick={() => setActiveTab("contact")}
-            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
-              activeTab === "contact"
-                ? "bg-blue-500 text-white shadow-sm"
-                : "text-gray-600 hover:text-gray-800"
-            }`}
-          >
-            <User className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
-            Contact
-          </button>
-          <button
-            onClick={() => setActiveTab("skills")}
-            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
-              activeTab === "skills"
+            onClick={() => setActiveTab("responses")}
+            className={`flex-1 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+              activeTab === "responses"
                 ? "bg-blue-500 text-white shadow-sm"
                 : "text-gray-600 hover:text-gray-800"
             }`}
           >
             <Code className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
-            Skills
-          </button>
-          <button
-            onClick={() => setActiveTab("introduction")}
-            className={`flex-1 min-w-0 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
-              activeTab === "introduction"
-                ? "bg-blue-500 text-white shadow-sm"
-                : "text-gray-600 hover:text-gray-800"
-            }`}
-          >
-            <User className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
-            Introduction
+            Responses
           </button>
         </div>
 
+        {/* Response Sub-tabs */}
+        {activeTab === "responses" && (
+          <div className="flex space-x-1 bg-gray-50/80 backdrop-blur-sm rounded-lg p-1 mb-6 border border-gray-200 overflow-x-auto">
+            <button
+              onClick={() => setActiveResponseTab("introduction")}
+              className={`flex-1 min-w-0 py-2 px-2 sm:px-3 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                activeResponseTab === "introduction"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              <User className="w-3 h-3 inline mr-1" />
+              Introduction
+            </button>
+            <button
+              onClick={() => setActiveResponseTab("projects")}
+              className={`flex-1 min-w-0 py-2 px-2 sm:px-3 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                activeResponseTab === "projects"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              <Code className="w-3 h-3 inline mr-1" />
+              Projects
+            </button>
+            <button
+              onClick={() => setActiveResponseTab("experience")}
+              className={`flex-1 min-w-0 py-2 px-2 sm:px-3 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                activeResponseTab === "experience"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              <Briefcase className="w-3 h-3 inline mr-1" />
+              Experience
+            </button>
+            <button
+              onClick={() => setActiveResponseTab("skills")}
+              className={`flex-1 min-w-0 py-2 px-2 sm:px-3 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                activeResponseTab === "skills"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              <Code className="w-3 h-3 inline mr-1" />
+              Skills
+            </button>
+            <button
+              onClick={() => setActiveResponseTab("contact")}
+              className={`flex-1 min-w-0 py-2 px-2 sm:px-3 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                activeResponseTab === "contact"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              <User className="w-3 h-3 inline mr-1" />
+              Contact
+            </button>
+          </div>
+        )}
+
         {/* Tab Content */}
         {activeTab === "knowledge" && <TrainingKnowledge />}
-        {activeTab === "projects" && <TrainingProjects />}
-        {activeTab === "introduction" && <TrainingIntroduction />}
-        {activeTab === "experience" && <TrainingExperience />}
         {activeTab === "prompts" && <TrainingPrompts />}
-        {activeTab === "contact" && <TrainingContact />}
-        {activeTab === "skills" && <TrainingSkills />}
+        {activeTab === "responses" && (
+          <>
+            {activeResponseTab === "introduction" && <TrainingIntroduction />}
+            {activeResponseTab === "projects" && <TrainingProjects />}
+            {activeResponseTab === "experience" && <TrainingExperience />}
+            {activeResponseTab === "skills" && <TrainingSkills />}
+            {activeResponseTab === "contact" && <TrainingContact />}
+          </>
+        )}
       </div>
     </div>
   );
