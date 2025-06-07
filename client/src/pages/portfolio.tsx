@@ -503,10 +503,10 @@ export default function Portfolio() {
       </div>
 
       {/* Chat Container */}
-      <div className="flex-1 max-w-4xl mx-auto w-full px-3 sm:px-6 py-3 sm:py-6 flex flex-col min-h-0">
+      <div className="flex-1 w-full sm:max-w-4xl sm:mx-auto px-0 sm:px-6 py-0 sm:py-6 flex flex-col min-h-0">
         <div
           ref={chatContainerRef}
-          className="flex-1 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden flex flex-col min-h-0"
+          className="flex-1 bg-white/80 backdrop-blur-sm rounded-none sm:rounded-2xl shadow-none sm:shadow-lg border-0 sm:border border-white/50 overflow-hidden flex flex-col min-h-0"
         >
           <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-6 chat-container">
             {messages.map((message) => (
