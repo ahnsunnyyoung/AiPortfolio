@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MessageCircle, Clock, Filter, ArrowUpDown, Eye, EyeOff } from "lucide-react";
-import { format } from "date-fns";
+import { format, differenceInMinutes, startOfDay, isToday, isYesterday } from "date-fns";
 
 interface Conversation {
   id: number;
@@ -12,6 +12,11 @@ interface Conversation {
 
 interface ConversationsResponse {
   success: boolean;
+  conversations: Conversation[];
+}
+
+interface ConversationGroup {
+  timeLabel: string;
   conversations: Conversation[];
 }
 
@@ -47,12 +52,52 @@ export default function TrainingConversations() {
     );
   });
 
-  // Sort conversations by timestamp
-  const sortedConversations = [...filteredConversations].sort((a: Conversation, b: Conversation) => {
-    const dateA = new Date(a.timestamp).getTime();
-    const dateB = new Date(b.timestamp).getTime();
-    return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
-  });
+  // Group conversations by time periods
+  const groupConversationsByTime = (conversations: Conversation[]): ConversationGroup[] => {
+    const sorted = [...conversations].sort((a: Conversation, b: Conversation) => {
+      const dateA = new Date(a.timestamp).getTime();
+      const dateB = new Date(b.timestamp).getTime();
+      return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
+    });
+
+    const groups: ConversationGroup[] = [];
+    let currentGroup: ConversationGroup | null = null;
+
+    for (const conversation of sorted) {
+      const convDate = new Date(conversation.timestamp);
+      let timeLabel = "";
+
+      if (isToday(convDate)) {
+        timeLabel = "Today";
+      } else if (isYesterday(convDate)) {
+        timeLabel = "Yesterday";
+      } else {
+        timeLabel = format(convDate, "MMM d, yyyy");
+      }
+
+      // Group conversations within 30 minutes of each other
+      if (currentGroup && currentGroup.timeLabel === timeLabel) {
+        const lastConvTime = new Date(currentGroup.conversations[currentGroup.conversations.length - 1].timestamp);
+        const timeDiff = Math.abs(differenceInMinutes(convDate, lastConvTime));
+        
+        if (timeDiff <= 30) {
+          currentGroup.conversations.push(conversation);
+          continue;
+        }
+      }
+
+      // Create new group
+      currentGroup = {
+        timeLabel,
+        conversations: [conversation]
+      };
+      groups.push(currentGroup);
+    }
+
+    return groups;
+  };
+
+  const conversationGroups = groupConversationsByTime(filteredConversations);
 
   const toggleSortOrder = () => {
     setSortOrder(prev => prev === "desc" ? "asc" : "desc");
@@ -86,7 +131,7 @@ export default function TrainingConversations() {
           <div>
             <h3 className="text-xl font-semibold text-gray-800">Conversation History</h3>
             <p className="text-sm text-gray-600">
-              {sortedConversations.length} conversations
+              {filteredConversations.length} conversations in {conversationGroups.length} groups
             </p>
           </div>
         </div>
@@ -116,7 +161,7 @@ export default function TrainingConversations() {
         </div>
       </div>
 
-      {sortedConversations.length === 0 ? (
+      {conversationGroups.length === 0 ? (
         <div className="text-center py-12">
           <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h4 className="text-lg font-medium text-gray-500 mb-2">No Conversations Yet</h4>
@@ -128,33 +173,47 @@ export default function TrainingConversations() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 max-h-[500px] sm:max-h-[600px] overflow-y-auto">
-          {sortedConversations.map((conversation: Conversation) => (
-            <div
-              key={conversation.id}
-              className="bg-white rounded-lg border border-gray-100 p-3 hover:shadow-sm transition-shadow"
-            >
-              <div className="mb-2">
-                <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <Clock className="w-3 h-3" />
-                  {format(new Date(conversation.timestamp), "MMM d 'at' h:mm a")}
-                </div>
+        <div className="space-y-6 max-h-[500px] sm:max-h-[600px] overflow-y-auto">
+          {conversationGroups.map((group: ConversationGroup, groupIndex: number) => (
+            <div key={groupIndex} className="space-y-3">
+              <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
+                <Clock className="w-4 h-4 text-gray-500" />
+                <h4 className="text-sm font-semibold text-gray-700">{group.timeLabel}</h4>
+                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                  {group.conversations.length} conversation{group.conversations.length > 1 ? 's' : ''}
+                </span>
               </div>
               
-              <div className="space-y-2">
-                <div>
-                  <div className="text-xs font-medium text-blue-600 mb-1">QUESTION</div>
-                  <p className="text-xs text-gray-800 bg-blue-50 rounded p-2 border border-blue-100 line-clamp-2">
-                    {conversation.question}
-                  </p>
-                </div>
-                
-                <div>
-                  <div className="text-xs font-medium text-green-600 mb-1">ANSWER</div>
-                  <p className="text-xs text-gray-700 bg-green-50 rounded p-2 border border-green-100 max-h-20 overflow-y-auto line-clamp-3">
-                    {conversation.answer}
-                  </p>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {group.conversations.map((conversation: Conversation) => (
+                  <div
+                    key={conversation.id}
+                    className="bg-white rounded-lg border border-gray-100 p-3 hover:shadow-sm transition-shadow"
+                  >
+                    <div className="mb-2">
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <Clock className="w-3 h-3" />
+                        {format(new Date(conversation.timestamp), "h:mm a")}
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div>
+                        <div className="text-xs font-medium text-blue-600 mb-1">QUESTION</div>
+                        <p className="text-xs text-gray-800 bg-blue-50 rounded p-2 border border-blue-100 line-clamp-2">
+                          {conversation.question}
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <div className="text-xs font-medium text-green-600 mb-1">ANSWER</div>
+                        <p className="text-xs text-gray-700 bg-green-50 rounded p-2 border border-green-100 max-h-20 overflow-y-auto line-clamp-3">
+                          {conversation.answer}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ))}
