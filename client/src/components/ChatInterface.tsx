@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { MessageCircle, X, Send, Bot, User } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface Message {
   id: string;
@@ -21,6 +22,15 @@ interface ChatResponse {
   };
 }
 
+interface PromptExample {
+  id: number;
+  question: string;
+  responseType: string;
+  isActive: boolean;
+  displayOrder: number;
+  timestamp: string;
+}
+
 export default function ChatInterface() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -35,6 +45,19 @@ export default function ChatInterface() {
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { language } = useLanguage();
+
+  // Fetch active prompt examples
+  const { data: promptExamplesData } = useQuery({
+    queryKey: ["/api/prompt-examples/active", language],
+    queryFn: () =>
+      apiRequest(
+        "GET",
+        `/api/prompt-examples/active?language=${language}`,
+      ).then((res) => res.json()),
+  });
+
+  const promptExamples = promptExamplesData?.examples || [];
 
   const chatMutation = useMutation({
     mutationFn: async (message: string) => {
@@ -47,11 +70,11 @@ export default function ChatInterface() {
         }))
         .filter(m => m.question || m.answer);
 
-      const response = await apiRequest("POST", "/api/ask", { 
+      const response = await apiRequest("POST", "/api/ask", {
         question: message,
         sessionId: currentSessionId,
         sessionHistory,
-        language: 'en'
+        language
       });
       return response.json();
     },
@@ -63,7 +86,7 @@ export default function ChatInterface() {
         timestamp: new Date()
       };
       setMessages(prev => [...prev, aiMessage]);
-      
+
       // Update session ID if provided
       if (data.sessionId) {
         setCurrentSessionId(data.sessionId);
@@ -108,13 +131,6 @@ export default function ChatInterface() {
       handleSendMessage();
     }
   };
-
-  const quickQuestions = [
-    "What are your main skills?",
-    "Tell me about your projects",
-    "What's your experience?",
-    "How can I contact you?"
-  ];
 
   return (
     <>
@@ -164,16 +180,14 @@ export default function ChatInterface() {
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`chat-message flex items-start gap-2 sm:gap-3 ${
-                  message.isUser ? "flex-row-reverse" : ""
-                }`}
+                className={`chat-message flex items-start gap-2 sm:gap-3 ${message.isUser ? "flex-row-reverse" : ""
+                  }`}
               >
                 <div
-                  className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    message.isUser
-                      ? "bg-blue-500"
-                      : "bg-gradient-to-r from-blue-500 to-purple-500"
-                  }`}
+                  className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.isUser
+                    ? "bg-blue-500"
+                    : "bg-gradient-to-r from-blue-500 to-purple-500"
+                    }`}
                 >
                   {message.isUser ? (
                     <User className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
@@ -182,11 +196,10 @@ export default function ChatInterface() {
                   )}
                 </div>
                 <div
-                  className={`rounded-2xl px-3 sm:px-4 py-2 sm:py-3 max-w-[75%] sm:max-w-xs break-words ${
-                    message.isUser
-                      ? "bg-blue-500 text-white rounded-tr-md"
-                      : "bg-white text-gray-800 rounded-tl-md shadow-sm"
-                  }`}
+                  className={`rounded-2xl px-3 sm:px-4 py-2 sm:py-3 max-w-[75%] sm:max-w-xs break-words ${message.isUser
+                    ? "bg-blue-500 text-white rounded-tr-md"
+                    : "bg-white text-gray-800 rounded-tl-md shadow-sm"
+                    }`}
                 >
                   <p className="text-xs sm:text-sm leading-relaxed">{message.content}</p>
                 </div>
@@ -217,16 +230,16 @@ export default function ChatInterface() {
             <div className="px-3 sm:px-4 py-2 border-t border-gray-200 bg-white">
               <div className="text-xs text-gray-500 mb-2">Quick questions:</div>
               <div className="flex flex-wrap gap-1 sm:gap-2">
-                {quickQuestions.slice(0, 2).map((question, index) => (
+                {promptExamples.slice(0, 2).map((example: PromptExample) => (
                   <button
-                    key={index}
+                    key={example.id}
                     onClick={() => {
-                      setInputValue(question);
+                      setInputValue(example.question);
                       handleSendMessage();
                     }}
                     className="bg-blue-50 text-blue-700 px-2 sm:px-3 py-1 rounded-full text-xs hover:bg-blue-100 transition-colors flex-1 sm:flex-none truncate"
                   >
-                    {question}
+                    {example.question}
                   </button>
                 ))}
               </div>
