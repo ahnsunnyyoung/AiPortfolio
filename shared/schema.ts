@@ -4,9 +4,11 @@ import { z } from "zod";
 
 export const trainingData = pgTable("training_data", {
   id: serial("id").primaryKey(),
+  question: text("question").notNull(),
+  responseType: text("response_type").notNull(),
   content: text("content").notNull(),
-  isActive: boolean("is_active").default(true).notNull(),
-  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  isActive: boolean("is_active").default(true),
+  timestamp: timestamp("timestamp").defaultNow(),
 });
 
 export const conversations = pgTable("conversations", {
@@ -14,7 +16,7 @@ export const conversations = pgTable("conversations", {
   question: text("question").notNull(),
   answer: text("answer").notNull(),
   sessionId: text("session_id"),
-  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  timestamp: timestamp("timestamp").defaultNow(),
 });
 
 export const projects = pgTable("projects", {
@@ -107,16 +109,23 @@ export const translations = pgTable("translations", {
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
-export const insertTrainingDataSchema = createInsertSchema(trainingData).pick({
-  content: true,
-  isActive: true,
+export const chats = pgTable("chats", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  sessionId: text("session_id"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
-export const insertConversationSchema = createInsertSchema(conversations).pick({
-  question: true,
-  answer: true,
-  sessionId: true,
-}).partial({ sessionId: true });
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  chatId: integer("chat_id").references(() => chats.id).notNull(),
+  content: text("content").notNull(),
+  role: text("role").notNull(), // "user" or "assistant"
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export const insertTrainingDataSchema = createInsertSchema(trainingData);
+export const insertConversationSchema = createInsertSchema(conversations);
 
 export const insertProjectSchema = createInsertSchema(projects).pick({
   title: true,
@@ -191,6 +200,17 @@ export const insertTranslationSchema = createInsertSchema(translations).pick({
   context: true,
 });
 
+export const insertChatSchema = createInsertSchema(chats).pick({
+  title: true,
+  sessionId: true,
+}).partial({ sessionId: true });
+
+export const insertMessageSchema = createInsertSchema(messages).pick({
+  chatId: true,
+  content: true,
+  role: true,
+});
+
 export type InsertTrainingData = z.infer<typeof insertTrainingDataSchema>;
 export type TrainingData = typeof trainingData.$inferSelect;
 export type Conversation = typeof conversations.$inferSelect;
@@ -211,3 +231,7 @@ export type Introduction = typeof introduction.$inferSelect;
 export type InsertIntroduction = z.infer<typeof insertIntroductionSchema>;
 export type Translation = typeof translations.$inferSelect;
 export type InsertTranslation = z.infer<typeof insertTranslationSchema>;
+export type Chat = typeof chats.$inferSelect;
+export type InsertChat = z.infer<typeof insertChatSchema>;
+export type Message = typeof messages.$inferSelect;
+export type InsertMessage = z.infer<typeof insertMessageSchema>;
