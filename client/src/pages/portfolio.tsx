@@ -175,10 +175,33 @@ export default function Portfolio() {
       question: string;
       promptExampleId?: number;
     }) => {
+      // Build session history from current messages (excluding special response types)
+      const sessionHistory: Array<{question: string, answer: string}> = [];
+      const filteredMessages = messages.filter(msg => 
+        !msg.isProjectResponse && !msg.isExperienceResponse && 
+        !msg.isContactResponse && !msg.isSkillsResponse && !msg.isIntroductionResponse
+      );
+      
+      for (let i = 0; i < filteredMessages.length - 1; i++) {
+        const currentMsg = filteredMessages[i];
+        const nextMsg = filteredMessages[i + 1];
+        
+        if (currentMsg.isUser && !nextMsg.isUser) {
+          sessionHistory.push({
+            question: currentMsg.content,
+            answer: nextMsg.content
+          });
+        }
+      }
+      
+      // Keep only last 5 conversation pairs
+      const recentHistory = sessionHistory.slice(-5);
+
       const response = await apiRequest("POST", "/api/ask", {
         question,
         promptExampleId,
         language,
+        sessionHistory: recentHistory,
       });
       return response.json();
     },

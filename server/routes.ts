@@ -14,6 +14,10 @@ const askRequestSchema = z.object({
   question: z.string().min(1).max(1000),
   promptExampleId: z.number().optional(),
   language: z.string().default('en'),
+  sessionHistory: z.array(z.object({
+    question: z.string(),
+    answer: z.string()
+  })).optional().default([]),
 });
 
 const trainRequestSchema = insertTrainingDataSchema;
@@ -58,7 +62,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Ask endpoint - for asking questions to the trained AI
   app.post("/api/ask", async (req, res) => {
     try {
-      const { question, promptExampleId, language } = askRequestSchema.parse(req.body);
+      const { question, promptExampleId, language, sessionHistory } = askRequestSchema.parse(req.body);
 
       // If a prompt example ID is provided, check its response type
       if (promptExampleId) {
@@ -214,7 +218,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const aiResponse = await generatePersonalizedResponse(question);
+      const aiResponse = await generatePersonalizedResponse(question, sessionHistory);
 
       // Translate AI response if not in English
       const translatedResponse = await translateText({ 

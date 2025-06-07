@@ -6,7 +6,7 @@ const openai = process.env.OPENAI_API_KEY ? new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 }) : null;
 
-export async function generatePersonalizedResponse(userQuestion: string): Promise<string> {
+export async function generatePersonalizedResponse(userQuestion: string, sessionHistory: Array<{question: string, answer: string}> = []): Promise<string> {
   if (!openai) {
     throw new Error("AI functionality is not available. Please provide an OpenAI API key to enable personalized responses.");
   }
@@ -14,7 +14,6 @@ export async function generatePersonalizedResponse(userQuestion: string): Promis
   try {
     // Get only active training data to build context
     const trainingData = await storage.getActiveTrainingData();
-    const recentConversations = await storage.getRecentConversations(5);
     const projects = await storage.getAllProjects();
     const experiences = await storage.getAllExperiences();
     const introduction = await storage.getIntroduction();
@@ -24,8 +23,8 @@ export async function generatePersonalizedResponse(userQuestion: string): Promis
       .map(data => data.content)
       .join('\n\n');
 
-    // Build conversation history context
-    const conversationHistory = recentConversations
+    // Build conversation history context from current session only
+    const conversationHistory = sessionHistory
       .map(conv => `Q: ${conv.question}\nA: ${conv.answer}`)
       .join('\n\n');
 
