@@ -294,7 +294,12 @@ export default function Portfolio() {
   if (!isExpanded) {
     // Initial state - just logo and prompt
     return (
-      <div className="h-screen portfolio-gradient flex flex-col items-center justify-center px-3 sm:px-6 overflow-hidden">
+      <div className="h-screen portfolio-gradient flex flex-col items-center justify-center px-3 sm:px-6 overflow-hidden relative">
+        {/* Language Selector - Top Right */}
+        <div className="absolute top-4 right-4 z-10">
+          <LanguageSelector />
+        </div>
+        
         <div className="text-center max-w-4xl mx-auto w-full">
           {/* Logo Area */}
           <div className="mb-6 sm:mb-8">
@@ -305,7 +310,7 @@ export default function Portfolio() {
               Sunyoung Ahn
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-gray-600 italic mb-6 sm:mb-8 px-2">
-              Ask Sunny AI anything! It might just know me better than I do.
+              {t.askMe}
             </p>
           </div>
 
@@ -414,7 +419,12 @@ export default function Portfolio() {
 
   // Expanded state - full conversation
   return (
-    <div className="h-screen portfolio-gradient flex flex-col overflow-hidden">
+    <div className="h-screen portfolio-gradient flex flex-col overflow-hidden relative">
+      {/* Language Selector - Top Right */}
+      <div className="absolute top-4 right-4 z-20">
+        <LanguageSelector />
+      </div>
+      
       {/* Minimized Header */}
       <div className="text-center py-4 px-6 border-b border-white/20 flex-shrink-0">
         <div className="flex items-center justify-center gap-3">
@@ -667,7 +677,7 @@ export default function Portfolio() {
                             <Mail className="w-5 h-5 text-white" />
                           </div>
                           <div>
-                            <h4 className="font-semibold text-gray-800 text-lg">Contact Information</h4>
+                            <h4 className="font-semibold text-gray-800 text-lg">{t.contactTitle}</h4>
                             <p className="text-purple-600 text-sm">Let's connect!</p>
                           </div>
                         </div>
@@ -676,7 +686,7 @@ export default function Portfolio() {
                           <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-purple-100">
                             <Mail className="w-5 h-5 text-purple-600" />
                             <div>
-                              <p className="text-sm font-medium text-gray-800">Email</p>
+                              <p className="text-sm font-medium text-gray-800">{t.email}</p>
                               <a 
                                 href={`mailto:${message.contacts.email}`}
                                 className="text-purple-600 hover:text-purple-700 hover:underline text-sm"
@@ -689,7 +699,7 @@ export default function Portfolio() {
                           <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-purple-100">
                             <Linkedin className="w-5 h-5 text-blue-600" />
                             <div>
-                              <p className="text-sm font-medium text-gray-800">LinkedIn</p>
+                              <p className="text-sm font-medium text-gray-800">{t.linkedin}</p>
                               <a 
                                 href={message.contacts.linkedin}
                                 target="_blank"
@@ -858,7 +868,7 @@ export default function Portfolio() {
           {messages.length > 0 && (
             <div className="border-t border-gray-200/50 bg-gray-50/50">
               <div className="px-6 py-2 flex items-center justify-between">
-                <span className="text-xs text-gray-500">Ask about:</span>
+                <span className="text-xs text-gray-500">{t.askAbout}:</span>
                 <button
                   onClick={() => setIsAskAboutExpanded(!isAskAboutExpanded)}
                   className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
@@ -893,7 +903,7 @@ export default function Portfolio() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask Sunyoung's AI anything..."
+                placeholder={t.typeMessage}
                 className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                 disabled={askMutation.isPending}
               />
@@ -901,7 +911,7 @@ export default function Portfolio() {
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim() || askMutation.isPending}
                 className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:from-gray-300 disabled:to-gray-300 text-white w-12 h-12 rounded-full flex items-center justify-center transition-all disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
-                aria-label="Send message"
+                aria-label={t.sendMessage}
               >
                 <Send className="w-5 h-5" />
               </button>
