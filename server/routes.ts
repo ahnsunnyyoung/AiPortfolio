@@ -64,6 +64,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await storage.initializeContact();
   await storage.initializeSkills();
   await storage.initializeIntroduction();
+  
+  // Migrate existing conversations to have session IDs
+  await storage.migrateConversationsToSessions();
 
   // Train endpoint - for adding knowledge to the AI
   app.post("/api/train", async (req, res) => {

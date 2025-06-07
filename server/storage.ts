@@ -1,6 +1,7 @@
 import { trainingData, conversations, projects, experiences, promptExamples, contacts, skillCategories, skills, introduction, translations, type TrainingData, type InsertTrainingData, type Conversation, type InsertConversation, type Project, type InsertProject, type Experience, type InsertExperience, type PromptExample, type InsertPromptExample, type Contact, type InsertContact, type SkillCategory, type InsertSkillCategory, type Skill, type InsertSkill, type Introduction, type InsertIntroduction, type Translation, type InsertTranslation } from "../shared/schema";
 import { db } from "./db";
 import { desc, eq, asc, and } from "drizzle-orm";
+import { isNull } from "drizzle-orm";
 
 export interface IStorage {
   addTrainingData(data: InsertTrainingData): Promise<TrainingData>;
@@ -549,6 +550,40 @@ Outside of work, I enjoy weight training, knitting, and baking, which reflect my
       .values(translation)
       .returning();
     return result;
+  }
+
+  async migrateConversationsToSessions(): Promise<void> {
+    // Get all conversations without sessionId
+    const conversationsWithoutSession = await db
+      .select()
+      .from(conversations)
+      .where(isNull(conversations.sessionId))
+      .orderBy(conversations.timestamp);
+
+    if (conversationsWithoutSession.length === 0) return;
+
+    let currentSessionId = `legacy_session_${Date.now()}`;
+    let lastTimestamp: Date | null = null;
+
+    for (const conversation of conversationsWithoutSession) {
+      const convTimestamp = new Date(conversation.timestamp);
+      
+      // Create new session if gap is more than 30 minutes
+      if (lastTimestamp) {
+        const timeDiff = convTimestamp.getTime() - lastTimestamp.getTime();
+        if (timeDiff > 30 * 60 * 1000) { // 30 minutes
+          currentSessionId = `legacy_session_${convTimestamp.getTime()}`;
+        }
+      }
+
+      // Update conversation with session ID
+      await db
+        .update(conversations)
+        .set({ sessionId: currentSessionId })
+        .where(eq(conversations.id, conversation.id));
+
+      lastTimestamp = convTimestamp;
+    }
   }
 }
 
