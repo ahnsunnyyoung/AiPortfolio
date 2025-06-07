@@ -472,9 +472,16 @@ export default function Portfolio() {
                       : "bg-gray-50 text-gray-800 rounded-tl-md"
                   }`}
                 >
+                  {/* Regular message content */}
+                  {!message.isProjectResponse && !message.isExperienceResponse && !message.isContactResponse && !message.isSkillsResponse && !message.isIntroductionResponse && (
+                    <p className="text-sm leading-relaxed">{message.content}</p>
+                  )}
+
                   {/* Project List Display */}
                   {message.isProjectResponse && message.projects && (
-                    <div className="mt-4 space-y-4">
+                    <div className="space-y-4">
+                      {/* Introduction text first */}
+                      <p className="text-sm leading-relaxed">{message.content}</p>
                       {message.projects.map((project) => (
                         <div key={project.id}>
                           {/* Basic Project Info (for initial list view) */}
@@ -539,7 +546,9 @@ export default function Portfolio() {
                   
                   {/* Experience List Display */}
                   {message.isExperienceResponse && message.experiences && (
-                    <div className="mt-4 space-y-4">
+                    <div className="space-y-4">
+                      {/* Introduction text first */}
+                      <p className="text-sm leading-relaxed">{message.content}</p>
                       {message.experiences.map((experience) => (
                         <div key={experience.id}>
                           {/* Basic Experience Info (for initial list view) */}
@@ -604,7 +613,9 @@ export default function Portfolio() {
                   
                   {/* Personal Information Card for Introduction */}
                   {message.isIntroductionResponse && (
-                    <div className="mt-4 mb-6">
+                    <div className="space-y-4">
+                      {/* Introduction text first */}
+                      <p className="text-sm leading-relaxed">{message.content}</p>
                       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">
