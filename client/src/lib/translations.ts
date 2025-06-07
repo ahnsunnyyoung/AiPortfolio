@@ -100,14 +100,14 @@ export const translations: Record<string, Translations> = {
   },
   ko: {
     askMe: "저보다 저를 더 잘 아는 Sunny AI에게 무엇이든 물어보세요!",
-    askMeAbout: "써니에 대해 무엇이든 물어보세요...",
+    askMeAbout: "수영에 대해 무엇이든 물어보세요...",
     typeMessage: "메시지를 입력하세요...",
     sendMessage: "메시지 보내기",
     thinking: "생각 중...",
     askAbout: "질문하기",
     frontendDeveloper: "Frontend Developer",
     aiOnline: "AI 온라인",
-    aiIntroduction: "안녕하세요! 저는 써니의 AI 에이전트입니다. 써니의 개인적인 지식과 경험으로 훈련되었습니다. 써니의 배경, 기술, 프로젝트 또는 생각에 대해 무엇이든 물어보세요",
+    aiIntroduction: "안녕하세요! 저는 수영의 AI 에이전트입니다. 그녀의 개인적인 지식과 경험으로 훈련되었습니다. 그녀의 배경, 기술, 프로젝트 또는 생각에 대해 무엇이든 물어보세요",
 
     
     
@@ -154,7 +154,7 @@ export const translations: Record<string, Translations> = {
     askAbout: "Fragen über",
     frontendDeveloper: "Frontend-Entwickler",
     aiOnline: "KI Online",
-    aiIntroduction: "Hallo! Ich bin Sunyoungs AI-Agent. Ich wurde mit ihrem persönlichen Wissen und ihren Erfahrungen trainiert. Fragen Sie mich alles über ihren Hintergrund, ihre Fähigkeiten, Projekte oder Gedanken",
+    aiIntroduction: "Hallo! Ich bin Sunyoungs KI-Agent. Ich wurde mit ihrem persönlichen Wissen und ihren Erfahrungen trainiert. Fragen Sie mich alles über ihren Hintergrund, ihre Fähigkeiten, Projekte oder Gedanken",
     
     home: "Startseite",
     about: "Über mich",

@@ -88,7 +88,6 @@ export default function Portfolio() {
   const [isThinking, setIsThinking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { t, language } = useLanguage();
@@ -174,9 +173,8 @@ export default function Portfolio() {
   const startConversation = () => {
     if (!isExpanded) {
       setIsExpanded(true);
-      // Add welcome message when chat first opens, but only once
-      if (messages.length === 0 && !welcomeMessageShown.current) {
-        welcomeMessageShown.current = true;
+      // Only add welcome message if there are no existing messages
+      if (messages.length === 0) {
         const welcomeMessage: Message = {
           id: "welcome",
           content: t.aiIntroduction,
@@ -229,16 +227,9 @@ export default function Portfolio() {
     }
   };
 
-  // Sort questions: move recently asked to the end, then take first 4
+  // Filter out recently asked questions and show only 4
   const quickQuestions = promptExamples
-    .sort((a: PromptExample, b: PromptExample) => {
-      const aIsRecent = recentlyAskedQuestions.includes(a.question);
-      const bIsRecent = recentlyAskedQuestions.includes(b.question);
-      
-      if (aIsRecent && !bIsRecent) return 1; // a goes to end
-      if (!aIsRecent && bIsRecent) return -1; // b goes to end
-      return a.displayOrder - b.displayOrder; // maintain original order
-    })
+    .filter((example: PromptExample) => !recentlyAskedQuestions.includes(example.question))
     .slice(0, 4);
 
   const handleQuickQuestion = (promptExample: PromptExample) => {
@@ -480,17 +471,10 @@ export default function Portfolio() {
                       : "bg-gray-50 text-gray-800 rounded-tl-md"
                   }`}
                 >
-                  {/* Message content for non-special responses */}
-                  {!message.isProjectResponse && !message.isExperienceResponse && !message.isContactResponse && !message.isSkillsResponse && !message.isIntroductionResponse && (
-                    <p className="whitespace-pre-wrap">{message.content}</p>
-                  )}
-                  
                   {/* Project List Display */}
                   {message.isProjectResponse && message.projects && (
-                    <div>
-                      <p className="whitespace-pre-wrap mb-4">{message.content}</p>
-                      <div className="mt-4 space-y-4">
-                        {message.projects.map((project) => (
+                    <div className="mt-4 space-y-4">
+                      {message.projects.map((project) => (
                         <div key={project.id}>
                           {/* Basic Project Info (for initial list view) */}
                           {message.projects && message.projects.length > 1 && (
@@ -549,17 +533,14 @@ export default function Portfolio() {
                           )}
                         </div>
                       ))}
-                      </div>
                     </div>
                   )}
                   
                   {/* Experience List Display */}
                   {message.isExperienceResponse && message.experiences && (
-                    <div>
-                      <p className="whitespace-pre-wrap mb-4">{message.content}</p>
-                      <div className="mt-4 space-y-4">
-                        {message.experiences.map((experience) => (
-                          <div key={experience.id}>
+                    <div className="mt-4 space-y-4">
+                      {message.experiences.map((experience) => (
+                        <div key={experience.id}>
                           {/* Basic Experience Info (for initial list view) */}
                           {message.experiences && message.experiences.length > 1 && (
                             <div className="bg-white rounded-lg border border-gray-200 p-4">
@@ -617,7 +598,6 @@ export default function Portfolio() {
                           )}
                         </div>
                       ))}
-                      </div>
                     </div>
                   )}
                   
