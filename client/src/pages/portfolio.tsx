@@ -599,7 +599,7 @@ export default function Portfolio() {
                                   }}
                                   className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
                                 >
-                                  Ask more
+                                  {t.askMore}
                                 </button>
                               </div>
                             </div>
@@ -696,7 +696,7 @@ export default function Portfolio() {
                                     }}
                                     className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
                                   >
-                                    Ask more
+                                    {t.askMore}
                                   </button>
                                 </div>
                               </div>
