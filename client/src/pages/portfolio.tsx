@@ -173,16 +173,6 @@ export default function Portfolio() {
   const startConversation = () => {
     if (!isExpanded) {
       setIsExpanded(true);
-      // Only add welcome message if there are no existing messages
-      if (messages.length === 0) {
-        const welcomeMessage: Message = {
-          id: "welcome",
-          content: t.aiIntroduction,
-          isUser: false,
-          timestamp: new Date(),
-        };
-        setMessages([welcomeMessage]);
-      }
     }
   };
 
@@ -198,6 +188,17 @@ export default function Portfolio() {
     if (!inputValue.trim() || askMutation.isPending) return;
 
     startConversation();
+
+    // Add welcome message only if this is the first interaction
+    if (messages.length === 0) {
+      const welcomeMessage: Message = {
+        id: "welcome",
+        content: t.aiIntroduction,
+        isUser: false,
+        timestamp: new Date(),
+      };
+      setMessages([welcomeMessage]);
+    }
 
     const userMessage: Message = {
       id: Date.now().toString() + "-user",
@@ -242,6 +243,17 @@ export default function Portfolio() {
   const handleQuickQuestion = (promptExample: PromptExample) => {
     const question = promptExample.question;
     startConversation();
+
+    // Add welcome message only if this is the first interaction
+    if (messages.length === 0) {
+      const welcomeMessage: Message = {
+        id: "welcome",
+        content: t.aiIntroduction,
+        isUser: false,
+        timestamp: new Date(),
+      };
+      setMessages([welcomeMessage]);
+    }
 
     const userMessage: Message = {
       id: Date.now().toString() + "-user",
