@@ -75,32 +75,44 @@ Respond only with the translated text, no explanations or additional content.`;
   }
 }
 
-export async function translateSkillsAndContent(data: any, targetLanguage: string): Promise<any> {
+export async function translateProjectsAndExperiences(data: any, targetLanguage: string): Promise<any> {
   if (targetLanguage === 'en') {
     return data; // No translation needed for English
   }
 
   try {
-    // Translate skills if present
-    if (data.skills) {
-      const translatedSkills: any = {};
-      
-      for (const [category, skills] of Object.entries(data.skills)) {
-        if (Array.isArray(skills)) {
-          const translatedSkillList = await Promise.all(
-            skills.map(async (skill: string) => {
-              // Don't translate proper nouns like "React", "JavaScript", etc.
-              const techTerms = ['React', 'JavaScript', 'TypeScript', 'Node.js', 'HTML5', 'CSS3', 'Vue.js', 'Next.js', 'Express.js', 'MongoDB', 'PostgreSQL', 'Git', 'Docker', 'AWS', 'Vercel', 'Figma', 'VS Code'];
-              if (techTerms.some(term => skill.includes(term))) {
-                return skill;
-              }
-              return await translateText({ text: skill, targetLanguage, context: "professional skill" });
-            })
-          );
-          translatedSkills[category] = translatedSkillList;
-        }
-      }
-      data.skills = translatedSkills;
+    // Translate project content if present
+    if (data.projects && Array.isArray(data.projects)) {
+      data.projects = await Promise.all(
+        data.projects.map(async (project: any) => {
+          if (project.detailedContent) {
+            const translatedContent = await translateText({
+              text: project.detailedContent,
+              targetLanguage,
+              context: "project detailed content"
+            });
+            return { ...project, detailedContent: translatedContent };
+          }
+          return project;
+        })
+      );
+    }
+
+    // Translate experience content if present
+    if (data.experiences && Array.isArray(data.experiences)) {
+      data.experiences = await Promise.all(
+        data.experiences.map(async (experience: any) => {
+          if (experience.detailedContent) {
+            const translatedContent = await translateText({
+              text: experience.detailedContent,
+              targetLanguage,
+              context: "experience detailed content"
+            });
+            return { ...experience, detailedContent: translatedContent };
+          }
+          return experience;
+        })
+      );
     }
 
     return data;

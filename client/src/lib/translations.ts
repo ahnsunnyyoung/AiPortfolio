@@ -54,6 +54,7 @@ export interface Translations {
 export const translations: Record<string, Translations> = {
   en: {
     askMe: "Ask me anything",
+    askMeAbout: "Ask me anything about Sunyoung...",
     typeMessage: "Type your message...",
     sendMessage: "Send message",
     thinking: "Thinking...",
@@ -99,6 +100,7 @@ export const translations: Record<string, Translations> = {
   },
   ko: {
     askMe: "저보다 저를 더 잘 아는 Sunny AI에게 무엇이든 물어보세요!",
+    askMeAbout: "수영에 대해 무엇이든 물어보세요...",
     typeMessage: "메시지를 입력하세요...",
     sendMessage: "메시지 보내기",
     thinking: "생각 중...",
@@ -145,12 +147,14 @@ export const translations: Record<string, Translations> = {
   },
   de: {
     askMe: "Fragen Sie mich alles",
+    askMeAbout: "Fragen Sie mich alles über Sunyoung...",
     typeMessage: "Ihre Nachricht eingeben...",
     sendMessage: "Nachricht senden",
     thinking: "Denke nach...",
     askAbout: "Fragen über",
     frontendDeveloper: "Frontend-Entwickler",
     aiOnline: "KI Online",
+    aiIntroduction: "Hallo! Ich bin Sunyoungs KI-Agent. Ich wurde mit ihrem persönlichen Wissen und ihren Erfahrungen trainiert. Fragen Sie mich alles über ihren Hintergrund, ihre Fähigkeiten, Projekte oder Gedanken",
     
     home: "Startseite",
     about: "Über mich",
@@ -188,12 +192,14 @@ export const translations: Record<string, Translations> = {
   },
   nl: {
     askMe: "Vraag me alles",
+    askMeAbout: "Vraag me alles over Sunyoung...",
     typeMessage: "Typ je bericht...",
     sendMessage: "Bericht verzenden",
     thinking: "Aan het denken...",
     askAbout: "Vraag over",
     frontendDeveloper: "Frontend Developer",
     aiOnline: "AI Online",
+    aiIntroduction: "Hallo! Ik ben Sunyoung's AI-agent. Ik ben getraind met haar persoonlijke kennis en ervaringen. Vraag me alles over haar achtergrond, vaardigheden, projecten of gedachten",
     
     home: "Home",
     about: "Over mij",

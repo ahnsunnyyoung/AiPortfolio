@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generatePersonalizedResponse } from "./openai";
-import { translateText, translateSkillsAndContent } from "./translate";
+import { translateText, translateProjectsAndExperiences } from "./translate";
 import { z } from "zod";
 import {
   insertTrainingDataSchema,
@@ -108,9 +108,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
               context: "projects introduction" 
             });
 
+            // Translate detailed content for projects
+            const translatedData = await translateProjectsAndExperiences({ projects }, language);
+
             res.json({
               answer: translatedMessage,
-              projects: projects,
+              projects: translatedData.projects,
               isProjectResponse: true,
             });
             return;
@@ -172,12 +175,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               context: "technical skills introduction" 
             });
 
-            // Translate skills content
-            const translatedSkillsData = await translateSkillsAndContent({ skills: organizedSkills }, language);
-
+            // Don't translate skills - keep them as-is per user request
             res.json({ 
               answer: translatedMessage,
-              skills: translatedSkillsData.skills,
+              skills: organizedSkills,
               skillCategories: skillCategories,
               isSkillsResponse: true
             });
