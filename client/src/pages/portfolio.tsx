@@ -239,13 +239,23 @@ export default function Portfolio() {
     onError: (error: any) => {
       setIsThinking(false);
       setIsDisplayingResponse(false);
-      toast({
-        title: "Connection Error",
-        description:
-          error.message ||
-          "I'm having trouble connecting right now. Please try again!",
-        variant: "destructive",
-      });
+      
+      // Handle rate limiting errors
+      if (error.message && error.message.includes("429")) {
+        toast({
+          title: "AI Usage Limit Reached",
+          description: "You've reached the AI usage limit. Please wait a few minutes before asking again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Connection Error",
+          description:
+            error.message ||
+            "I'm having trouble connecting right now. Please try again!",
+          variant: "destructive",
+        });
+      }
     },
   });
 

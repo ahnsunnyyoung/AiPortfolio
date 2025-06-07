@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generatePersonalizedResponse } from "./openai";
 import { translateText, translateProjectsAndExperiences } from "./translate";
+import { aiRateLimiter } from "./rateLimiter";
 import { z } from "zod";
 import {
   insertTrainingDataSchema,
@@ -62,6 +63,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Ask endpoint - for asking questions to the trained AI
   app.post("/api/ask", async (req, res) => {
     try {
+      // Get client IP for rate limiting
+      const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
+      
+      // Check rate limit for AI requests
+      if (!aiRateLimiter.isAllowed(clientIP)) {
+        const resetTime = aiRateLimiter.getResetTime(clientIP);
+        const waitMinutes = Math.ceil((resetTime - Date.now()) / 60000);
+        
+        return res.status(429).json({
+          error: "AI usage limit exceeded",
+          message: `Too many AI requests. Please wait ${waitMinutes} minutes before asking again.`,
+          resetTime: resetTime,
+          remaining: 0
+        });
+      }
+
       const { question, promptExampleId, language, sessionHistory } = askRequestSchema.parse(req.body);
 
       // If a prompt example ID is provided, check its response type
@@ -236,6 +253,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         answer: translatedResponse,
         timestamp: new Date().toISOString(),
+        rateLimit: {
+          remaining: aiRateLimiter.getRemainingRequests(clientIP),
+          resetTime: aiRateLimiter.getResetTime(clientIP)
+        }
       });
     } catch (error) {
       console.error("Ask error:", error);
