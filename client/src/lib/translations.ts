@@ -1,12 +1,14 @@
 export interface Translations {
   // Main UI
   askMe: string;
+  askMeAbout: string;
   typeMessage: string;
   sendMessage: string;
   thinking: string;
   askAbout: string;
   frontendDeveloper: string;
   aiOnline: string;
+  aiIntroduction: string;
   
   // Navigation
   home: string;
@@ -58,6 +60,7 @@ export const translations: Record<string, Translations> = {
     askAbout: "Ask about",
     frontendDeveloper: "Frontend Developer",
     aiOnline: "AI Online",
+    aiIntroduction: "Hi! I'm Sunyoung's AI agent. I've been trained with her personal knowledge and experiences. Ask me anything about her background, skills, projects, or thoughts",
     
     home: "Home",
     about: "About",
@@ -102,6 +105,7 @@ export const translations: Record<string, Translations> = {
     askAbout: "질문하기",
     frontendDeveloper: "Frontend Developer",
     aiOnline: "AI 온라인",
+    aiIntroduction: "안녕하세요! 저는 수영의 AI 에이전트입니다. 그녀의 개인적인 지식과 경험으로 훈련되었습니다. 그녀의 배경, 기술, 프로젝트 또는 생각에 대해 무엇이든 물어보세요",
 
     
     
