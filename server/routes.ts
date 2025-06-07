@@ -337,9 +337,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get conversation history endpoint
   app.get("/api/conversations", async (req, res) => {
     try {
-      const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
-      const conversations = await storage.getRecentConversations(limit);
-      res.json({ conversations });
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+      const conversations = limit 
+        ? await storage.getRecentConversations(limit)
+        : await storage.getAllConversations();
+      res.json({ 
+        success: true,
+        conversations 
+      });
     } catch (error) {
       console.error("Get conversations error:", error);
       res.status(500).json({ error: "Failed to retrieve conversations" });

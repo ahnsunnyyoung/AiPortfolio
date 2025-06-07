@@ -10,11 +10,16 @@ interface Conversation {
   timestamp: string;
 }
 
+interface ConversationsResponse {
+  success: boolean;
+  conversations: Conversation[];
+}
+
 export default function TrainingConversations() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [hideShowcases, setHideShowcases] = useState(true);
 
-  const conversationsQuery = useQuery({
+  const conversationsQuery = useQuery<ConversationsResponse>({
     queryKey: ["/api/conversations"],
   });
 
