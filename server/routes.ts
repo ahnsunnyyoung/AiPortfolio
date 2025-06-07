@@ -15,6 +15,7 @@ const askRequestSchema = z.object({
   question: z.string().min(1).max(1000),
   promptExampleId: z.number().optional(),
   language: z.string().default('en'),
+  sessionId: z.string().optional(),
   sessionHistory: z.array(z.object({
     question: z.string(),
     answer: z.string()
@@ -22,6 +23,38 @@ const askRequestSchema = z.object({
 });
 
 const trainRequestSchema = insertTrainingDataSchema;
+
+// Session management utilities
+function generateSessionId(): string {
+  return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+async function getOrCreateSessionId(providedSessionId?: string): Promise<string> {
+  if (providedSessionId) {
+    return providedSessionId;
+  }
+  
+  // Get the most recent conversation
+  const recentConversations = await storage.getRecentConversations(1);
+  
+  if (recentConversations.length === 0) {
+    // No previous conversations, create new session
+    return generateSessionId();
+  }
+  
+  const lastConversation = recentConversations[0];
+  const now = new Date();
+  const lastTime = new Date(lastConversation.timestamp);
+  const timeDiff = now.getTime() - lastTime.getTime();
+  
+  // If last conversation was more than 30 minutes ago, create new session
+  if (timeDiff > 30 * 60 * 1000) {
+    return generateSessionId();
+  }
+  
+  // Continue with existing session if it has one, otherwise create new
+  return lastConversation.sessionId || generateSessionId();
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize data on startup
@@ -79,7 +112,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const { question, promptExampleId, language, sessionHistory } = askRequestSchema.parse(req.body);
+      const { question, promptExampleId, language, sessionId, sessionHistory } = askRequestSchema.parse(req.body);
+      
+      // Get or create session ID
+      const currentSessionId = await getOrCreateSessionId(sessionId);
 
       // If a prompt example ID is provided, check its response type
       if (promptExampleId) {
@@ -94,6 +130,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             await storage.addConversation({
               question,
               answer: "EXPERIENCE_SHOWCASE", // Special marker for experience responses
+              sessionId: currentSessionId,
             });
 
             // Translate the response message
@@ -122,6 +159,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             await storage.addConversation({
               question,
               answer: "PROJECT_SHOWCASE", // Special marker for project responses
+              sessionId: currentSessionId,
             });
 
             // Translate the response message
@@ -150,6 +188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             await storage.addConversation({
               question,
               answer: "CONTACT_SHOWCASE", // Special marker for contact responses
+              sessionId: currentSessionId,
             });
 
             // Translate the response message
@@ -188,7 +227,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Store the conversation
             await storage.addConversation({
               question,
-              answer: "SKILLS_SHOWCASE" // Special marker for skills responses
+              answer: "SKILLS_SHOWCASE", // Special marker for skills responses
+              sessionId: currentSessionId,
             });
             
             // Translate the response message and skills
