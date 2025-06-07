@@ -86,6 +86,7 @@ export const translations: Record<string, Translations> = {
     linkedinProfile: "LinkedIn Profile",
     githubProfile: "GitHub Profile",
     
+    // Skills categories
     programming: "Programming",
     frontend: "Frontend",
     backend: "Backend",
@@ -94,19 +95,21 @@ export const translations: Record<string, Translations> = {
     softSkills: "Soft Skills"
   },
   ko: {
-    askMe: "무엇이든 물어보세요",
+    askMe: "저보다 저를 더 잘 아는 Sunny AI에게 무엇이든 물어보세요!",
     typeMessage: "메시지를 입력하세요...",
     sendMessage: "메시지 보내기",
     thinking: "생각 중...",
     askAbout: "질문하기",
-    frontendDeveloper: "프론트엔드 개발자",
+    frontendDeveloper: "Frontend Developer",
     aiOnline: "AI 온라인",
+
     
-    home: "홈",
-    about: "소개",
-    projects: "프로젝트",
-    experience: "경험",
-    contact: "연락처",
+    
+    home: "Home",
+    about: "About",
+    projects: "Projects",
+    experience: "Experience", 
+    contact: "Contact",
     
     projectsTitle: "내 프로젝트",
     experienceTitle: "내 경험",
@@ -114,27 +117,27 @@ export const translations: Record<string, Translations> = {
     contactTitle: "연락처 정보",
     
     experienceYears: "경험",
-    technologies: "기술",
+    technologies: "스킬",
     
     askMore: "더 알아보기",
     learnMore: "자세히 보기",
     hide: "숨기기",
     show: "보기",
     
-    email: "이메일",
-    linkedin: "링크드인",
-    github: "깃허브",
-    website: "웹사이트",
-    letsConnect: "연결해요!",
-    linkedinProfile: "링크드인 프로필",
-    githubProfile: "깃허브 프로필",
+    email: "Email",
+    linkedin: "LinkedIn",
+    github: "GitHub",
+    website: "Website",
+    letsConnect: "Let's connect!",
+    linkedinProfile: "LinkedIn Profile",
+    githubProfile: "GitHub Profile",
     
-    programming: "프로그래밍",
-    frontend: "프론트엔드",
-    backend: "백엔드",
-    tools: "도구",
-    languages: "언어",
-    softSkills: "소프트 스킬"
+    programming: "Programming",
+    frontend: "Frontend",
+    backend: "Backend",
+    tools: "Tools",
+    languages: "Languages",
+    softSkills: "Soft Skills"
   },
   de: {
     askMe: "Fragen Sie mich alles",

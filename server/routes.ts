@@ -466,10 +466,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get active prompt examples endpoint
-  app.get("/api/prompt-examples/active", async (_req, res) => {
+  app.get("/api/prompt-examples/active", async (req, res) => {
     try {
+      const language = req.query.language as string || 'en';
       const examples = await storage.getActivePromptExamples();
-      res.json({ success: true, examples });
+      
+      // Translate prompt questions if not in English
+      if (language !== 'en') {
+        const translatedExamples = await Promise.all(
+          examples.map(async (example) => {
+            const translatedQuestion = await translateText({
+              text: example.question,
+              targetLanguage: language,
+              context: "prompt example question"
+            });
+            return {
+              ...example,
+              question: translatedQuestion
+            };
+          })
+        );
+        res.json({ success: true, examples: translatedExamples });
+      } else {
+        res.json({ success: true, examples });
+      }
     } catch (error) {
       console.error("Get active prompt examples error:", error);
       res.status(500).json({ error: "Failed to get active prompt examples" });

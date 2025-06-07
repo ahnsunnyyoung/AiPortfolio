@@ -94,8 +94,8 @@ export default function Portfolio() {
 
   // Fetch active prompt examples
   const { data: promptExamplesData } = useQuery({
-    queryKey: ["/api/prompt-examples/active"],
-    queryFn: () => apiRequest("GET", "/api/prompt-examples/active").then(res => res.json())
+    queryKey: ["/api/prompt-examples/active", language],
+    queryFn: () => apiRequest("GET", `/api/prompt-examples/active?language=${language}`).then(res => res.json())
   });
 
   // Fetch introduction data for personal card
