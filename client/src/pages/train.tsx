@@ -4,6 +4,10 @@ import { Link } from "wouter";
 import TrainingKnowledge from "@/components/TrainingKnowledge";
 import TrainingIntroduction from "@/components/TrainingIntroduction";
 import TrainingProjects from "@/components/TrainingProjects";
+import TrainingExperience from "@/components/TrainingExperience";
+import TrainingPrompts from "@/components/TrainingPrompts";
+import TrainingContact from "@/components/TrainingContact";
+import TrainingSkills from "@/components/TrainingSkills";
 
 export default function Train() {
   const [activeTab, setActiveTab] = useState<"knowledge" | "projects" | "experience" | "prompts" | "contact" | "skills" | "introduction">("knowledge");
@@ -112,26 +116,10 @@ export default function Train() {
         {activeTab === "knowledge" && <TrainingKnowledge />}
         {activeTab === "projects" && <TrainingProjects />}
         {activeTab === "introduction" && <TrainingIntroduction />}
-        {activeTab === "experience" && (
-          <div className="text-center py-8">
-            <p className="text-gray-500">Experience component coming soon...</p>
-          </div>
-        )}
-        {activeTab === "prompts" && (
-          <div className="text-center py-8">
-            <p className="text-gray-500">Quick Questions component coming soon...</p>
-          </div>
-        )}
-        {activeTab === "contact" && (
-          <div className="text-center py-8">
-            <p className="text-gray-500">Contact component coming soon...</p>
-          </div>
-        )}
-        {activeTab === "skills" && (
-          <div className="text-center py-8">
-            <p className="text-gray-500">Skills component coming soon...</p>
-          </div>
-        )}
+        {activeTab === "experience" && <TrainingExperience />}
+        {activeTab === "prompts" && <TrainingPrompts />}
+        {activeTab === "contact" && <TrainingContact />}
+        {activeTab === "skills" && <TrainingSkills />}
       </div>
     </div>
   );
