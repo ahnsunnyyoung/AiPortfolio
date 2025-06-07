@@ -1091,11 +1091,11 @@ export default function Portfolio() {
 
             {/* Thinking/Typing Indicator */}
             {(askMutation.isPending || isThinking) && (
-              <div className="chat-message flex items-start gap-4">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-5 h-5 text-white" />
+              <div className="chat-message flex items-start gap-2 sm:gap-4">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
-                <div className="bg-gray-50 rounded-2xl rounded-tl-md px-6 py-4">
+                <div className="bg-gray-50 rounded-2xl rounded-tl-md px-3 sm:px-6 py-3 sm:py-4">
                   <div className="flex space-x-1">
                     <div className="typing-indicator"></div>
                     <div className="typing-indicator"></div>
@@ -1111,7 +1111,7 @@ export default function Portfolio() {
           {/* Suggested Questions */}
           {messages.length > 0 && (
             <div className="border-t border-gray-200/50 bg-gray-50/50">
-              <div className="px-6 py-2 flex items-center justify-between">
+              <div className="px-3 sm:px-6 py-2 flex items-center justify-between">
                 <span className="text-xs text-gray-500">{t.askAbout}:</span>
                 <button
                   onClick={() => setIsAskAboutExpanded(!isAskAboutExpanded)}
@@ -1121,15 +1121,15 @@ export default function Portfolio() {
                 </button>
               </div>
               {isAskAboutExpanded && (
-                <div className="px-6 pb-3">
-                  <div className="flex flex-wrap gap-2">
+                <div className="px-3 sm:px-6 pb-3">
+                  <div className="flex flex-wrap gap-1 sm:gap-2">
                     {quickQuestions.map(
                       (promptExample: PromptExample, index: number) => (
                         <button
                           key={index}
                           onClick={() => handleQuickQuestion(promptExample)}
                           disabled={askMutation.isPending}
-                          className="px-3 py-1 text-xs bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="px-2 sm:px-3 py-1 text-xs bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {promptExample.question}
                         </button>
