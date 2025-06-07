@@ -105,6 +105,7 @@ export default function Portfolio() {
   >([]);
   const [isAskAboutExpanded, setIsAskAboutExpanded] = useState(true);
   const [isThinking, setIsThinking] = useState(false);
+  const [cachedPromptExamples, setCachedPromptExamples] = useState<PromptExample[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const welcomeMessageShown = useRef(false);
@@ -131,6 +132,13 @@ export default function Portfolio() {
 
   const promptExamples = promptExamplesData?.examples || [];
   const introduction = introductionData?.introduction;
+
+  // Cache prompt examples when conversation starts to prevent mid-chat updates
+  useEffect(() => {
+    if (promptExamples.length > 0 && (!isExpanded || cachedPromptExamples.length === 0)) {
+      setCachedPromptExamples(promptExamples);
+    }
+  }, [promptExamples, isExpanded, cachedPromptExamples.length]);
 
   // Handle click outside to close chat
   useEffect(() => {
@@ -273,7 +281,9 @@ export default function Portfolio() {
   };
 
   // Sort prompt examples - recently asked questions go to the end
-  const quickQuestions = promptExamples
+  // Use cached examples during active chat to prevent disruptive updates
+  const examplesSource = isExpanded && cachedPromptExamples.length > 0 ? cachedPromptExamples : promptExamples;
+  const quickQuestions = examplesSource
     .sort((a: PromptExample, b: PromptExample) => {
       const aRecentlyAsked = recentlyAskedQuestions.includes(a.question);
       const bRecentlyAsked = recentlyAskedQuestions.includes(b.question);
