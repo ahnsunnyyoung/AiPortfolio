@@ -241,7 +241,7 @@ export default function Portfolio() {
       setIsDisplayingResponse(false);
       
       // Handle rate limiting errors
-      if (error.message && error.message.includes("429")) {
+      if (error.status === 429 || (error.message && error.message.includes("429"))) {
         toast({
           title: "AI Usage Limit Reached",
           description: "You've reached the AI usage limit. Please wait a few minutes before asking again.",
