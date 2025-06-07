@@ -1,6 +1,6 @@
 import { trainingData, conversations, projects, experiences, promptExamples, contacts, skillCategories, skills, introduction, translations, type TrainingData, type InsertTrainingData, type Conversation, type InsertConversation, type Project, type InsertProject, type Experience, type InsertExperience, type PromptExample, type InsertPromptExample, type Contact, type InsertContact, type SkillCategory, type InsertSkillCategory, type Skill, type InsertSkill, type Introduction, type InsertIntroduction, type Translation, type InsertTranslation } from "../shared/schema";
 import { db } from "./db";
-import { desc, eq, asc } from "drizzle-orm";
+import { desc, eq, asc, and } from "drizzle-orm";
 
 export interface IStorage {
   addTrainingData(data: InsertTrainingData): Promise<TrainingData>;
@@ -45,6 +45,9 @@ export interface IStorage {
   getIntroduction(): Promise<Introduction | undefined>;
   updateIntroduction(data: InsertIntroduction): Promise<Introduction>;
   initializeIntroduction(): Promise<void>;
+  // Translation management
+  getCachedTranslation(originalText: string, language: string, context?: string): Promise<Translation | undefined>;
+  addTranslation(translation: InsertTranslation): Promise<Translation>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -511,6 +514,33 @@ Outside of work, I enjoy weight training, knitting, and baking, which reflect my
         technologies: "React, Flutter, Firebase, Google Cloud"
       });
     }
+  }
+
+  async getCachedTranslation(originalText: string, language: string, context?: string): Promise<Translation | undefined> {
+    const conditions = [
+      eq(translations.originalText, originalText),
+      eq(translations.language, language)
+    ];
+    
+    if (context) {
+      conditions.push(eq(translations.context, context));
+    }
+
+    const [result] = await db
+      .select()
+      .from(translations)
+      .where(and(...conditions))
+      .limit(1);
+    
+    return result;
+  }
+
+  async addTranslation(translation: InsertTranslation): Promise<Translation> {
+    const [result] = await db
+      .insert(translations)
+      .values(translation)
+      .returning();
+    return result;
   }
 }
 

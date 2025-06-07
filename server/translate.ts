@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { storage } from "./storage";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -14,6 +15,12 @@ interface TranslationRequest {
 export async function translateText({ text, targetLanguage, context }: TranslationRequest): Promise<string> {
   if (targetLanguage === 'en') {
     return text; // No translation needed for English
+  }
+
+  // Check cache first
+  const cachedTranslation = await storage.getCachedTranslation(text, targetLanguage, context);
+  if (cachedTranslation) {
+    return cachedTranslation.translatedText;
   }
 
   const languageMap: Record<string, string> = {
@@ -46,7 +53,22 @@ Respond only with the translated text, no explanations or additional content.`;
       max_tokens: 2000
     });
 
-    return response.choices[0]?.message?.content?.trim() || text;
+    const translatedText = response.choices[0]?.message?.content?.trim() || text;
+    
+    // Cache the translation for future use
+    try {
+      await storage.addTranslation({
+        originalText: text,
+        translatedText,
+        language: targetLanguage,
+        context: context || null
+      });
+    } catch (cacheError) {
+      console.error("Failed to cache translation:", cacheError);
+      // Continue even if caching fails
+    }
+    
+    return translatedText;
   } catch (error) {
     console.error("Translation error:", error);
     return text; // Return original text if translation fails
