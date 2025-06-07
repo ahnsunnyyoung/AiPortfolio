@@ -35,17 +35,17 @@ export default function LanguageSelector() {
           />
           
           {/* Dropdown */}
-          <div className="absolute top-full right-0 mt-2 bg-white rounded-lg border border-gray-200 shadow-lg z-20 min-w-[160px] overflow-hidden">
+          <div className="absolute top-full right-0 mt-2 bg-white rounded-lg border border-gray-200 shadow-lg z-20 overflow-hidden">
             {Object.entries(availableLanguages).map(([lang, config]) => (
               <button
                 key={lang}
                 onClick={() => handleLanguageChange(lang as Language)}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
-                  language === lang ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
+                className={`w-full flex items-center justify-center px-3 py-3 hover:bg-gray-50 transition-colors ${
+                  language === lang ? 'bg-blue-50' : ''
                 }`}
+                title={config.name}
               >
-                <span className="text-lg">{config.flag}</span>
-                <span className="text-sm font-medium">{config.name}</span>
+                <span className="text-xl">{config.flag}</span>
               </button>
             ))}
           </div>
