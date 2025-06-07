@@ -105,6 +105,7 @@ export default function Portfolio() {
   >([]);
   const [isAskAboutExpanded, setIsAskAboutExpanded] = useState(true);
   const [isThinking, setIsThinking] = useState(false);
+  const [isDisplayingResponse, setIsDisplayingResponse] = useState(false);
   const [cachedPromptExamples, setCachedPromptExamples] = useState<PromptExample[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -182,8 +183,9 @@ export default function Portfolio() {
       return response.json();
     },
     onSuccess: (data) => {
-      // Start thinking animation
+      // Start thinking animation and block interactions
       setIsThinking(true);
+      setIsDisplayingResponse(true);
 
       // Add a thinking delay to make the AI feel more natural
       setTimeout(() => {
@@ -204,9 +206,16 @@ export default function Portfolio() {
         };
         setMessages((prev) => [...prev, aiMessage]);
         setIsThinking(false);
+        
+        // Allow interactions after response is fully displayed
+        setTimeout(() => {
+          setIsDisplayingResponse(false);
+        }, 500); // Additional delay to ensure UI is fully rendered
       }, 800); // 0.8 second thinking delay
     },
     onError: (error: any) => {
+      setIsThinking(false);
+      setIsDisplayingResponse(false);
       toast({
         title: "Connection Error",
         description:
@@ -246,7 +255,7 @@ export default function Portfolio() {
   }, [messages]);
 
   const handleSendMessage = () => {
-    if (!inputValue.trim() || askMutation.isPending) return;
+    if (!inputValue.trim() || askMutation.isPending || isDisplayingResponse) return;
 
     startConversation();
 
@@ -302,7 +311,7 @@ export default function Portfolio() {
 
   const handleQuickQuestion = (promptExample: PromptExample) => {
     // Prevent multiple rapid clicks
-    if (askMutation.isPending) return;
+    if (askMutation.isPending || isDisplayingResponse) return;
     
     const question = promptExample.question;
     startConversation();
@@ -407,12 +416,12 @@ export default function Portfolio() {
                   onKeyPress={handleKeyPress}
                   placeholder={t.askMeAbout}
                   className="flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                  disabled={askMutation.isPending}
+                  disabled={askMutation.isPending || isDisplayingResponse}
                   onClick={startConversation}
                 />
                 <button
                   onClick={handleSendMessage}
-                  disabled={!inputValue.trim() || askMutation.isPending}
+                  disabled={!inputValue.trim() || askMutation.isPending || isDisplayingResponse}
                   className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:from-gray-300 disabled:to-gray-300 text-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
                   aria-label="Send message"
                 >
@@ -428,7 +437,7 @@ export default function Portfolio() {
                   <button
                     key={index}
                     onClick={() => handleQuickQuestion(promptExample)}
-                    disabled={askMutation.isPending}
+                    disabled={askMutation.isPending || isDisplayingResponse}
                     className="text-left p-3 bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-lg text-sm text-gray-700 hover:text-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {promptExample.question}
