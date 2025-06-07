@@ -95,4 +95,14 @@ export const translations: Record<string, Translations> = {
   }
 };
 
-export type Language = 'en' | 'ko';
+export type Language = 'en' | 'ko' | 'ja' | 'zh' | 'es' | 'fr' | 'de';
+
+export const languages: Record<Language, { name: string; flag: string }> = {
+  en: { name: 'English', flag: '🇺🇸' },
+  ko: { name: '한국어', flag: '🇰🇷' },
+  ja: { name: '日本語', flag: '🇯🇵' },
+  zh: { name: '中文', flag: '🇨🇳' },
+  es: { name: 'Español', flag: '🇪🇸' },
+  fr: { name: 'Français', flag: '🇫🇷' },
+  de: { name: 'Deutsch', flag: '🇩🇪' }
+};
