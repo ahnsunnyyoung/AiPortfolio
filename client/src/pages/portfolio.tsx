@@ -1135,7 +1135,7 @@ export default function Portfolio() {
                               </h5>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {message.skills?.soft?.map((skill, index) => (
+                              {message.skills?.["soft skills"]?.map((skill, index) => (
                                 <span
                                   key={index}
                                   className="px-2 py-1 bg-pink-50 text-pink-700 text-sm rounded-full border border-pink-200"
