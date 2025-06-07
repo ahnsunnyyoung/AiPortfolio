@@ -15,6 +15,7 @@ interface PromptExample {
 }
 
 export default function TrainingPrompts() {
+  const [showModal, setShowModal] = useState(false);
   const [newPrompt, setNewPrompt] = useState({
     question: "",
     responseType: "ai",
@@ -118,6 +119,17 @@ export default function TrainingPrompts() {
       displayOrder: prompts.length
     };
     addMutation.mutate(promptData);
+    setShowModal(false);
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setNewPrompt({
+      question: "",
+      responseType: "ai",
+      isActive: true,
+      displayOrder: 0
+    });
   };
 
   const handleEdit = (prompt: PromptExample) => {
