@@ -4,8 +4,8 @@ import { z } from "zod";
 
 export const trainingData = pgTable("training_data", {
   id: serial("id").primaryKey(),
-  question: text("question").notNull(),
-  responseType: text("response_type").notNull(),
+  question: text("question"),
+  responseType: text("response_type"),
   content: text("content").notNull(),
   isActive: boolean("is_active").default(true),
   timestamp: timestamp("timestamp").defaultNow(),
