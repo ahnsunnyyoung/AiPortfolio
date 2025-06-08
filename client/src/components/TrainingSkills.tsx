@@ -217,7 +217,8 @@ export default function TrainingSkills() {
 
   const handleUpdateSkill = () => {
     if (!editingSkillData.name?.trim() || !editingSkillData.categoryId) return;
-    updateSkillMutation.mutate({ id: editingSkill!, skill: editingSkillData });
+    const { timestamp, ...skillData } = editingSkillData;
+    updateSkillMutation.mutate({ id: editingSkill!, skill: skillData });
   };
 
   const handleDeleteSkill = (id: number) => {
@@ -249,7 +250,7 @@ export default function TrainingSkills() {
           <Plus className="w-5 h-5" />
           Add Skill Category
         </h2>
-        
+
         <div className="flex gap-2">
           <input
             type="text"
@@ -275,7 +276,7 @@ export default function TrainingSkills() {
           <Code className="w-5 h-5" />
           Add New Skill
         </h2>
-        
+
         <div className="grid md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Skill Name</label>
@@ -287,7 +288,7 @@ export default function TrainingSkills() {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
             <select
@@ -303,10 +304,10 @@ export default function TrainingSkills() {
               ))}
             </select>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Proficiency</label>
-            <select
+            {/* <select
               value={newSkill.proficiency}
               onChange={(e) => setNewSkill(prev => ({ ...prev, proficiency: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -316,7 +317,7 @@ export default function TrainingSkills() {
                   {level.label}
                 </option>
               ))}
-            </select>
+            </select> */}
           </div>
         </div>
 
@@ -335,7 +336,7 @@ export default function TrainingSkills() {
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
           Skills by Category
         </h2>
-        
+
         {categories.length === 0 ? (
           <p className="text-gray-500 text-center py-8">No skill categories yet. Add your first category!</p>
         ) : (
@@ -388,7 +389,7 @@ export default function TrainingSkills() {
                     </>
                   )}
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                   {getSkillsByCategory(category.id).map((skill: Skill) => (
                     <div key={skill.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-2">
@@ -400,7 +401,7 @@ export default function TrainingSkills() {
                             onChange={(e) => setEditingSkillData((prev: any) => ({ ...prev, name: e.target.value }))}
                             className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                           />
-                          <select
+                          {/* <select
                             value={editingSkillData.proficiency || ""}
                             onChange={(e) => setEditingSkillData((prev: any) => ({ ...prev, proficiency: e.target.value }))}
                             className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -410,7 +411,7 @@ export default function TrainingSkills() {
                                 {level.label}
                               </option>
                             ))}
-                          </select>
+                          </select> */}
                           <button
                             onClick={handleUpdateSkill}
                             disabled={updateSkillMutation.isPending}
