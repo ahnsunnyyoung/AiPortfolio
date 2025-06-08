@@ -35,10 +35,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         const countryToLanguage: Record<string, Language> = {
           'kr': 'ko', // South Korea
           'de': 'de', // Germany
-          'at': 'de', // Austria
-          'ch': 'de', // Switzerland (German-speaking regions)
           'nl': 'nl', // Netherlands
-          'be': 'nl', // Belgium (Dutch-speaking regions)
+          'fr': 'fr', // France
         };
 
         const detectedLanguage = countryToLanguage[countryCode] || 'en';

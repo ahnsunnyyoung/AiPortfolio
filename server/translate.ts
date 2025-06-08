@@ -25,8 +25,9 @@ export async function translateText({ text, targetLanguage, context }: Translati
 
   const languageMap: Record<string, string> = {
     ko: "Korean",
-    de: "German", 
-    nl: "Dutch"
+    de: "German",
+    nl: "Dutch",
+    fr: "French"
   };
 
   const targetLang = languageMap[targetLanguage] || targetLanguage;
@@ -54,7 +55,7 @@ Respond only with the translated text, no explanations or additional content.`;
     });
 
     const translatedText = response.choices[0]?.message?.content?.trim() || text;
-    
+
     // Cache the translation for future use
     try {
       await storage.addTranslation({
@@ -67,7 +68,7 @@ Respond only with the translated text, no explanations or additional content.`;
       console.error("Failed to cache translation:", cacheError);
       // Continue even if caching fails
     }
-    
+
     return translatedText;
   } catch (error) {
     console.error("Translation error:", error);
