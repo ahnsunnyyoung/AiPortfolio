@@ -33,38 +33,30 @@ async function getOrCreateSessionId(providedSessionId?: string): Promise<string>
   if (providedSessionId) {
     return providedSessionId;
   }
-  
+
   // Get the most recent conversation
   const recentConversations = await storage.getRecentConversations(1);
-  
+
   if (recentConversations.length === 0) {
     // No previous conversations, create new session
     return generateSessionId();
   }
-  
+
   const lastConversation = recentConversations[0];
   const now = new Date();
   const lastTime = new Date(lastConversation.timestamp);
   const timeDiff = now.getTime() - lastTime.getTime();
-  
+
   // If last conversation was more than 30 minutes ago, create new session
   if (timeDiff > 30 * 60 * 1000) {
     return generateSessionId();
   }
-  
+
   // Continue with existing session if it has one, otherwise create new
   return lastConversation.sessionId || generateSessionId();
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize data on startup
-  await storage.initializeProjects();
-  await storage.initializeExperiences();
-  await storage.initializePromptExamples();
-  await storage.initializeContact();
-  await storage.initializeSkills();
-  await storage.initializeIntroduction();
-  
   // Migrate existing conversations to have session IDs
   await storage.migrateConversationsToSessions();
 
@@ -101,12 +93,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Get client IP for rate limiting
       const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
-      
+
       // Check rate limit for AI requests
       if (!aiRateLimiter.isAllowed(clientIP)) {
         const resetTime = aiRateLimiter.getResetTime(clientIP);
         const waitMinutes = Math.ceil((resetTime - Date.now()) / 60000);
-        
+
         return res.status(429).json({
           error: "AI usage limit exceeded",
           message: `Too many AI requests. Please wait ${waitMinutes} minutes before asking again.`,
@@ -116,7 +108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { question, promptExampleId, language, sessionId, sessionHistory } = askRequestSchema.parse(req.body);
-      
+
       // Get or create session ID
       const currentSessionId = await getOrCreateSessionId(sessionId);
 
@@ -138,10 +130,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             // Translate the response message
             const experienceMessage = "Here are my work experiences:";
-            const translatedMessage = await translateText({ 
-              text: experienceMessage, 
-              targetLanguage: language, 
-              context: "work experience introduction" 
+            const translatedMessage = await translateText({
+              text: experienceMessage,
+              targetLanguage: language,
+              context: "work experience introduction"
             });
 
             // Translate detailed content for experiences
@@ -167,10 +159,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             // Translate the response message
             const projectMessage = "Here are my projects:";
-            const translatedMessage = await translateText({ 
-              text: projectMessage, 
-              targetLanguage: language, 
-              context: "projects introduction" 
+            const translatedMessage = await translateText({
+              text: projectMessage,
+              targetLanguage: language,
+              context: "projects introduction"
             });
 
             // Translate detailed content for projects
@@ -186,7 +178,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           if (promptExample.responseType === "contacts") {
             const contact = await storage.getContact();
-            
+
             // Store the conversation
             await storage.addConversation({
               question,
@@ -196,10 +188,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             // Translate the response message
             const contactMessage = "Here's how you can contact me:";
-            const translatedMessage = await translateText({ 
-              text: contactMessage, 
-              targetLanguage: language, 
-              context: "contact information introduction" 
+            const translatedMessage = await translateText({
+              text: contactMessage,
+              targetLanguage: language,
+              context: "contact information introduction"
             });
 
             res.json({
@@ -213,11 +205,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
             return;
           }
-          
+
           if (promptExample.responseType === "skills") {
             const skillCategories = await storage.getAllSkillCategories();
             const allSkills = await storage.getAllSkills();
-            
+
             // Organize skills by category
             const organizedSkills: Record<string, string[]> = {};
             for (const category of skillCategories) {
@@ -226,24 +218,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 .map(skill => skill.name);
               organizedSkills[category.name.toLowerCase()] = categorySkills;
             }
-            
+
             // Store the conversation
             await storage.addConversation({
               question,
               answer: "SKILLS_SHOWCASE", // Special marker for skills responses
               sessionId: currentSessionId,
             });
-            
+
             // Translate the response message and skills
             const skillsMessage = "Here are my technical skills and expertise:";
-            const translatedMessage = await translateText({ 
-              text: skillsMessage, 
-              targetLanguage: language, 
-              context: "technical skills introduction" 
+            const translatedMessage = await translateText({
+              text: skillsMessage,
+              targetLanguage: language,
+              context: "technical skills introduction"
             });
 
             // Don't translate skills - keep them as-is per user request
-            res.json({ 
+            res.json({
               answer: translatedMessage,
               skills: organizedSkills,
               skillCategories: skillCategories,
@@ -254,7 +246,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           if (promptExample.responseType === "introduce") {
             const introduction = await storage.getIntroduction();
-            
+
             // Store the conversation
             await storage.addConversation({
               question,
@@ -264,10 +256,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             // Translate the introduction content
             const introContent = introduction?.content || "Hello! I'm Sunyoung Ahn, also known as Sunny. I'm a frontend developer with five years of experience.";
-            const translatedIntro = await translateText({ 
-              text: introContent, 
-              targetLanguage: language, 
-              context: "personal introduction" 
+            const translatedIntro = await translateText({
+              text: introContent,
+              targetLanguage: language,
+              context: "personal introduction"
             });
 
             res.json({
@@ -282,10 +274,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const aiResponse = await generatePersonalizedResponse(question, sessionHistory);
 
       // Translate AI response if not in English
-      const translatedResponse = await translateText({ 
-        text: aiResponse, 
-        targetLanguage: language, 
-        context: "AI assistant response about personal portfolio and professional experience" 
+      const translatedResponse = await translateText({
+        text: aiResponse,
+        targetLanguage: language,
+        context: "AI assistant response about personal portfolio and professional experience"
       });
 
       // Store the conversation for context in future responses
@@ -342,7 +334,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const validatedData = trainRequestSchema.parse(req.body);
       const data = await storage.updateTrainingData(id, validatedData);
-      
+
       res.json({
         success: true,
         data,
@@ -384,12 +376,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/conversations", async (req, res) => {
     try {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
-      const conversations = limit 
+      const conversations = limit
         ? await storage.getRecentConversations(limit)
         : await storage.getAllConversations();
-      res.json({ 
+      res.json({
         success: true,
-        conversations 
+        conversations
       });
     } catch (error) {
       console.error("Get conversations error:", error);
@@ -550,7 +542,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const language = req.query.language as string || 'en';
       const examples = await storage.getActivePromptExamples();
-      
+
       // Translate prompt questions if not in English
       if (language !== 'en') {
         const translatedExamples = await Promise.all(
@@ -726,7 +718,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!content || typeof content !== 'string') {
         return res.status(400).json({ success: false, error: "Content is required" });
       }
-      
+
       const introduction = await storage.updateIntroduction({
         content,
         img,
@@ -747,7 +739,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/translate", async (req, res) => {
     try {
       const { text, targetLanguage, context } = req.body;
-      
+
       if (!text || !targetLanguage) {
         return res.status(400).json({ error: "Text and target language are required" });
       }

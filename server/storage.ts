@@ -16,22 +16,18 @@ export interface IStorage {
   getAllProjects(): Promise<Project[]>;
   updateProject(id: number, project: InsertProject): Promise<Project>;
   deleteProject(id: number): Promise<void>;
-  initializeProjects(): Promise<void>;
   addExperience(experience: InsertExperience): Promise<Experience>;
   getAllExperiences(): Promise<Experience[]>;
   updateExperience(id: number, experience: InsertExperience): Promise<Experience>;
   deleteExperience(id: number): Promise<void>;
-  initializeExperiences(): Promise<void>;
   addPromptExample(example: InsertPromptExample): Promise<PromptExample>;
   getAllPromptExamples(): Promise<PromptExample[]>;
   getActivePromptExamples(): Promise<PromptExample[]>;
   updatePromptExample(id: number, example: InsertPromptExample): Promise<PromptExample>;
   deletePromptExample(id: number): Promise<void>;
-  initializePromptExamples(): Promise<void>;
   // Contacts management
   getContact(): Promise<Contact | undefined>;
   updateContact(contact: InsertContact): Promise<Contact>;
-  initializeContact(): Promise<void>;
   // Skills management
   getAllSkillCategories(): Promise<SkillCategory[]>;
   addSkillCategory(category: InsertSkillCategory): Promise<SkillCategory>;
@@ -42,11 +38,9 @@ export interface IStorage {
   addSkill(skill: InsertSkill): Promise<Skill>;
   updateSkill(id: number, skill: InsertSkill): Promise<Skill>;
   deleteSkill(id: number): Promise<void>;
-  initializeSkills(): Promise<void>;
   // Introduction management
   getIntroduction(): Promise<Introduction | undefined>;
   updateIntroduction(data: InsertIntroduction): Promise<Introduction>;
-  initializeIntroduction(): Promise<void>;
   // Translation management
   getCachedTranslation(originalText: string, language: string, context?: string): Promise<Translation | undefined>;
   addTranslation(translation: InsertTranslation): Promise<Translation>;
@@ -144,58 +138,6 @@ export class DatabaseStorage implements IStorage {
       .where(eq(projects.id, id));
   }
 
-  async initializeProjects(): Promise<void> {
-    const existingProjects = await this.getAllProjects();
-    if (existingProjects.length === 0) {
-      const projectsData = [
-        {
-          title: "Myoungji University Lecture Registration App",
-          period: "March 2022 - June 2022",
-          subtitle: "Individual",
-          summary: "Myongji University's lecture registration Android application.",
-          contents: ["Conducted from UX design such as problem definition, user research, and UX modeling to full development."],
-          tech: "Android studio / Kotlin / SQLite",
-          img: "/myoungji_logo.png",
-          imgAlt: "Myoungji Logo",
-          moreLink: "https://github.com/ahnsunnyyoung/mju_applying_lecture_app",
-          width: "47%"
-        },
-        {
-          title: "JjinMotJib",
-          period: "March 2022 - June 2022",
-          subtitle: "Team (Frontend Developer)",
-          summary: "AI advertising filtering service website for restaurant search engine web application",
-          contents: [
-            "Worked with an Agile methodology.",
-            "Applied various user interaction animation effects and dark mode."
-          ],
-          tech: "React / Javascript / AWS EC2 / Agile",
-          img: "/jjinmotjib_logo.png",
-          imgAlt: "Jjinmotjib Logo",
-          moreLink: "https://github.com/ahnsunnyyoung/capstone_frontend",
-          width: "47%"
-        },
-        {
-          title: "Today's COVID-19",
-          period: "July 2020",
-          subtitle: "Team (Frontend Developer)",
-          summary: "COVID-19 information mobile application.",
-          contents: [
-            "Applied intuitive colors and interactive icons so that users can easily check COVID-19 information."
-          ],
-          tech: "React / Javascript / Expo",
-          img: "/covid_logo.png",
-          imgAlt: "Covid Logo",
-          moreLink: "https://github.com/ahnsunnyyoung/today_covid19",
-          width: "47%"
-        }
-      ];
-
-      for (const projectData of projectsData) {
-        await this.addProject(projectData);
-      }
-    }
-  }
 
   async addExperience(experience: InsertExperience): Promise<Experience> {
     const [result] = await db
@@ -225,32 +167,6 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(experiences)
       .where(eq(experiences.id, id));
-  }
-
-  async initializeExperiences(): Promise<void> {
-    const existingExperiences = await this.getAllExperiences();
-    if (existingExperiences.length === 0) {
-      const defaultExperiences = [
-        {
-          company: "Tech Solutions Inc.",
-          position: "Frontend Developer",
-          period: "2023 - Present",
-          location: "Seoul, South Korea",
-          description: "Developing modern web applications using React and TypeScript with focus on user experience and performance optimization.",
-          responsibilities: [
-            "Built responsive web applications using React and TypeScript",
-            "Implemented state management with Redux and Context API",
-            "Collaborated with design team to create intuitive user interfaces",
-            "Optimized application performance and accessibility"
-          ],
-          skills: "React / TypeScript / Redux / CSS / JavaScript"
-        }
-      ];
-
-      for (const experience of defaultExperiences) {
-        await this.addExperience(experience);
-      }
-    }
   }
 
   async addPromptExample(example: InsertPromptExample): Promise<PromptExample> {
@@ -291,59 +207,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(promptExamples.id, id));
   }
 
-  async initializePromptExamples(): Promise<void> {
-    const existingExamples = await this.getAllPromptExamples();
-    if (existingExamples.length === 0) {
-      const defaultExamples = [
-        {
-          question: "안녕하세요! 어떤 일을 하고 계신가요?",
-          responseType: "ai",
-          isActive: true,
-          displayOrder: 1
-        },
-        {
-          question: "어떤 기술 스택을 사용하시나요?",
-          responseType: "ai",
-          isActive: true,
-          displayOrder: 2
-        },
-        {
-          question: "현재 진행 중인 프로젝트가 있나요?",
-          responseType: "projects",
-          isActive: true,
-          displayOrder: 3
-        },
-        {
-          question: "개발자로서의 경험에 대해 말씀해주세요",
-          responseType: "experiences",
-          isActive: true,
-          displayOrder: 4
-        },
-        {
-          question: "새로운 기술 학습은 어떻게 하시나요?",
-          responseType: "ai",
-          isActive: true,
-          displayOrder: 5
-        },
-        {
-          question: "연락하고 싶은데 어떻게 연락하면 될까요?",
-          responseType: "contacts",
-          isActive: true,
-          displayOrder: 6
-        },
-        {
-          question: "어떤 기술 스택과 스킬을 가지고 계시나요?",
-          responseType: "skills",
-          isActive: true,
-          displayOrder: 7
-        }
-      ];
 
-      for (const example of defaultExamples) {
-        await this.addPromptExample(example);
-      }
-    }
-  }
 
   // Contact management methods
   async getContact(): Promise<Contact | undefined> {
@@ -353,7 +217,7 @@ export class DatabaseStorage implements IStorage {
 
   async updateContact(contactData: InsertContact): Promise<Contact> {
     const existingContact = await this.getContact();
-    
+
     if (existingContact) {
       const [updated] = await db
         .update(contacts)
@@ -367,19 +231,6 @@ export class DatabaseStorage implements IStorage {
         .values(contactData)
         .returning();
       return created;
-    }
-  }
-
-  async initializeContact(): Promise<void> {
-    const existingContact = await this.getContact();
-    if (!existingContact) {
-      await this.updateContact({
-        email: "ahnsunnyyoung@gmail.com",
-        linkedin: "https://www.linkedin.com/in/ahnsunnyyoung/",
-        github: "https://github.com/ahnsunnyyoung",
-        website: "",
-        phone: ""
-      });
     }
   }
 
@@ -443,51 +294,6 @@ export class DatabaseStorage implements IStorage {
     await db.delete(skills).where(eq(skills.id, id));
   }
 
-  async initializeSkills(): Promise<void> {
-    const existingCategories = await this.getAllSkillCategories();
-    if (existingCategories.length === 0) {
-      // Create default skill categories
-      const defaultCategories = [
-        { name: "Programming", icon: "Code", color: "orange", displayOrder: 1 },
-        { name: "Frontend", icon: "Monitor", color: "blue", displayOrder: 2 },
-        { name: "Backend", icon: "Server", color: "green", displayOrder: 3 },
-        { name: "Tools", icon: "Wrench", color: "purple", displayOrder: 4 },
-        { name: "Languages", icon: "Globe", color: "indigo", displayOrder: 5 },
-        { name: "Soft Skills", icon: "Users", color: "pink", displayOrder: 6 }
-      ];
-
-      const createdCategories = [];
-      for (const category of defaultCategories) {
-        const created = await this.addSkillCategory(category);
-        createdCategories.push(created);
-      }
-
-      // Create default skills for each category
-      const defaultSkillsData = [
-        { categoryName: "Programming", skills: ["JavaScript", "TypeScript", "Python", "Java", "C++"] },
-        { categoryName: "Frontend", skills: ["React", "Next.js", "Vue.js", "HTML5", "CSS3", "Tailwind CSS"] },
-        { categoryName: "Backend", skills: ["Node.js", "Express.js", "FastAPI", "Spring Boot", "PostgreSQL", "MongoDB"] },
-        { categoryName: "Tools", skills: ["Git", "Docker", "AWS", "Vercel", "Figma", "VS Code"] },
-        { categoryName: "Languages", skills: ["Korean (Native)", "English (Fluent)", "Japanese (Conversational)"] },
-        { categoryName: "Soft Skills", skills: ["Problem Solving", "Team Leadership", "Project Management", "UI/UX Design"] }
-      ];
-
-      for (const skillGroup of defaultSkillsData) {
-        const category = createdCategories.find(c => c.name === skillGroup.categoryName);
-        if (category) {
-          for (let i = 0; i < skillGroup.skills.length; i++) {
-            await this.addSkill({
-              name: skillGroup.skills[i],
-              categoryId: category.id,
-              proficiency: "advanced",
-              displayOrder: i + 1
-            });
-          }
-        }
-      }
-    }
-  }
-
   async getIntroduction(): Promise<Introduction | undefined> {
     const [intro] = await db.select().from(introduction).where(eq(introduction.isActive, true)).limit(1);
     return intro || undefined;
@@ -496,7 +302,7 @@ export class DatabaseStorage implements IStorage {
   async updateIntroduction(data: InsertIntroduction): Promise<Introduction> {
     // First, deactivate all existing introductions
     await db.update(introduction).set({ isActive: false });
-    
+
     // Then create a new active introduction
     const [created] = await db
       .insert(introduction)
@@ -505,32 +311,12 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async initializeIntroduction(): Promise<void> {
-    const existing = await this.getIntroduction();
-    if (!existing) {
-      const defaultIntroduction = `Hello! I'm Sunyoung Ahn, also known as Sunny. I'm a frontend developer with five years of experience in creating intuitive and performant user experiences across different platforms. I specialize in frontend development, focusing on usability and design. My core technical skills include React, Flutter, Firebase, and Google Cloud, and I'm comfortable with tools like Figma, Canva, Jira, and Confluence.
-
-I have a passion for transforming complex challenges into elegant and simple interfaces — it's the part of my work that feels most like art. Currently, I'm based in Dublin, Ireland, working as a frontend developer at GoldCore, where I develop a cross-platform gold trading app.
-
-Outside of work, I enjoy weight training, knitting, and baking, which reflect my attention to detail, discipline, and creativity. I'm also fluent in English and Korean and currently learning German. If you'd like to know more, feel free to ask!`;
-      
-      await this.updateIntroduction({
-        content: defaultIntroduction,
-        name: "Sunyoung Ahn (Sunny)",
-        title: "Frontend Developer",
-        location: "Dublin, Ireland",
-        experience: "5+ years",
-        technologies: "React, Flutter, Firebase, Google Cloud"
-      });
-    }
-  }
-
   async getCachedTranslation(originalText: string, language: string, context?: string): Promise<Translation | undefined> {
     const conditions = [
       eq(translations.originalText, originalText),
       eq(translations.language, language)
     ];
-    
+
     if (context) {
       conditions.push(eq(translations.context, context));
     }
@@ -540,7 +326,7 @@ Outside of work, I enjoy weight training, knitting, and baking, which reflect my
       .from(translations)
       .where(and(...conditions))
       .limit(1);
-    
+
     return result;
   }
 
@@ -567,7 +353,7 @@ Outside of work, I enjoy weight training, knitting, and baking, which reflect my
 
     for (const conversation of conversationsWithoutSession) {
       const convTimestamp = new Date(conversation.timestamp);
-      
+
       // Create new session if gap is more than 30 minutes
       if (lastTimestamp) {
         const timeDiff = convTimestamp.getTime() - lastTimestamp.getTime();
