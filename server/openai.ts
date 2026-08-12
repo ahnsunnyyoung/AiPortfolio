@@ -1,9 +1,14 @@
 import OpenAI from "openai";
 import { storage } from "./storage";
 
-// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = process.env.OPENAI_API_KEY ? new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY
+// Google Gemini via its OpenAI-compatible endpoint.
+// Set GEMINI_API_KEY (get one at https://aistudio.google.com/apikey).
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
+const MODEL = process.env.GEMINI_MODEL || "gemini-flash-latest";
+
+const openai = GEMINI_API_KEY ? new OpenAI({
+  apiKey: GEMINI_API_KEY,
+  baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
 }) : null;
 
 export async function generatePersonalizedResponse(userQuestion: string, sessionHistory: Array<{question: string, answer: string}> = []): Promise<string> {
@@ -81,7 +86,7 @@ Guidelines:
 Remember: You are representing Sunyoung based on the specific training data provided. Stay true to that information.`;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: MODEL,
       messages: [
         {
           role: "system",
@@ -98,7 +103,7 @@ Remember: You are representing Sunyoung based on the specific training data prov
 
     return response.choices[0].message.content || "I'd be happy to help! Could you ask me something specific?";
   } catch (error) {
-    console.error("OpenAI API error:", error);
+    console.error("Gemini API error:", error);
     throw new Error("I'm having trouble connecting to my AI system right now. Please try again in a moment!");
   }
 }
