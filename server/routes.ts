@@ -3,8 +3,9 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateKnowledgeSummary, generatePersonalizedResponse } from "./ai";
 import { translateText, translateProjectsAndExperiences } from "./translate";
-import { aiRateLimiter } from "./rateLimiter";
+import { aiRateLimiter, summaryRateLimiter } from "./rateLimiter";
 import { z } from "zod";
+import { authenticateAdmin, clearAdminCookie, requireAdmin, setAdminCookie } from "./adminAuth";
 import {
   insertTrainingDataSchema,
   insertConversationSchema,
@@ -30,31 +31,39 @@ async function getOrCreateSessionId(providedSessionId?: string): Promise<string>
     return providedSessionId;
   }
 
-  // Get the most recent conversation
-  const recentConversations = await storage.getRecentConversations(1);
-
-  if (recentConversations.length === 0) {
-    // No previous conversations, create new session
-    return generateSessionId();
-  }
-
-  const lastConversation = recentConversations[0];
-  const now = new Date();
-  const lastTime = new Date(lastConversation.timestamp);
-  const timeDiff = now.getTime() - lastTime.getTime();
-
-  // If last conversation was more than 30 minutes ago, create new session
-  if (timeDiff > 30 * 60 * 1000) {
-    return generateSessionId();
-  }
-
-  // Continue with existing session if it has one, otherwise create new
-  return lastConversation.sessionId || generateSessionId();
+  // Never infer a new visitor's session from another visitor's latest conversation.
+  return generateSessionId();
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Migrate existing conversations to have session IDs
   await storage.migrateConversationsToSessions();
+
+  app.post("/api/admin/login", (req, res) => {
+    const password = typeof req.body?.password === "string" ? req.body.password : "";
+    const token = authenticateAdmin(password);
+    if (!token) {
+      return res.status(process.env.ADMIN_PASSWORD ? 401 : 503).json({
+        error: process.env.ADMIN_PASSWORD ? "Invalid admin password" : "ADMIN_PASSWORD is not configured",
+      });
+    }
+    setAdminCookie(res, token);
+    res.json({ success: true });
+  });
+
+  app.post("/api/admin/logout", (_req, res) => {
+    clearAdminCookie(res);
+    res.json({ success: true });
+  });
+
+  app.use("/api", (req, res, next) => {
+    const isPublic = req.path === "/ask" || req.path === "/admin/login" || req.path === "/admin/logout";
+    if (isPublic || req.method === "GET") {
+      next();
+      return;
+    }
+    requireAdmin(req, res, next);
+  });
 
   // Train endpoint - for adding knowledge to the AI
   app.post("/api/train", async (req, res) => {
@@ -96,6 +105,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/knowledge-summary", async (_req, res) => {
     try {
+      const clientIP = _req.ip || _req.connection.remoteAddress || "unknown";
+      if (!summaryRateLimiter.isAllowed(clientIP)) {
+        return res.status(429).json({
+          error: "Summary generation limit exceeded",
+          message: "Please wait before generating the portfolio summary again.",
+          resetTime: summaryRateLimiter.getResetTime(clientIP),
+        });
+      }
+
       const content = await generateKnowledgeSummary();
       const summary = await storage.saveKnowledgeSummary(content);
       res.json({ success: true, summary });

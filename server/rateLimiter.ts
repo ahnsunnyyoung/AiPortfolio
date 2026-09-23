@@ -66,5 +66,8 @@ class RateLimiter {
 }
 
 // Create rate limiter instance
-// 15 AI requests per 10 minutes per IP address
-export const aiRateLimiter = new RateLimiter(15, 600000);
+// 10 AI requests per 10 minutes per IP address
+export const aiRateLimiter = new RateLimiter(10, 600000);
+
+// Summary generation sends the entire portfolio to Gemini, so keep it much tighter.
+export const summaryRateLimiter = new RateLimiter(2, 3600000);

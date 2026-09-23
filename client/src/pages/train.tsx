@@ -53,19 +53,21 @@ export default function Train() {
     setIsLoading(false);
   }, []);
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "ahn9930") {
+    try {
+      await apiRequest("POST", "/api/admin/login", { password });
       setIsAuthenticated(true);
       sessionStorage.setItem("trainAuth", "authenticated");
       setPassword("");
-    } else {
+    } catch {
       alert("비밀번호가 틀렸습니다.");
       setPassword("");
     }
   };
 
   const handleBackToHome = () => {
+    void apiRequest("POST", "/api/admin/logout").catch(() => undefined);
     sessionStorage.removeItem("trainAuth");
     setLocation("/");
   };
