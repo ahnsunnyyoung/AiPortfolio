@@ -11,6 +11,7 @@ export interface IStorage {
   updateTrainingData(id: number, data: InsertTrainingData): Promise<TrainingData>;
   deleteTrainingData(id: number): Promise<void>;
   addConversation(conversation: InsertConversation): Promise<Conversation>;
+  deleteConversation(id: number): Promise<void>;
   getRecentConversations(limit?: number): Promise<Conversation[]>;
   getConversationsBySession(sessionId: string, limit?: number): Promise<Conversation[]>;
   getAllConversations(): Promise<Conversation[]>;
@@ -95,6 +96,10 @@ export class DatabaseStorage implements IStorage {
       .values(conversation)
       .returning();
     return result;
+  }
+
+  async deleteConversation(id: number): Promise<void> {
+    await db.delete(conversations).where(eq(conversations.id, id));
   }
 
   async getRecentConversations(limit: number = 10): Promise<Conversation[]> {

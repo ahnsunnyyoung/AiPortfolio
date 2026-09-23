@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { MessageCircle, Clock, Filter, ArrowUpDown, Eye, EyeOff, X, User, Bot } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { MessageCircle, Clock, Filter, ArrowUpDown, Eye, EyeOff, X, User, Bot, Trash2 } from "lucide-react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { format, differenceInMinutes, startOfDay, isToday, isYesterday } from "date-fns";
 
 interface Conversation {
@@ -27,6 +29,24 @@ export default function TrainingConversations() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [hideShowcases, setHideShowcases] = useState(true);
   const [selectedSession, setSelectedSession] = useState<ConversationGroup | null>(null);
+  const { toast } = useToast();
+
+  const deleteConversationMutation = useMutation({
+    mutationFn: (id: number) => apiRequest("DELETE", `/api/conversations/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+      setSelectedSession((current) => {
+        if (!current) return current;
+        const remaining = current.conversations.filter((conversation) => conversation.id !== deletingConversationId);
+        return remaining.length ? { ...current, conversations: remaining } : null;
+      });
+      toast({ title: "Conversation Deleted", description: "The conversation entry was removed." });
+    },
+    onError: (error: any) => {
+      toast({ title: "Delete Failed", description: error.message || "Failed to delete conversation.", variant: "destructive" });
+    },
+  });
+  const [deletingConversationId, setDeletingConversationId] = useState<number | null>(null);
 
   const conversationsQuery = useQuery<ConversationsResponse>({
     queryKey: ["/api/conversations"],
@@ -122,6 +142,12 @@ export default function TrainingConversations() {
 
   const toggleSortOrder = () => {
     setSortOrder(prev => prev === "desc" ? "asc" : "desc");
+  };
+
+  const handleDeleteConversation = (id: number) => {
+    if (!window.confirm("Delete this conversation entry?")) return;
+    setDeletingConversationId(id);
+    deleteConversationMutation.mutate(id);
   };
 
   if (conversationsQuery.isLoading) {
@@ -265,9 +291,20 @@ export default function TrainingConversations() {
                       <div className="bg-blue-50 rounded-lg p-3">
                         <p className="text-gray-800">{conversation.question}</p>
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {format(new Date(conversation.timestamp), "h:mm a")}
-                      </p>
+                      <div className="flex items-center justify-between mt-1 gap-2">
+                        <p className="text-xs text-gray-500">
+                          {format(new Date(conversation.timestamp), "h:mm a")}
+                        </p>
+                        <button
+                          onClick={() => handleDeleteConversation(conversation.id)}
+                          disabled={deleteConversationMutation.isPending && deletingConversationId === conversation.id}
+                          className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-700 disabled:opacity-50"
+                          title="Delete conversation"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
 

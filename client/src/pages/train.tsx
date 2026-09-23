@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Brain, ArrowLeft, Code, User, Briefcase, MessageCircle, History, Lock, RefreshCw } from "lucide-react";
+import { Brain, ArrowLeft, Code, User, Briefcase, MessageCircle, History, Lock, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -21,6 +21,7 @@ export default function Train() {
   const [isLoading, setIsLoading] = useState(true);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
 
   const knowledgeSummaryQuery = useQuery({
     queryKey: ["/api/knowledge-summary"],
@@ -164,12 +165,22 @@ export default function Train() {
         {knowledgeSummaryQuery.data?.summary && (
           <div className="mb-6 bg-white/80 backdrop-blur-sm rounded-lg border border-white/50 p-4">
             <div className="flex items-center justify-between gap-3 mb-2">
-              <h2 className="font-semibold text-gray-800">Saved AI Knowledge Summary</h2>
-              <span className="text-xs text-gray-500">
-                {new Date(knowledgeSummaryQuery.data.summary.generatedAt).toLocaleString()}
-              </span>
+              <div>
+                <h2 className="font-semibold text-gray-800">Saved AI Knowledge Summary</h2>
+                <span className="text-xs text-gray-500">
+                  Updated {new Date(knowledgeSummaryQuery.data.summary.generatedAt).toLocaleString()}
+                </span>
+              </div>
+              <button
+                onClick={() => setIsSummaryExpanded((expanded) => !expanded)}
+                className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                aria-expanded={isSummaryExpanded}
+              >
+                {isSummaryExpanded ? "Hide" : "View full"}
+                {isSummaryExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </button>
             </div>
-            <p className="text-sm text-gray-600 line-clamp-3 whitespace-pre-line">
+            <p className={`text-sm text-gray-600 whitespace-pre-line ${isSummaryExpanded ? "" : "line-clamp-3"}`}>
               {knowledgeSummaryQuery.data.summary.content}
             </p>
           </div>

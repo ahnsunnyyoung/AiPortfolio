@@ -25,6 +25,9 @@ export default function TrainingSkills() {
     categoryId: 0,
     proficiency: ""
   });
+  const [addingSkillCategoryId, setAddingSkillCategoryId] = useState<number | null>(null);
+  const [addingSkillName, setAddingSkillName] = useState("");
+  const [addingSkillProficiency, setAddingSkillProficiency] = useState("Intermediate");
   const [editingCategory, setEditingCategory] = useState<number | null>(null);
   const [editingCategoryName, setEditingCategoryName] = useState("");
   const [editingSkill, setEditingSkill] = useState<number | null>(null);
@@ -210,6 +213,21 @@ export default function TrainingSkills() {
     addSkillMutation.mutate(newSkill);
   };
 
+  const handleAddSkillToCategory = (categoryId: number) => {
+    if (!addingSkillName.trim()) return;
+    addSkillMutation.mutate({
+      name: addingSkillName.trim(),
+      categoryId,
+      proficiency: addingSkillProficiency,
+    }, {
+      onSuccess: () => {
+        setAddingSkillCategoryId(null);
+        setAddingSkillName("");
+        setAddingSkillProficiency("Intermediate");
+      },
+    });
+  };
+
   const handleEditSkill = (skill: Skill) => {
     setEditingSkill(skill.id);
     setEditingSkillData({ ...skill });
@@ -270,67 +288,6 @@ export default function TrainingSkills() {
         </div>
       </div>
 
-      {/* Add New Skill */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <Code className="w-5 h-5" />
-          Add New Skill
-        </h2>
-
-        <div className="grid md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Skill Name</label>
-            <input
-              type="text"
-              value={newSkill.name}
-              onChange={(e) => setNewSkill(prev => ({ ...prev, name: e.target.value }))}
-              placeholder="e.g., React, Python, Node.js"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-            <select
-              value={newSkill.categoryId}
-              onChange={(e) => setNewSkill(prev => ({ ...prev, categoryId: parseInt(e.target.value) }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value={0}>Select a category</option>
-              {categories.map((category: SkillCategory) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Proficiency</label>
-            {/* <select
-              value={newSkill.proficiency}
-              onChange={(e) => setNewSkill(prev => ({ ...prev, proficiency: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {proficiencyLevels.map(level => (
-                <option key={level.value} value={level.value}>
-                  {level.label}
-                </option>
-              ))}
-            </select> */}
-          </div>
-        </div>
-
-        <button
-          onClick={handleAddSkill}
-          disabled={addSkillMutation.isPending || !newSkill.name.trim() || !newSkill.categoryId}
-          className="w-full mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          <Save className="w-4 h-4" />
-          {addSkillMutation.isPending ? "Adding..." : "Add Skill"}
-        </button>
-      </div>
-
       {/* Skills by Category */}
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
@@ -374,6 +331,16 @@ export default function TrainingSkills() {
                       <h3 className="text-lg font-semibold text-gray-800">{category.name}</h3>
                       <div className="flex gap-2">
                         <button
+                          onClick={() => {
+                            setAddingSkillCategoryId(category.id);
+                            setAddingSkillName("");
+                            setAddingSkillProficiency("Intermediate");
+                          }}
+                          className="text-green-600 hover:bg-green-50 px-2 py-1 rounded transition-colors text-xs flex items-center gap-1"
+                        >
+                          <Plus className="w-3 h-3" /> Add Skill
+                        </button>
+                        <button
                           onClick={() => handleEditCategory(category)}
                           className="text-blue-500 hover:bg-blue-50 p-1 rounded transition-colors"
                         >
@@ -390,32 +357,67 @@ export default function TrainingSkills() {
                   )}
                 </div>
 
+                {addingSkillCategoryId === category.id && (
+                  <div className="flex flex-col sm:flex-row gap-2 mb-3 p-2 bg-blue-50 rounded-lg">
+                    <input
+                      autoFocus
+                      type="text"
+                      value={addingSkillName}
+                      onChange={(e) => setAddingSkillName(e.target.value)}
+                      placeholder="Skill name"
+                      className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+                    />
+                    <select
+                      value={addingSkillProficiency}
+                      onChange={(e) => setAddingSkillProficiency(e.target.value)}
+                      className="px-2 py-1 border border-gray-300 rounded text-sm"
+                    >
+                      {proficiencyLevels.filter(level => level.value).map(level => (
+                        <option key={level.value} value={level.value}>{level.label}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => handleAddSkillToCategory(category.id)}
+                      disabled={addSkillMutation.isPending || !addingSkillName.trim()}
+                      className="bg-green-500 text-white px-3 py-1 rounded text-sm disabled:opacity-50"
+                    >
+                      <Save className="w-3 h-3 inline mr-1" />Save
+                    </button>
+                    <button
+                      onClick={() => setAddingSkillCategoryId(null)}
+                      className="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                   {getSkillsByCategory(category.id).map((skill: Skill) => (
-                    <div key={skill.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-2">
+                    <div key={skill.id} className={`bg-gray-50 rounded-lg p-2 ${editingSkill === skill.id ? "md:col-span-2 lg:col-span-3" : ""}`}>
                       {editingSkill === skill.id ? (
-                        <div className="flex gap-1 flex-1">
+                        <div className="flex flex-col sm:flex-row gap-2 w-full">
                           <input
                             type="text"
                             value={editingSkillData.name || ""}
                             onChange={(e) => setEditingSkillData((prev: any) => ({ ...prev, name: e.target.value }))}
-                            className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="w-full sm:flex-1 min-w-0 px-2 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                           />
-                          {/* <select
+                          <select
                             value={editingSkillData.proficiency || ""}
                             onChange={(e) => setEditingSkillData((prev: any) => ({ ...prev, proficiency: e.target.value }))}
-                            className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="w-full sm:w-auto px-2 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                           >
                             {proficiencyLevels.map(level => (
                               <option key={level.value} value={level.value}>
                                 {level.label}
                               </option>
                             ))}
-                          </select> */}
+                          </select>
                           <button
                             onClick={handleUpdateSkill}
                             disabled={updateSkillMutation.isPending}
-                            className="bg-green-500 text-white px-2 py-1 rounded text-sm hover:bg-green-600 transition-colors disabled:opacity-50"
+                            className="w-full sm:w-auto bg-green-500 text-white px-3 py-2 rounded text-sm hover:bg-green-600 transition-colors disabled:opacity-50"
                           >
                             <Save className="w-3 h-3" />
                           </button>
