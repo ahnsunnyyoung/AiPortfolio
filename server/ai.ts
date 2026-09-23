@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { storage } from "./storage";
+import { formatPeriod } from "../shared/period";
 
 // Google Gemini via its official SDK.
 // Set GEMINI_API_KEY (get one at https://aistudio.google.com/apikey).
@@ -46,7 +47,7 @@ export async function generatePersonalizedResponse(
     // Build projects context
     const projectsContext = projects
       .map(project => `Project: ${project.title}
-Period: ${project.period}
+Period: ${formatPeriod(project)}
 Subtitle: ${project.subtitle}
 Summary: ${project.summary}
 Contents: ${project.contents.join(', ')}
@@ -57,7 +58,7 @@ More Info: ${project.moreLink || 'N/A'}`)
     // Build experiences context
     const experiencesContext = experiences
       .map(exp => `Experience: ${exp.position} at ${exp.company}
-Period: ${exp.period}
+Period: ${formatPeriod(exp)}
 Location: ${exp.location}
 Description: ${exp.description || 'N/A'}
 Responsibilities: ${exp.responsibilities?.join(', ') || 'N/A'}
@@ -147,10 +148,10 @@ KNOWLEDGE BASE:
 ${trainingData.map(data => data.content).join("\n\n") || "N/A"}
 
 PROJECTS:
-${projects.map(project => `${project.title} | ${project.period} | ${project.subtitle} | ${project.summary} | ${project.contents.join(", ")} | ${project.tech} | ${project.detailedContent || ""}`).join("\n\n") || "N/A"}
+${projects.map(project => `${project.title} | ${formatPeriod(project)} | ${project.subtitle} | ${project.summary} | ${project.contents.join(", ")} | ${project.tech} | ${project.detailedContent || ""}`).join("\n\n") || "N/A"}
 
 EXPERIENCES:
-${experiences.map(experience => `${experience.position} at ${experience.company} | ${experience.period} | ${experience.location} | ${experience.description || ""} | ${experience.responsibilities?.join(", ") || ""} | ${experience.skills || ""} | ${experience.detailedContent || ""}`).join("\n\n") || "N/A"}
+${experiences.map(experience => `${experience.position} at ${experience.company} | ${formatPeriod(experience)} | ${experience.location} | ${experience.description || ""} | ${experience.responsibilities?.join(", ") || ""} | ${experience.skills || ""} | ${experience.detailedContent || ""}`).join("\n\n") || "N/A"}
 
 SKILLS:
 ${skillsByCategory || "N/A"}`;

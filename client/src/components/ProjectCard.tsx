@@ -1,9 +1,15 @@
 import { ExternalLink, Calendar } from "lucide-react";
+import { formatPeriod } from "@shared/period";
 
 interface Project {
   id: number;
   title: string;
   period: string;
+  startYear?: number | null;
+  startMonth?: number | null;
+  endYear?: number | null;
+  endMonth?: number | null;
+  endPresent?: boolean | null;
   subtitle: string;
   summary: string;
   contents: string[];
@@ -56,7 +62,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           )}
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <Calendar className="w-3 h-3" />
-            <span>{project.period}</span>
+            <span>{formatPeriod(project)}</span>
           </div>
         </div>
       </div>

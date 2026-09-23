@@ -3,12 +3,18 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Plus, Save, Edit3, Trash2, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { formatPeriod } from "@shared/period";
 
 interface Experience {
   id: number;
   company: string;
   position: string;
   period: string;
+  startYear?: number | null;
+  startMonth?: number | null;
+  endYear?: number | null;
+  endMonth?: number | null;
+  endPresent?: boolean | null;
   location: string;
   description?: string;
   responsibilities?: string[];
@@ -25,6 +31,11 @@ export default function TrainingExperience() {
     company: "",
     position: "",
     period: "",
+    startYear: "",
+    startMonth: "",
+    endYear: "",
+    endMonth: "",
+    endPresent: false,
     location: "",
     description: "",
     responsibilities: [""],
@@ -116,6 +127,11 @@ export default function TrainingExperience() {
       company: "",
       position: "",
       period: "",
+      startYear: "",
+      startMonth: "",
+      endYear: "",
+      endMonth: "",
+      endPresent: false,
       location: "",
       description: "",
       responsibilities: [""],
@@ -130,6 +146,18 @@ export default function TrainingExperience() {
     if (!experienceForm.company.trim() || !experienceForm.position.trim()) return;
     const experienceData = {
       ...experienceForm,
+      period: formatPeriod({
+        startYear: Number(experienceForm.startYear) || null,
+        startMonth: Number(experienceForm.startMonth) || null,
+        endYear: Number(experienceForm.endYear) || null,
+        endMonth: Number(experienceForm.endMonth) || null,
+        endPresent: experienceForm.endPresent,
+        period: experienceForm.period,
+      }),
+      startYear: Number(experienceForm.startYear) || null,
+      startMonth: Number(experienceForm.startMonth) || null,
+      endYear: Number(experienceForm.endYear) || null,
+      endMonth: Number(experienceForm.endMonth) || null,
       responsibilities: experienceForm.responsibilities.filter(r => r.trim())
     };
     
@@ -146,6 +174,11 @@ export default function TrainingExperience() {
       company: experience.company,
       position: experience.position,
       period: experience.period,
+      startYear: experience.startYear?.toString() || "",
+      startMonth: experience.startMonth?.toString() || "",
+      endYear: experience.endYear?.toString() || "",
+      endMonth: experience.endMonth?.toString() || "",
+      endPresent: Boolean(experience.endPresent),
       location: experience.location,
       description: experience.description || "",
       responsibilities: experience.responsibilities || [""],
@@ -219,7 +252,7 @@ export default function TrainingExperience() {
                   <div>
                     <h3 className="font-semibold text-lg text-gray-800">{experience.position}</h3>
                     <p className="text-blue-600 font-medium">{experience.company}</p>
-                    <p className="text-gray-600 text-sm">{experience.period} • {experience.location}</p>
+                    <p className="text-gray-600 text-sm">{formatPeriod(experience)} • {experience.location}</p>
                   </div>
                   <div className="flex gap-2">
                     <button
@@ -306,14 +339,19 @@ export default function TrainingExperience() {
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Period</label>
-                    <input
-                      type="text"
-                      value={experienceForm.period}
-                      onChange={(e) => setExperienceForm(prev => ({ ...prev, period: e.target.value }))}
-                      placeholder="e.g., Jan 2020 - Dec 2021"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Start</label>
+                    <div className="flex gap-2">
+                      <input type="number" min="1900" max="2100" placeholder="Year" value={experienceForm.startYear} onChange={(e) => setExperienceForm(prev => ({ ...prev, startYear: e.target.value }))} className="w-1/2 px-3 py-2 border border-gray-300 rounded-lg" />
+                      <input type="number" min="1" max="12" placeholder="Month" value={experienceForm.startMonth} onChange={(e) => setExperienceForm(prev => ({ ...prev, startMonth: e.target.value }))} className="w-1/2 px-3 py-2 border border-gray-300 rounded-lg" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">End</label>
+                    <div className="flex items-center gap-2">
+                      <input type="number" min="1900" max="2100" placeholder="Year" disabled={experienceForm.endPresent} value={experienceForm.endYear} onChange={(e) => setExperienceForm(prev => ({ ...prev, endYear: e.target.value }))} className="w-1/3 px-3 py-2 border border-gray-300 rounded-lg disabled:bg-gray-100" />
+                      <input type="number" min="1" max="12" placeholder="Month" disabled={experienceForm.endPresent} value={experienceForm.endMonth} onChange={(e) => setExperienceForm(prev => ({ ...prev, endMonth: e.target.value }))} className="w-1/3 px-3 py-2 border border-gray-300 rounded-lg disabled:bg-gray-100" />
+                      <label className="flex items-center gap-1 text-sm text-gray-700"><input type="checkbox" checked={experienceForm.endPresent} onChange={(e) => setExperienceForm(prev => ({ ...prev, endPresent: e.target.checked }))} /> Present</label>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>

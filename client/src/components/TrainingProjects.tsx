@@ -3,11 +3,17 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Code, Plus, Save, Trash2, Edit3, X, Upload } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { formatPeriod } from "@shared/period";
 
 interface Project {
   id: number;
   title: string;
   period: string;
+  startYear?: number | null;
+  startMonth?: number | null;
+  endYear?: number | null;
+  endMonth?: number | null;
+  endPresent?: boolean | null;
   subtitle: string;
   summary: string;
   contents: string[];
@@ -25,6 +31,11 @@ export default function TrainingProjects() {
   const [projectForm, setProjectForm] = useState({
     title: "",
     period: "",
+    startYear: "",
+    startMonth: "",
+    endYear: "",
+    endMonth: "",
+    endPresent: false,
     subtitle: "",
     summary: "",
     contents: [""],
@@ -116,6 +127,11 @@ export default function TrainingProjects() {
     setProjectForm({
       title: "",
       period: "",
+      startYear: "",
+      startMonth: "",
+      endYear: "",
+      endMonth: "",
+      endPresent: false,
       subtitle: "",
       summary: "",
       contents: [""],
@@ -150,6 +166,18 @@ export default function TrainingProjects() {
 
     const projectData = {
       ...projectForm,
+      period: formatPeriod({
+        startYear: Number(projectForm.startYear) || null,
+        startMonth: Number(projectForm.startMonth) || null,
+        endYear: Number(projectForm.endYear) || null,
+        endMonth: Number(projectForm.endMonth) || null,
+        endPresent: projectForm.endPresent,
+        period: projectForm.period,
+      }),
+      startYear: Number(projectForm.startYear) || null,
+      startMonth: Number(projectForm.startMonth) || null,
+      endYear: Number(projectForm.endYear) || null,
+      endMonth: Number(projectForm.endMonth) || null,
       contents: filteredContents
     };
 
@@ -165,6 +193,11 @@ export default function TrainingProjects() {
     setProjectForm({
       title: project.title,
       period: project.period,
+      startYear: project.startYear?.toString() || "",
+      startMonth: project.startMonth?.toString() || "",
+      endYear: project.endYear?.toString() || "",
+      endMonth: project.endMonth?.toString() || "",
+      endPresent: Boolean(project.endPresent),
       subtitle: project.subtitle,
       summary: project.summary,
       contents: project.contents.length ? project.contents : [""],
@@ -240,7 +273,7 @@ export default function TrainingProjects() {
                   <div>
                     <h3 className="font-semibold text-lg text-gray-800">{project.title}</h3>
                     <p className="text-blue-600 font-medium">{project.subtitle}</p>
-                    <p className="text-gray-600 text-sm">{project.period}</p>
+                    <p className="text-gray-600 text-sm">{formatPeriod(project)}</p>
                   </div>
                   <div className="flex gap-2">
                     <button
@@ -310,14 +343,20 @@ export default function TrainingProjects() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Period</label>
-                    <input
-                      type="text"
-                      value={projectForm.period}
-                      onChange={(e) => setProjectForm(prev => ({ ...prev, period: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="e.g., March 2022 - June 2022"
-                    />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Start</label>
+                    <div className="flex gap-2">
+                      <input type="number" min="1900" max="2100" placeholder="Year" value={projectForm.startYear} onChange={(e) => setProjectForm(prev => ({ ...prev, startYear: e.target.value }))} className="w-1/2 px-3 py-2 border border-gray-300 rounded-lg" />
+                      <input type="number" min="1" max="12" placeholder="Month" value={projectForm.startMonth} onChange={(e) => setProjectForm(prev => ({ ...prev, startMonth: e.target.value }))} className="w-1/2 px-3 py-2 border border-gray-300 rounded-lg" />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">End</label>
+                  <div className="flex items-center gap-2">
+                    <input type="number" min="1900" max="2100" placeholder="Year" disabled={projectForm.endPresent} value={projectForm.endYear} onChange={(e) => setProjectForm(prev => ({ ...prev, endYear: e.target.value }))} className="w-1/3 px-3 py-2 border border-gray-300 rounded-lg disabled:bg-gray-100" />
+                    <input type="number" min="1" max="12" placeholder="Month" disabled={projectForm.endPresent} value={projectForm.endMonth} onChange={(e) => setProjectForm(prev => ({ ...prev, endMonth: e.target.value }))} className="w-1/3 px-3 py-2 border border-gray-300 rounded-lg disabled:bg-gray-100" />
+                    <label className="flex items-center gap-1 text-sm text-gray-700"><input type="checkbox" checked={projectForm.endPresent} onChange={(e) => setProjectForm(prev => ({ ...prev, endPresent: e.target.checked }))} /> Present</label>
                   </div>
                 </div>
 

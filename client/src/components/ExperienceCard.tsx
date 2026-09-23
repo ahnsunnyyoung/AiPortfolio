@@ -1,10 +1,16 @@
 import { ExternalLink, MapPin, Calendar } from "lucide-react";
+import { formatPeriod } from "@shared/period";
 
 interface Experience {
   id: number;
   company: string;
   position: string;
   period: string;
+  startYear?: number | null;
+  startMonth?: number | null;
+  endYear?: number | null;
+  endMonth?: number | null;
+  endPresent?: boolean | null;
   location: string;
   description?: string;
   responsibilities?: string[];
@@ -54,7 +60,7 @@ export default function ExperienceCard({ experience }: ExperienceCardProps) {
           </p>
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <Calendar className="w-3 h-3" />
-            <span>{experience.period}</span>
+            <span>{formatPeriod(experience)}</span>
           </div>
           {experience.location && (
             <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">

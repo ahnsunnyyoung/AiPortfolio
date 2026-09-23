@@ -2,6 +2,7 @@ import { trainingData, conversations, projects, experiences, promptExamples, con
 import { db } from "./db";
 import { desc, eq, asc, and } from "drizzle-orm";
 import { isNull } from "drizzle-orm";
+import { periodSortValue } from "../shared/period";
 
 export interface IStorage {
   addTrainingData(data: InsertTrainingData): Promise<TrainingData>;
@@ -131,10 +132,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllProjects(): Promise<Project[]> {
-    return await db
+    const results = await db
       .select()
       .from(projects)
       .orderBy(desc(projects.timestamp));
+    return results.sort((left, right) => periodSortValue(right) - periodSortValue(left));
   }
 
   async updateProject(id: number, project: InsertProject): Promise<Project> {
@@ -162,10 +164,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllExperiences(): Promise<Experience[]> {
-    return await db
+    const results = await db
       .select()
       .from(experiences)
       .orderBy(desc(experiences.timestamp));
+    return results.sort((left, right) => periodSortValue(right) - periodSortValue(left));
   }
 
   async updateExperience(id: number, experience: InsertExperience): Promise<Experience> {

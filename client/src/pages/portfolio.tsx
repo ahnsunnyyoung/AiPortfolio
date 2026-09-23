@@ -25,11 +25,17 @@ import { useLanguage } from "@/hooks/useLanguage";
 import ProjectCard from "@/components/ProjectCard";
 import ExperienceCard from "@/components/ExperienceCard";
 import LanguageSelector from "@/components/LanguageSelector";
+import { formatPeriod } from "@shared/period";
 
 interface Project {
   id: number;
   title: string;
   period: string;
+  startYear?: number | null;
+  startMonth?: number | null;
+  endYear?: number | null;
+  endMonth?: number | null;
+  endPresent?: boolean | null;
   subtitle: string;
   summary: string;
   contents: string[];
@@ -46,6 +52,11 @@ interface Experience {
   company: string;
   position: string;
   period: string;
+  startYear?: number | null;
+  startMonth?: number | null;
+  endYear?: number | null;
+  endMonth?: number | null;
+  endPresent?: boolean | null;
   location: string;
   description?: string;
   responsibilities?: string[];
@@ -538,7 +549,7 @@ export default function Portfolio() {
                                     {project.title}
                                   </h4>
                                   <p className="text-gray-600 text-sm mb-1">
-                                    {project.period}
+                                    {formatPeriod(project)}
                                   </p>
                                   <p className="text-gray-700 text-sm">
                                     {project.summary}
@@ -662,7 +673,7 @@ export default function Portfolio() {
                                       {experience.company}
                                     </p>
                                     <p className="text-gray-600 text-sm">
-                                      {experience.period} •{" "}
+                                      {formatPeriod(experience)} •{" "}
                                       {experience.location}
                                     </p>
                                   </div>
