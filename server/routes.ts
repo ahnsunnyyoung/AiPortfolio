@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { generatePersonalizedResponse } from "./openai";
+import { generatePersonalizedResponse } from "./ai";
 import { translateText, translateProjectsAndExperiences } from "./translate";
 import { aiRateLimiter } from "./rateLimiter";
 import { z } from "zod";
@@ -16,10 +16,6 @@ const askRequestSchema = z.object({
   promptExampleId: z.number().optional(),
   language: z.string().default('en'),
   sessionId: z.string().optional(),
-  sessionHistory: z.array(z.object({
-    question: z.string(),
-    answer: z.string()
-  })).optional().default([]),
 });
 
 const trainRequestSchema = insertTrainingDataSchema;
@@ -107,7 +103,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const { question, promptExampleId, language, sessionId, sessionHistory } = askRequestSchema.parse(req.body);
+      const { question, promptExampleId, language, sessionId } = askRequestSchema.parse(req.body);
 
       // Get or create session ID
       const currentSessionId = await getOrCreateSessionId(sessionId);
@@ -271,7 +267,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const aiResponse = await generatePersonalizedResponse(question, sessionHistory);
+      const aiResponse = await generatePersonalizedResponse(question, currentSessionId);
 
       // Translate AI response if not in English
       const translatedResponse = await translateText({

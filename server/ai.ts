@@ -1,19 +1,16 @@
-import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
 import { storage } from "./storage";
 
-// Google Gemini via its OpenAI-compatible endpoint.
+// Google Gemini via its official SDK.
 // Set GEMINI_API_KEY (get one at https://aistudio.google.com/apikey).
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
-const MODEL = process.env.GEMINI_MODEL || "gemini-flash-latest";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 
-const openai = GEMINI_API_KEY ? new OpenAI({
-  apiKey: GEMINI_API_KEY,
-  baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
-}) : null;
+const gemini = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
 
-export async function generatePersonalizedResponse(userQuestion: string, sessionHistory: Array<{question: string, answer: string}> = []): Promise<string> {
-  if (!openai) {
-    throw new Error("AI functionality is not available. Please provide an OpenAI API key to enable personalized responses.");
+export async function generatePersonalizedResponse(userQuestion: string, sessionId: string): Promise<string> {
+  if (!gemini) {
+    throw new Error("AI functionality is not available. Please provide a Gemini API key to enable personalized responses.");
   }
 
   try {
@@ -22,6 +19,7 @@ export async function generatePersonalizedResponse(userQuestion: string, session
     const projects = await storage.getAllProjects();
     const experiences = await storage.getAllExperiences();
     const introduction = await storage.getIntroduction();
+    const sessionConversations = await storage.getConversationsBySession(sessionId, 10);
 
     // Build context from training data
     const knowledgeBase = trainingData
@@ -29,7 +27,7 @@ export async function generatePersonalizedResponse(userQuestion: string, session
       .join('\n\n');
 
     // Build conversation history context from current session only
-    const conversationHistory = sessionHistory
+    const conversationHistory = sessionConversations
       .map(conv => `Q: ${conv.question}\nA: ${conv.answer}`)
       .join('\n\n');
 
@@ -85,23 +83,17 @@ Guidelines:
 
 Remember: You are representing Sunyoung based on the specific training data provided. Stay true to that information.`;
 
-    const response = await openai.chat.completions.create({
+    const response = await gemini.models.generateContent({
       model: MODEL,
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt
-        },
-        {
-          role: "user",
-          content: userQuestion
-        }
-      ],
-      max_tokens: 500,
-      temperature: 0.7,
+      contents: userQuestion,
+      config: {
+        systemInstruction: systemPrompt,
+        maxOutputTokens: 500,
+        temperature: 0.7,
+      },
     });
 
-    return response.choices[0].message.content || "I'd be happy to help! Could you ask me something specific?";
+    return response.text || "I'd be happy to help! Could you ask me something specific?";
   } catch (error) {
     console.error("Gemini API error:", error);
     throw new Error("I'm having trouble connecting to my AI system right now. Please try again in a moment!");

@@ -1,15 +1,12 @@
-import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
 import { storage } from "./storage";
 
-// Google Gemini via its OpenAI-compatible endpoint.
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
+// Google Gemini via its official SDK.
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-const openai = new OpenAI({
-  apiKey: GEMINI_API_KEY,
-  baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
-});
+const gemini = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-flash-latest";
+const MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 
 interface TranslationRequest {
   text: string;
@@ -49,17 +46,21 @@ ${context ? `Context: ${context}` : ''}
 
 Respond only with the translated text, no explanations or additional content.`;
 
-    const response = await openai.chat.completions.create({
+    if (!gemini) {
+      return text;
+    }
+
+    const response = await gemini.models.generateContent({
       model: MODEL,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: text }
-      ],
-      temperature: 0.3,
-      max_tokens: 2000
+      contents: text,
+      config: {
+        systemInstruction: systemPrompt,
+        temperature: 0.3,
+        maxOutputTokens: 2000,
+      },
     });
 
-    const translatedText = response.choices[0]?.message?.content?.trim() || text;
+    const translatedText = response.text?.trim() || text;
 
     // Cache the translation for future use
     try {

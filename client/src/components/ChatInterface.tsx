@@ -61,19 +61,9 @@ export default function ChatInterface() {
 
   const chatMutation = useMutation({
     mutationFn: async (message: string) => {
-      const sessionHistory = messages
-        .filter(m => m.id !== "welcome")
-        .slice(-10) // Last 10 messages for context
-        .map(m => ({
-          question: m.isUser ? m.content : "",
-          answer: !m.isUser ? m.content : ""
-        }))
-        .filter(m => m.question || m.answer);
-
       const response = await apiRequest("POST", "/api/ask", {
         question: message,
         sessionId: currentSessionId,
-        sessionHistory,
         language
       });
       return response.json();
