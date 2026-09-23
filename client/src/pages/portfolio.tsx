@@ -145,6 +145,11 @@ export default function Portfolio() {
   const promptExamples = promptExamplesData?.examples || [];
   const introduction = introductionData?.introduction;
 
+  // Suggested questions are translated per language, so discard the previous language cache.
+  useEffect(() => {
+    setCachedPromptExamples([]);
+  }, [language]);
+
   // Cache prompt examples when conversation starts to prevent mid-chat updates
   useEffect(() => {
     if (promptExamples.length > 0 && cachedPromptExamples.length === 0) {
