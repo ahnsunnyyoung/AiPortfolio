@@ -109,6 +109,12 @@ export const translations = pgTable("translations", {
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
+export const knowledgeSummaries = pgTable("knowledge_summaries", {
+  id: serial("id").primaryKey(),
+  content: text("content").notNull(),
+  generatedAt: timestamp("generated_at").defaultNow().notNull(),
+});
+
 export const insertTrainingDataSchema = createInsertSchema(trainingData);
 export const insertConversationSchema = createInsertSchema(conversations);
 
@@ -205,3 +211,4 @@ export type Introduction = typeof introduction.$inferSelect;
 export type InsertIntroduction = z.infer<typeof insertIntroductionSchema>;
 export type Translation = typeof translations.$inferSelect;
 export type InsertTranslation = z.infer<typeof insertTranslationSchema>;
+export type KnowledgeSummary = typeof knowledgeSummaries.$inferSelect;

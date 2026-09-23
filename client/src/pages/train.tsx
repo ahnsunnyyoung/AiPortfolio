@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
-import { Brain, ArrowLeft, Code, User, Briefcase, MessageCircle, History, Lock } from "lucide-react";
+import { Brain, ArrowLeft, Code, User, Briefcase, MessageCircle, History, Lock, RefreshCw } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { Link, useLocation } from "wouter";
 import TrainingKnowledge from "@/components/TrainingKnowledge";
 import TrainingIntroduction from "@/components/TrainingIntroduction";
@@ -17,6 +20,28 @@ export default function Train() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+
+  const knowledgeSummaryQuery = useQuery({
+    queryKey: ["/api/knowledge-summary"],
+    queryFn: () => apiRequest("GET", "/api/knowledge-summary").then((res) => res.json()),
+    enabled: isAuthenticated,
+  });
+
+  const updateKnowledgeSummaryMutation = useMutation({
+    mutationFn: () => apiRequest("POST", "/api/knowledge-summary").then((res) => res.json()),
+    onSuccess: (data) => {
+      queryClient.setQueryData(["/api/knowledge-summary"], data);
+      toast({ title: "AI Summary Updated", description: "The portfolio knowledge summary is ready." });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Summary Update Failed",
+        description: error.message || "Failed to update the AI summary.",
+        variant: "destructive",
+      });
+    },
+  });
 
   useEffect(() => {
     // Check if user is already authenticated in this session
@@ -123,7 +148,32 @@ export default function Train() {
             <Lock className="w-4 h-4" />
             <span className="hidden sm:inline">Logout</span>
           </button>
+          <button
+            onClick={() => updateKnowledgeSummaryMutation.mutate()}
+            disabled={updateKnowledgeSummaryMutation.isPending}
+            className="flex items-center gap-2 px-3 py-2 text-sm text-blue-700 bg-blue-50 hover:bg-blue-100 disabled:opacity-50 rounded-lg transition-colors"
+            title="Regenerate the AI knowledge summary from all portfolio data"
+          >
+            <RefreshCw className={`w-4 h-4 ${updateKnowledgeSummaryMutation.isPending ? "animate-spin" : ""}`} />
+            <span className="hidden sm:inline">
+              {updateKnowledgeSummaryMutation.isPending ? "Updating..." : "Update AI Summary"}
+            </span>
+          </button>
         </div>
+
+        {knowledgeSummaryQuery.data?.summary && (
+          <div className="mb-6 bg-white/80 backdrop-blur-sm rounded-lg border border-white/50 p-4">
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <h2 className="font-semibold text-gray-800">Saved AI Knowledge Summary</h2>
+              <span className="text-xs text-gray-500">
+                {new Date(knowledgeSummaryQuery.data.summary.generatedAt).toLocaleString()}
+              </span>
+            </div>
+            <p className="text-sm text-gray-600 line-clamp-3 whitespace-pre-line">
+              {knowledgeSummaryQuery.data.summary.content}
+            </p>
+          </div>
+        )}
 
         {/* Main Tab Navigation */}
         <div className="flex flex-wrap sm:flex-nowrap space-x-1 bg-white/80 backdrop-blur-sm rounded-lg p-1 mb-6 sm:mb-8 border border-white/50 overflow-x-auto">

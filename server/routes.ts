@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { generatePersonalizedResponse } from "./ai";
+import { generateKnowledgeSummary, generatePersonalizedResponse } from "./ai";
 import { translateText, translateProjectsAndExperiences } from "./translate";
 import { aiRateLimiter } from "./rateLimiter";
 import { z } from "zod";
@@ -81,6 +81,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
           error: "Failed to add training data",
         });
       }
+    }
+  });
+
+  app.get("/api/knowledge-summary", async (_req, res) => {
+    try {
+      const summary = await storage.getKnowledgeSummary();
+      res.json({ summary });
+    } catch (error) {
+      console.error("Get knowledge summary error:", error);
+      res.status(500).json({ error: "Failed to retrieve knowledge summary" });
+    }
+  });
+
+  app.post("/api/knowledge-summary", async (_req, res) => {
+    try {
+      const content = await generateKnowledgeSummary();
+      const summary = await storage.saveKnowledgeSummary(content);
+      res.json({ success: true, summary });
+    } catch (error) {
+      console.error("Generate knowledge summary error:", error);
+      res.status(500).json({ error: "Failed to generate knowledge summary" });
     }
   });
 

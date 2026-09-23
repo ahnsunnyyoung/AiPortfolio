@@ -31,6 +31,7 @@ export async function generatePersonalizedResponse(
     const experiences = await storage.getAllExperiences();
     const introduction = await storage.getIntroduction();
     const sessionConversations = await storage.getConversationsBySession(sessionId, 10);
+    const knowledgeSummary = await storage.getKnowledgeSummary();
 
     // Build context from training data
     const knowledgeBase = trainingData
@@ -65,19 +66,22 @@ Website: ${exp.website || 'N/A'}`)
       .join('\n\n');
 
     const responseLanguage = LANGUAGE_NAMES[language] || language;
-    const systemPrompt = `You are Sunyoung Ahn's personalized AI assistant. You have been trained with specific information about Sunyoung and should respond based on this knowledge.
+    const knowledgeContext = knowledgeSummary?.content || `INTRODUCTION:
+  ${introduction?.content || 'No introduction available'}
 
-INTRODUCTION:
-${introduction?.content || 'No introduction available'}
+  KNOWLEDGE BASE:
+  ${knowledgeBase}
 
-KNOWLEDGE BASE:
-${knowledgeBase}
+  PROJECTS:
+  ${projectsContext}
 
-PROJECTS:
-${projectsContext}
+  EXPERIENCES:
+  ${experiencesContext}`;
 
-EXPERIENCES:
-${experiencesContext}
+    const systemPrompt = `You are Sunyoung Ahn's personalized AI assistant. Answer only from the portfolio knowledge below.
+
+  PORTFOLIO KNOWLEDGE SUMMARY:
+  ${knowledgeContext}
 
 RECENT CONVERSATION CONTEXT:
 ${conversationHistory}
@@ -112,4 +116,62 @@ Remember: You are representing Sunyoung based on the specific training data prov
     console.error("Gemini API error:", error);
     throw new Error("I'm having trouble connecting to my AI system right now. Please try again in a moment!");
   }
+}
+
+export async function generateKnowledgeSummary(): Promise<string> {
+  if (!gemini) {
+    throw new Error("AI functionality is not available. Please provide a Gemini API key to generate a summary.");
+  }
+
+  const [trainingData, projects, experiences, introduction, categories, skills] = await Promise.all([
+    storage.getActiveTrainingData(),
+    storage.getAllProjects(),
+    storage.getAllExperiences(),
+    storage.getIntroduction(),
+    storage.getAllSkillCategories(),
+    storage.getAllSkills(),
+  ]);
+
+  const skillsByCategory = categories.map(category => {
+    const categorySkills = skills
+      .filter(skill => skill.categoryId === category.id)
+      .map(skill => skill.name)
+      .join(", ");
+    return `${category.name}: ${categorySkills}`;
+  }).join("\n");
+
+  const source = `INTRODUCTION:
+${introduction?.content || "N/A"}
+
+KNOWLEDGE BASE:
+${trainingData.map(data => data.content).join("\n\n") || "N/A"}
+
+PROJECTS:
+${projects.map(project => `${project.title} | ${project.period} | ${project.subtitle} | ${project.summary} | ${project.contents.join(", ")} | ${project.tech} | ${project.detailedContent || ""}`).join("\n\n") || "N/A"}
+
+EXPERIENCES:
+${experiences.map(experience => `${experience.position} at ${experience.company} | ${experience.period} | ${experience.location} | ${experience.description || ""} | ${experience.responsibilities?.join(", ") || ""} | ${experience.skills || ""} | ${experience.detailedContent || ""}`).join("\n\n") || "N/A"}
+
+SKILLS:
+${skillsByCategory || "N/A"}`;
+
+  const response = await gemini.models.generateContent({
+    model: MODEL,
+    contents: source,
+    config: {
+      systemInstruction: `Create one compact, factual knowledge summary for a portfolio AI assistant.
+Organize it under Introduction, Knowledge, Projects, Experience, and Skills headings.
+Keep exact facts such as names, dates, companies, technologies, responsibilities, and URLs.
+Remove repetition and marketing language. Do not invent or omit important facts.
+This summary will be used as the primary context for future answers.`,
+      maxOutputTokens: 4000,
+      temperature: 0.2,
+    },
+  });
+
+  const summary = response.text?.trim();
+  if (!summary) {
+    throw new Error("Gemini returned an empty knowledge summary.");
+  }
+  return summary;
 }

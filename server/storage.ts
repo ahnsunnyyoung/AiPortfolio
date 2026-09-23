@@ -1,4 +1,4 @@
-import { trainingData, conversations, projects, experiences, promptExamples, contacts, skillCategories, skills, introduction, translations, type TrainingData, type InsertTrainingData, type Conversation, type InsertConversation, type Project, type InsertProject, type Experience, type InsertExperience, type PromptExample, type InsertPromptExample, type Contact, type InsertContact, type SkillCategory, type InsertSkillCategory, type Skill, type InsertSkill, type Introduction, type InsertIntroduction, type Translation, type InsertTranslation } from "../shared/schema";
+import { trainingData, conversations, projects, experiences, promptExamples, contacts, skillCategories, skills, introduction, translations, knowledgeSummaries, type TrainingData, type InsertTrainingData, type Conversation, type InsertConversation, type Project, type InsertProject, type Experience, type InsertExperience, type PromptExample, type InsertPromptExample, type Contact, type InsertContact, type SkillCategory, type InsertSkillCategory, type Skill, type InsertSkill, type Introduction, type InsertIntroduction, type Translation, type InsertTranslation, type KnowledgeSummary } from "../shared/schema";
 import { db } from "./db";
 import { desc, eq, asc, and } from "drizzle-orm";
 import { isNull } from "drizzle-orm";
@@ -45,6 +45,8 @@ export interface IStorage {
   // Translation management
   getCachedTranslation(originalText: string, language: string, context?: string): Promise<Translation | undefined>;
   addTranslation(translation: InsertTranslation): Promise<Translation>;
+  getKnowledgeSummary(): Promise<KnowledgeSummary | undefined>;
+  saveKnowledgeSummary(content: string): Promise<KnowledgeSummary>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -348,6 +350,34 @@ export class DatabaseStorage implements IStorage {
       .values(translation)
       .returning();
     return result;
+  }
+
+  async getKnowledgeSummary(): Promise<KnowledgeSummary | undefined> {
+    const [summary] = await db
+      .select()
+      .from(knowledgeSummaries)
+      .orderBy(desc(knowledgeSummaries.generatedAt))
+      .limit(1);
+    return summary;
+  }
+
+  async saveKnowledgeSummary(content: string): Promise<KnowledgeSummary> {
+    const existing = await this.getKnowledgeSummary();
+
+    if (existing) {
+      const [updated] = await db
+        .update(knowledgeSummaries)
+        .set({ content, generatedAt: new Date() })
+        .where(eq(knowledgeSummaries.id, existing.id))
+        .returning();
+      return updated;
+    }
+
+    const [created] = await db
+      .insert(knowledgeSummaries)
+      .values({ content })
+      .returning();
+    return created;
   }
 
   async migrateConversationsToSessions(): Promise<void> {
