@@ -267,24 +267,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const aiResponse = await generatePersonalizedResponse(question, currentSessionId);
-
-      // Translate AI response if not in English
-      const translatedResponse = await translateText({
-        text: aiResponse,
-        targetLanguage: language,
-        context: "AI assistant response about personal portfolio and professional experience"
-      });
+      const aiResponse = await generatePersonalizedResponse(question, currentSessionId, language);
 
       // Store the conversation for context in future responses
       await storage.addConversation({
         question,
-        answer: translatedResponse,
+        answer: aiResponse,
         sessionId: currentSessionId,
       });
 
       res.json({
-        answer: translatedResponse,
+        answer: aiResponse,
         sessionId: currentSessionId,
         timestamp: new Date().toISOString(),
         rateLimit: {

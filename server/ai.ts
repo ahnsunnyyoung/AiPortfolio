@@ -5,10 +5,21 @@ import { storage } from "./storage";
 // Set GEMINI_API_KEY (get one at https://aistudio.google.com/apikey).
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: "English",
+  ko: "Korean",
+  de: "German",
+  nl: "Dutch",
+  fr: "French",
+};
 
 const gemini = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
 
-export async function generatePersonalizedResponse(userQuestion: string, sessionId: string): Promise<string> {
+export async function generatePersonalizedResponse(
+  userQuestion: string,
+  sessionId: string,
+  language: string,
+): Promise<string> {
   if (!gemini) {
     throw new Error("AI functionality is not available. Please provide a Gemini API key to enable personalized responses.");
   }
@@ -53,6 +64,7 @@ Skills: ${exp.skills || 'N/A'}
 Website: ${exp.website || 'N/A'}`)
       .join('\n\n');
 
+    const responseLanguage = LANGUAGE_NAMES[language] || language;
     const systemPrompt = `You are Sunyoung Ahn's personalized AI assistant. You have been trained with specific information about Sunyoung and should respond based on this knowledge.
 
 INTRODUCTION:
@@ -76,6 +88,8 @@ Guidelines:
 - When asked about specific projects, provide detailed information including period, technology used, contents, and key features
 - When asked about experiences, include responsibilities, skills used, and achievements
 - Speak in first person as if you are Sunyoung
+- Respond in ${responseLanguage}
+- Preserve names, company names, technology names, dates, and URLs exactly
 - Be warm, professional, and helpful
 - If you don't have specific information to answer a question, be honest about it
 - For project-specific questions, provide comprehensive details from the projects data
